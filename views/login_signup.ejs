@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Sign Up</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="/user/userLogin" method="POST">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+
+    <h1>Sign Up</h1>
+    <form action="/user/addUser" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="mobileNumber">Mobile Number:</label>
+        <input type="text" id="mobileNumber" name="mobileNumber" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+
+        <fieldset>
+            <legend>Address</legend>
+        
+            <label for="doorNo">Door No:</label>
+            <input type="text" id="doorNo" name="address[doorNo]" required>
+            <br>
+            <label for="street">Street:</label>
+            <input type="text" id="street" name="address[street]" required>
+            <br>
+            <label for="landmarks">Landmarks:</label>
+            <input type="text" id="landmarks" name="address[landmarks]">
+            <br>
+            <label for="townCity">Town/City:</label>
+            <input type="text" id="townCity" name="address[townCity]" required>
+            <br>
+            <label for="state">State:</label>
+            <input type="text" id="state" name="address[state]" required>
+            <br>
+            <label for="pincode">Pincode:</label>
+            <input type="text" id="pincode" name="address[pincode]" required>
+        </fieldset>
+        <br>
+        <button type="submit">Sign Up</button>
+    </form>
+</body>
+</html>
