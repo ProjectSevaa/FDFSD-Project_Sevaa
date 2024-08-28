@@ -26,7 +26,7 @@ export const addDonor = async (req, res) => {
             console.log('Donor added successfully');
         }catch(err){
             console.log(err.message);
-            return res.status(400).json({ message: 'Donor already exists / Adding Donor was Unsucessful' });
+            return res.status(400).json({ message: 'Donor already exists (or) Adding Donor was Unsucessful' });
         }
 
 

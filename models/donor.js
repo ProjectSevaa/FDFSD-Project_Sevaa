@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const donorSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true }, 
@@ -13,6 +14,19 @@ const donorSchema = new mongoose.Schema({
     mobileNumber: { type: String, required: true }, 
     email: { type: String, required: true, unique: true }, 
     password: { type: String, required: true },
+});
+
+
+donorSchema.pre('save', async function (next) {
+    const donor = this;
+    if (!donor.isModified('password')) return next();
+    try {
+        const hashedPassword = await bcrypt.hash(donor.password, 10);
+        donor.password = hashedPassword;
+        next();
+    } catch (error) {
+        return next(error);
+    }
 });
 
 export const Donor = mongoose.model("Donor", donorSchema);

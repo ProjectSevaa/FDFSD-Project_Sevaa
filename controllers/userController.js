@@ -8,7 +8,6 @@ app.use(express.json());
 export const addUser = async (req, res) => {
     try {
         const { username, mobileNumber, email, password, address } = req.body;
-        console.log(req.body);
         
         if (!username || !mobileNumber || !email || !password || !address) {
             return res.status(400).json({ message: 'All fields are required' });
