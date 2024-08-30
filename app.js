@@ -1,6 +1,9 @@
 import express from 'express';
 import ejs from 'ejs';
 import path from 'path';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import 'dotenv/config';
 
 import { fileURLToPath } from 'url';
 import { connectDB } from './db/connectDB.js';
@@ -17,6 +20,8 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
+
 
 connectDB();
 

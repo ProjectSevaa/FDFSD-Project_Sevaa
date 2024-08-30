@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import mongoose from "mongoose";
 
 const url = process.env.MONGO_URL || "mongodb://0.0.0.0:27017/SEVaa";

@@ -1,6 +1,8 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import axios from 'axios';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import { User } from '../models/user.js';
 import { Donor } from '../models/donor.js';
@@ -8,6 +10,8 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
+
 
 export const loginUser = async (req, res) => {
     try{
@@ -29,15 +33,25 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
+        const token = jwt.sign({ username: user.username , role : "user" }, process.env.JWT_SECRET_KEY, {
+            expiresIn: '1h'
+        });
+
+        res.cookie('user_jwt', token, {
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'production'
+        });
+
         console.log('Login successful');
-        res.status(200).json({ message: 'Login successful', user });
+
+        res.status(200).redirect('/user/user_homepage');
     }catch(err){
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
-//doent have login page in ejs
 export const loginDonor = async (req, res) => {
     try{
         const { email, password } = req.body;
@@ -56,7 +70,20 @@ export const loginDonor = async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        res.status(200).json({ message: 'Login successful', donor });
+
+        const token = jwt.sign({ username: donor.username , role : "donor" }, process.env.JWT_SECRET_KEY, {
+            expiresIn: '1h'
+        });
+
+        res.cookie('donor_jwt', token, {
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: process.env.NODE_ENV === 'production'
+        });
+
+
+        res.status(200).redirect('/donor/donor_homepage');
+        
     }catch(err){
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
@@ -106,6 +133,27 @@ export const signupDonor = async (req,res) => {
         }
     } catch (error) {
         console.error('Error creating donor:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+export const logoutUser = async (req, res) => {
+    try {
+        res.clearCookie('user_jwt');
+        res.status(200).redirect('/');
+    } catch (error) {
+        console.error('Error logging out:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const logoutDonor = async (req, res) => {
+    try {
+        res.clearCookie('donor_jwt');
+        res.status(200).redirect('/');
+    } catch (error) {
+        console.error('Error logging out:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
