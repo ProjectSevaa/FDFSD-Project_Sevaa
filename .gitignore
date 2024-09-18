@@ -1,5 +1,5 @@
 * text=auto
 /node_modules/
-/project.txt
-.env
+/backend/project.txt
+/backend/.env
 
