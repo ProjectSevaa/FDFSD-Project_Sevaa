@@ -91,7 +91,7 @@ export const loginDonor = async (req, res) => {
 };
 
 const url = process.env.URL;
-export const signupUser = async (req,res) => {
+export const signupUser = async (req, res) => {
     try {
         const userData = {
             username: req.body.username,
@@ -101,10 +101,12 @@ export const signupUser = async (req,res) => {
             address: req.body.address,
         };
 
+
+
         const response = await axios.post(`${url}/user/addUser`, userData);
 
         if (response.status === 201) {
-            res.status(201).json({ message: 'User created successfully', user: response.data.user });
+            res.redirect('/u_login');
         } else {
             res.status(response.status).json({ message: response.data.message });
         }
@@ -113,6 +115,7 @@ export const signupUser = async (req,res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 
 export const signupDonor = async (req,res) => {
     try {
