@@ -9,6 +9,11 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/css/user_homepage.css" />
+    <link rel="stylesheet" href="/css/requests.css" />
+
+    <script src="/js/user_homepage.js"></script>
+    <script src="/js/user_homepage_topRight.js"></script>
+
   </head>
   <body>
     <!-- Navbar -->
@@ -43,20 +48,20 @@
         <!-- Left section: covers half of the page -->
         <div class="col-lg-6 left-section">
           <div class="donor-list">
-            <% donorList.forEach(donorUsername => { %>
-            <div class="donor">
-              <span class="donor-icon"><%= donorUsername.charAt(0) %></span>
-              <!-- Using first letter as icon -->
-              <p class="donor-name"><%= donorUsername %></p>
-            </div>
-            <% }); %>
+              <% donorList.forEach(donorUsername => { %>
+              <div class="donor" onclick="fetchRequests('<%= donorUsername %>')">
+                  <span class="donor-icon"><%= donorUsername.charAt(0) %></span>
+                  <p class="donor-name"><%= donorUsername %></p>
+              </div>
+              <% }); %>
           </div>
-
-          <div class="main-content">
-            <h3>Main Content Area</h3>
-            <p>This is where the main content will be displayed.</p>
+          
+          <div id="main-content" class="main-content">
+              <h3>Chat with a Donor</h3>
+              <p>lorem ipsum</p>
           </div>
-        </div>
+      </div>
+      
 
         <!-- Right section: two equal parts -->
         <div class="col-lg-6 d-flex flex-column">
@@ -75,5 +80,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
   </body>
 </html>
