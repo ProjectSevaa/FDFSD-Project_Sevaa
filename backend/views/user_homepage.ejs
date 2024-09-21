@@ -1,79 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Homepage</title>
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .left-section, .top-right-section, .bottom-right-section {
-      border: 2px solid #ccc;
-      border-radius: 15px;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-    }
-    .left-section {
-      height: 100%;
-    }
-    .top-right-section, .bottom-right-section {
-      height: 50%; /* Each section takes half of the right column */
-    }
-    .row-equal {
-      height: 100vh; /* Full viewport height */
-    }
-
-    .page-container {
-      padding: 20px;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">User Dashboard</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-          <span class="nav-link">Hi, <%= user.username %></span>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/auth/u_logout">Logout</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Page content layout -->
-  <div class="container-fluid">
-    <div class="row row-equal page-container">
-      
-      <!-- Left section: covers half of the page -->
-      <div class="col-lg-6 left-section">
-        <h3>Left Section</h3>
-        <p>This is the left half of the page content.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Homepage</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/user_homepage.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">User Dashboard</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <span class="nav-link">Hi, <%= user.username %></span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/auth/u_logout">Logout</a>
+          </li>
+        </ul>
       </div>
-      
-      <!-- Right section: two equal parts -->
-      <div class="col-lg-6 d-flex flex-column">
-        <div class="top-right-section">
-          <h3>Top Right Section</h3>
-          <p>This is the top-right part of the page content.</p>
+    </nav>
+
+    <!-- Page content layout -->
+    <div class="container-fluid">
+      <div class="row row-equal page-container">
+        <!-- Left section: covers half of the page -->
+        <div class="col-lg-6 left-section">
+          <div class="donor-list">
+            <% donorList.forEach(donorUsername => { %>
+            <div class="donor">
+              <span class="donor-icon"><%= donorUsername.charAt(0) %></span>
+              <!-- Using first letter as icon -->
+              <p class="donor-name"><%= donorUsername %></p>
+            </div>
+            <% }); %>
+          </div>
+
+          <div class="main-content">
+            <h3>Main Content Area</h3>
+            <p>This is where the main content will be displayed.</p>
+          </div>
         </div>
-        <div class="bottom-right-section">
-          <h3>Bottom Right Section</h3>
-          <p>This is the bottom-right part of the page content.</p>
+
+        <!-- Right section: two equal parts -->
+        <div class="col-lg-6 d-flex flex-column">
+          <div class="top-right-section">
+            <h3>Top Right Section</h3>
+            <p>This is the top-right part of the page content.</p>
+          </div>
+          <div class="bottom-right-section">
+            <h3>Bottom Right Section</h3>
+            <p>This is the bottom-right part of the page content.</p>
+          </div>
         </div>
       </div>
-      
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
 </html>

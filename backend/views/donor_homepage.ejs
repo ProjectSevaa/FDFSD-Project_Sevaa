@@ -1,5 +1,25 @@
-<h1>donor homepage</h1>
+<h1>Donor Homepage</h1>
 
-hi <%= donor.username %>
+Hi <%= donor.username %>
 
-<a href="/auth/d_logout">logout</a>
+<form id="requestForm" action="/request/addRequest" method="POST">
+    <div>
+        <label for="donorUsername">Donor Username:</label>
+        <input type="text" id="donorUsername" name="donorUsername" value="<%= donor.username %>" readonly required>
+    </div>
+    <div>
+        <label for="userUsername">User Username:</label>
+        <input type="text" id="userUsername" name="userUsername" required>
+    </div>
+    <div>
+        <label for="location">Location (optional):</label>
+        <input type="text" id="location" name="location">
+    </div>
+    <div>
+        <label for="availableFood">Available Food (comma-separated):</label>
+        <input type="text" id="availableFood" name="availableFood" required>
+    </div>
+    <button type="submit">Submit Request</button>
+</form>
+
+<a href="/auth/d_logout">Logout</a>

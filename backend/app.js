@@ -11,6 +11,7 @@ import { connectDB } from './db/connectDB.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import donorRoutes from './routes/donorRoutes.js';
+import requestRoutes from './routes/requestRoutes.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,6 +44,7 @@ app.get("/d_login" , (req,res) => {
 app.use('/auth' , authRoutes);
 app.use('/user', userRoutes);
 app.use('/donor', donorRoutes);
+app.use('/request' , requestRoutes);
 
 const PORT = process.env.PORT || 9500; 
 app.listen(PORT, () => {

@@ -3,6 +3,8 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.js';
+import { Donor } from '../models/donor.js';
+import { Request } from '../models/request.js';
 const app = express();
 
 
@@ -61,7 +63,7 @@ export const getUserHomePage = async (req, res) => {
                 else resolve(decoded);
             });
         });
-
+        
         const username = decodedToken.username;
 
         const user = await User.findOne({ username });
@@ -71,9 +73,27 @@ export const getUserHomePage = async (req, res) => {
         }
 
 
-        res.render('user_homepage' , { user });
+        // Fetch requests for the specific user
+        const requests = await Request.find({ userUsername: username }).sort({ timestamp: 1 });
+
+        // Create a Map to maintain unique donor usernames and their first request timestamps
+        const donorMap = new Map();
+
+        requests.forEach(req => {
+            if (!donorMap.has(req.donorUsername)) {
+                donorMap.set(req.donorUsername, req.timestamp);
+            }
+        });
+
+        // Convert the Map to an array of unique donor usernames, sorted by their first request timestamp
+        const donorList = Array.from(donorMap.entries())
+            .sort((a, b) => new Date(b[1]) - new Date(a[1])) // Sort by timestamp
+            .map(([donorUsername]) => donorUsername); // Extract the usernames
+
+        res.render('user_homepage', { user, donorList });
     } catch (err) {
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
     }
 }
+

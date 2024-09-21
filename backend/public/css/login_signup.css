@@ -1,0 +1,65 @@
+body {
+    background-color: #121212; /* Dark background */
+    color: #fff; /* Text color */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-container {
+    background-color: #1e1e1e; /* Form background */
+    border-radius: 8px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px; /* Increased width */
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    position: relative; /* Position relative for child elements */
+    z-index: 1; /* Ensure it's above the modal */
+}
+
+.form-control {
+    background-color: #2b2b2b; /* Input field background */
+    border: none;
+    color: #fff; /* Input text color */
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+}
+
+.btn-primary {
+    background-color: #fff;
+    color: #000;
+    border: none;
+    width: 100%;
+    padding: 0.75rem;
+}
+
+.btn-outline-secondary {
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 1px solid #555;
+    width: 100%;
+    padding: 0.75rem;
+}
+
+#passwordSectionLogin,
+#passwordSection,
+#addressSection {
+    display: none;
+}
+
+/* Center modal */
+.modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem); /* Adjust for modal content */
+    margin: auto; /* Center the modal horizontally */
+}
+
+/* Make login card appear to hide behind the signup modal */
+.hidden {
+    opacity: 0.5; /* Dim the login card */
+    pointer-events: none; /* Prevent interaction */
+    z-index: 0; /* Ensure it's behind the modal */
+}
