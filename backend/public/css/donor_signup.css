@@ -1,0 +1,56 @@
+/* General body styling */
+body {
+    background-color: #121212; /* Dark background */
+    color: #fff; /* Text color */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container for both login and signup forms */
+.form-container {
+    background-color: #1e1e1e; /* Form background */
+    border-radius: 8px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px; /* Increased width */
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    position: relative;
+}
+
+/* Form input fields styling */
+.form-control {
+    background-color: #2b2b2b; /* Input field background */
+    border: none;
+    color: #fff; /* Input text color */
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #fff; /* Changed to white */
+    color: #000;
+    border: none;
+    width: 100%;
+    padding: 0.75rem;
+}
+
+.btn-primary:hover {
+    background-color: #f0f0f0; /* Slightly lighter on hover */
+}
+
+/* Modal background color adjustment */
+.modal-content {
+    background-color: #1e1e1e; /* Match card background */
+    border-radius: 8px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7); /* Slightly stronger shadow for pop effect */
+    color: #fff;
+}
+
+/* Close button in the modal */
+.btn-close {
+    filter: invert(100%); /* Invert to make the close button white */
+}
