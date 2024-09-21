@@ -24,7 +24,12 @@ const requestSchema = new mongoose.Schema({
     timestamp: {
         type: Date, 
         default: Date.now 
+    },
+    isAccepted: {
+        type: Boolean,
+        default: false
     }
+
 });
 
 requestSchema.pre('save', async function (next) {

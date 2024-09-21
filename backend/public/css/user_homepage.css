@@ -7,9 +7,15 @@
 .left-section {
     display: flex;
     height: 100%;
+    padding : 0px;
 }
 .top-right-section, .bottom-right-section {
     height: 50%; /* Each section takes half of the right column */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+.top-right-section::-webkit-scrollbar {
+    width: 0; /* Hide vertical scrollbar */
+    background: transparent; /* Optional: make the background transparent */
 }
 .row-equal {
     height: 100vh; /* Full viewport height */
@@ -22,20 +28,34 @@
 
 .main-content {
     flex-grow: 1; /* Takes remaining space */
-    background-color: #dd000088; /* Light background */
+    background-color: #ffffff; /* Light background */
+    /* border: solid 1px #000000; */
     color: #000000; /* Black text */
     padding: 20px;
     border-radius: 0 8px 8px 0;
     height: 100%;
-    width: 100%
+    width: 100%;
+    overflow-y: auto; /* Enable vertical scrolling */
+    display: flex;
+    flex-direction: column; /* Stack requests vertically */
+    justify-content: flex-end; /* Align requests to the bottom */
+
+
 }
 
-
+.request-box {
+    background-color: #ddd; /* Red background for requests */
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
 
 
 .donor-list {
     margin-bottom: 20px;
     background-color: #2f3136; /* Dark background */
+    /* border: solid 1px #000000; */
+
     color: #ffffff; /* White text */
     padding: 20px;
     border-radius: 8px 0 0 8px;
@@ -56,7 +76,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #ccc; /* Placeholder color */
+    background-color: #aaa; /* Placeholder color */
     text-align: center;
     line-height: 40px;
     font-weight: bold;
@@ -66,4 +86,6 @@
 .donor-name {
     margin: 0;
 }
+
+
 
