@@ -1,2 +1,178 @@
-<a href="/u_login">user</a>
-<a href="/d_login">donor</a>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/whoru.css" />
+  <title>Your Website</title>
+</head>
+<body>
+  <div class="header">
+    <img src="company-icon.png" alt="Company Logo" class="company-logo">
+  </div>
+  <div class="main-content">
+    <div class="slideshow-container">
+        <div class="mySlides fade">
+          <img src="/assets/i1.jpg" style="width:60%">
+        </div>
+    
+        <div class="mySlides fade">
+          <img src="/assets/i2.jpg" style="width:60%">
+        </div>
+    
+        <div class="mySlides fade">
+          <img src="../assets/i3.jpg" style="width:60%">
+        </div>
+    
+        <!-- More images from different folders -->
+      </div>
+    <div class="buttons-init">
+        <div class="card shadow">
+      <a href="/u_login" class="button-link">
+     
+<button class="learn-more">
+  <span class="circle" aria-hidden="true">
+  <span class="icon arrow"></span>
+  </span>
+  <span class="button-text">user</span>
+</button>
+      </a>
+      <a href="/d_login" class="button-link">
+        <button class="learn-more">
+          <span class="circle" aria-hidden="true">
+          <span class="icon arrow"></span>
+          </span>
+          <span class="button-text">donor</span>
+        </button></a>
+      </div>
+    </div>    
+  </div>
+  <div class="carousel-container"></div>
+    <div class="carousel">
+      <div class="slide">NGO 1</div>
+      <div class="slide">NGO 2</div>
+      <div class="slide">NGO 3</div>
+      <div class="slide">NGO 4</div>
+      
+    </div>
+  </div>
+
+
+
+  
+<div class="wrapper">
+    <div class="container">
+        <input type="radio" name="slider" id="item-1" checked>
+        <input type="radio" name="slider" id="item-2">
+        <input type="radio" name="slider" id="item-3">
+        <div class="cards">
+            <label class="card_carousel" for="item-1" id="song-1">
+                <img class="img_carousel" src="https://images.unsplash.com/photo-1530651788726-1dbf58eeef1f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=882&q=80"
+                    alt="song">
+            </label>
+            <label class="card_carousel" for="item-2" id="song-2">
+                <img class="img_carousel" src="https://images.unsplash.com/photo-1559386484-97dfc0e15539?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80"
+                    alt="song">
+            </label>
+            <label class="card_carousel" for="item-3" id="song-3">
+                <img class="img_carousel" src="https://images.unsplash.com/photo-1533461502717-83546f485d24?ixlib=rb-1.2.1&auto=format&fit=crop&w=900&q=60"
+                    alt="song">
+            </label>
+        </div>
+    </div>
+</div>
+
+
+  <div class="s3-section">
+  <div class="s3-container">
+    <div class="s3-left-section">
+        
+        <iframe class="frames3" src="https://www.youtube.com/embed/NcCYq3bvlJM" 
+        title="YouTube video player" frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen></iframe>
+            
+    </div>
+    <div class="s3-right-section">
+        <div class="s3-text-content">
+            <h1>Align people and priorities</h1>
+            <p>
+                Collaborate on diagrams in real time or anytime. Create a shared understanding with visual documentation.
+                You can easily align your team, your goals, and ensure seamless workflow to achieve your objectives.
+            </p>
+        </div>
+    </div>
+       </div>
+     
+       <div class="s3-container reverse">
+        <div class="s3-left-section">
+            <video controls class="s3-video-player">
+                <source src="your-video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <div class="s3-right-section">
+            <div class="s3-text-content">
+                <h1>Align people and priorities</h1>
+                <p>
+                    Collaborate on diagrams in real time or anytime. Create a shared understanding with visual documentation.
+                    You can easily align your team, your goals, and ensure seamless workflow to achieve your objectives.
+                </p>
+            </div>
+        </div>
+           </div>
+
+    </div> 
+
+    <div class="s4container">
+        <div class="s4button-container">
+          <button class="s4image-button" onclick="changeImage('/assets/i2.jpg')">Option 1</button>
+          <button class="s4image-button" onclick="changeImage('/assets/i3.jpg')">Option 2</button>
+          <button class="s4image-button" onclick="changeImage('/assets/i1.jpg')">Option 3</button>
+          <!-- Add more buttons as needed -->
+        </div>
+        <div class="s4image-container">
+          <img id="s4main-image" src="image1.jpg" alt="Description of Image" />
+        </div>
+        
+    </div>
+
+    
+
+
+
+</body>
+
+   
+<script>
+    var slideIndex = 0;
+showSlides();
+
+function showSlides() {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+
+  slideIndex++;
+  
+  if (slideIndex > slides.length) { 
+    slideIndex = 1;
+  }
+  
+  slides[slideIndex - 1].style.display = "block";
+  
+  setTimeout(showSlides, 1000); 
+}
+
+function changeImage(imageSource) {
+  const mainImage = document.getElementById('s4main-image');
+  mainImage.src = imageSource;
+}
+
+</script>
+
+</html>
