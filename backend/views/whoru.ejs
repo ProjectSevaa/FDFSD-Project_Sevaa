@@ -48,13 +48,16 @@
       </div>
     </div>    
   </div>
-  <div class="carousel-container"></div>
+  <div class="carousel-container">
     <div class="carousel">
       <div class="slide">NGO 1</div>
       <div class="slide">NGO 2</div>
       <div class="slide">NGO 3</div>
       <div class="slide">NGO 4</div>
-      
+      <div class="slide">NGO 1</div>
+      <div class="slide">NGO 2</div>
+      <div class="slide">NGO 3</div>
+      <div class="slide">NGO 4</div>
     </div>
   </div>
 
@@ -62,6 +65,10 @@
 
   
 <div class="wrapper">
+  <div class="left-text">
+    <h3 class="text-heading" id="left-heading">Heading for Image 1</h3>
+    <p class="text-description" id="left-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus volutpat, justo et bibendum tincidunt, nisl libero cursus ligula, non fermentum eros sapien sit amet nisi.</p>
+</div>
     <div class="container">
         <input type="radio" name="slider" id="item-1" checked>
         <input type="radio" name="slider" id="item-2">
@@ -80,7 +87,12 @@
                     alt="song">
             </label>
         </div>
+        
     </div>
+    <div class="right-text">
+      <h3 class="text-heading" id="right-heading">Heading for Image 1</h3>
+      <p class="text-description" id="right-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus volutpat, justo et bibendum tincidunt, nisl libero cursus ligula, non fermentum eros sapien sit amet nisi.</p>
+  </div>
 </div>
 
 
@@ -133,7 +145,7 @@
           <!-- Add more buttons as needed -->
         </div>
         <div class="s4image-container">
-          <img id="s4main-image" src="image1.jpg" alt="Description of Image" />
+          <img id="s4main-image" src="/assets/i2.jpg" alt="Description of Image" />
         </div>
         
     </div>
@@ -173,6 +185,24 @@ function changeImage(imageSource) {
   mainImage.src = imageSource;
 }
 
+function updateText(heading, description) {
+        document.getElementById("left-heading").innerText = heading;
+        document.getElementById("left-description").innerText = description;
+        document.getElementById("right-heading").innerText = heading;
+        document.getElementById("right-description").innerText = description;
+    }
+
+    document.getElementById("item-1").addEventListener("change", function() {
+        updateText("Image 1 Heading", "This is the description for Image 1.");
+    });
+
+    document.getElementById("item-2").addEventListener("change", function() {
+        updateText("Image 2 Heading", "This is the description for Image 2.");
+    });
+
+    document.getElementById("item-3").addEventListener("change", function() {
+        updateText("Image 3 Heading", "This is the description for Image 3.");
+    });
 </script>
 
 </html>
