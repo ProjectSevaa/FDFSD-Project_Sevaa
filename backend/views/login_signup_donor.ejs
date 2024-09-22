@@ -36,7 +36,7 @@
                         </div>
                     </form>
                     
-                    <p class="mt-3">Don't have an account? <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#signupModal" id="openSignupModal">Sign up</button>.</p>
+                    <p class="mt-3">Don't have an account? <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#signupModal" id="openSignupModal">Sign up</button></p>
                 </div>
             </div>
         </div>
@@ -58,25 +58,26 @@
                                 <input type="text" id="username" name="username" class="form-control" required>
                             </div>
                             <div class="mb-3">
-                                <label for="mobileNumber" class="form-label">Mobile Number:</label>
-                                <input type="text" id="mobileNumber" name="mobileNumber" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
                                 <label for="emailSignup" class="form-label">Email:</label>
                                 <input type="email" id="emailSignup" name="email" class="form-control" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="mobileNumber" class="form-label">Mobile Number:</label>
+                                <input type="text" id="mobileNumber" name="mobileNumber" class="form-control" required>
+                            </div>
                             <button type="button" class="btn btn-primary" id="nextToPassword">Next</button>
                         </div>
-                        <div id="passwordSection">
+                        
+                        <!-- Password Section (Initially hidden) -->
+                        <div id="passwordSection" style="display: none;">
                             <div class="mb-3">
                                 <label for="passwordSignup" class="form-label">Password:</label>
                                 <input type="password" id="passwordSignup" name="password" class="form-control" required>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" id="nextToAddress">Next</button>
-                            </div>
+                            <button type="button" class="btn btn-primary" id="nextToAddress">Next</button>
                         </div>
+                        
+                        <!-- Address Section (Initially hidden) -->
                         <div id="addressSection" style="display: none;">
                             <fieldset class="border p-3 mb-3">
                                 <legend class="w-auto">Address</legend>
@@ -105,10 +106,7 @@
                                     <input type="text" id="pincode" name="address[pincode]" class="form-control" required>
                                 </div>
                             </fieldset>
-                            <div class="d-flex justify-content-between">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="width: 48%;">Cancel</button>
-                                <button type="submit" class="btn btn-primary" style="width: 48%;">Sign Up</button>
-                            </div>
+                            <button type="submit" class="btn btn-primary">Sign Up</button>
                         </div>
                     </form>
                 </div>
@@ -135,12 +133,6 @@
                 }
             });
 
-            const cancelBtnLogin = document.querySelector("#passwordSectionLogin .btn-outline-secondary");
-            cancelBtnLogin.addEventListener("click", () => {
-                passwordSectionLogin.style.display = "none";
-                emailSectionLogin.style.display = "block";
-            });
-
             // Sign-Up Section
             const nextToPasswordBtn = document.getElementById("nextToPassword");
             const usernameSection = document.getElementById("usernameSection");
@@ -149,8 +141,11 @@
 
             nextToPasswordBtn.addEventListener("click", () => {
                 const usernameInput = document.getElementById("username");
-                if (usernameInput.value.trim() === "") {
-                    alert("Please enter your username.");
+                const emailInput = document.getElementById("emailSignup");
+                const mobileNumberInput = document.getElementById("mobileNumber");
+                
+                if (usernameInput.value.trim() === "" || emailInput.value.trim() === "" || mobileNumberInput.value.trim() === "") {
+                    alert("Please fill all required fields.");
                 } else {
                     usernameSection.style.display = "none";
                     passwordSection.style.display = "block";
@@ -168,18 +163,15 @@
                 }
             });
 
-            // Reset Forms Function
-            function resetForms() {
-                // Reset Login Form
-                emailSectionLogin.style.display = "block";
-                passwordSectionLogin.style.display = "none";
-                document.getElementById("emailLogin").value = "";
-                document.getElementById("passwordLogin").value = "";
+            // Reset forms on modal close
+            const signupModal = document.getElementById("signupModal");
+            signupModal.addEventListener("hidden.bs.modal", resetForms);
 
-                // Reset Sign Up Form
+            function resetForms() {
                 usernameSection.style.display = "block";
                 passwordSection.style.display = "none";
                 addressSection.style.display = "none";
+
                 document.getElementById("username").value = "";
                 document.getElementById("emailSignup").value = "";
                 document.getElementById("mobileNumber").value = "";
@@ -191,10 +183,6 @@
                 document.getElementById("state").value = "";
                 document.getElementById("pincode").value = "";
             }
-
-            // Reset Forms when Modal is Closed
-            const signupModal = document.getElementById("signupModal");
-            signupModal.addEventListener("hidden.bs.modal", resetForms);
         });
     </script>
 </body>

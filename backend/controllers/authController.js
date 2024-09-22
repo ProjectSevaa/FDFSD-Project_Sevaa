@@ -130,7 +130,7 @@ export const signupDonor = async (req,res) => {
         const response = await axios.post(`${url}/donor/addDonor`, donorData);
 
         if (response.status === 201) {
-            res.status(201).json({ message: 'donor created successfully', donor: response.data.donor });
+            res.redirect('/d_login');
         } else {
             res.status(response.status).json({ message: response.data.message });
         }
