@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 export const addRequest = async (req, res) => {
     try {
-        const { donorUsername, userUsername, location, availableFood } = req.body;
+        const { donorUsername, userUsername, location, availableFood, post_id } = req.body;
 
         console.log(req.body);
 
@@ -35,24 +35,36 @@ export const addRequest = async (req, res) => {
             return res.status(400).json({ message: `User with username ${userUsername} does not exist` });
         }
 
+        // Check if the request already exists
+        const requestExists = await Request.exists({
+            donorUsername,
+            userUsername,
+            post_id // Check if there's already a request with the same donor, user, and post ID
+        });
+
+        if (requestExists) {
+            return res.status(201).json({ message: 'Request already exists' });
+        }
+
         // Create a new request
         const newRequest = new Request({
             donorUsername,
             userUsername,
             location,
-            availableFood
+            availableFood,
+            post_id // Include post_id only if it's provided
         });
 
         await newRequest.save();
 
         res.status(201).json({ message: 'Request created successfully', request: newRequest });
 
-        
     } catch (err) {
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 
 export const getRequests = async (req, res) => {

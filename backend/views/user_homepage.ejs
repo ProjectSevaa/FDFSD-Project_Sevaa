@@ -1,85 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Homepage</title>
-    <link
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/user_homepage.css" />
     <link rel="stylesheet" href="/css/requests.css" />
-
+    <link rel="stylesheet" href="/css/user_homepage_posts.css">
     <script src="/js/user_homepage.js"></script>
     <script src="/js/user_homepage_topRight.js"></script>
-
-  </head>
-  <body>
+    <script src="/js/user_homepage_posts.js"></script>
+   
+</head>
+<body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">User Dashboard</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item">
-            <span class="nav-link">Hi, <%= user.username %></span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/auth/u_logout">Logout</a>
-          </li>
-        </ul>
-      </div>
+        <a class="navbar-brand" href="#">User Dashboard</a>
+        <a class="navbar-brand" href="#" onclick="showPosts(event)">Posts</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <span class="nav-link">Hi, <%= user.username %></span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/u_logout">Logout</a>
+                </li>
+            </ul>
+        </div>
     </nav>
 
     <!-- Page content layout -->
     <div class="container-fluid">
-      <div class="row row-equal page-container">
-        <!-- Left section: covers half of the page -->
-        <div class="col-lg-6 left-section">
-          <div class="donor-list">
-              <% donorList.forEach(donorUsername => { %>
-              <div class="donor" onclick="fetchRequests('<%= donorUsername %>')">
-                  <span class="donor-icon"><%= donorUsername.charAt(0) %></span>
-                  <p class="donor-name"><%= donorUsername %></p>
-              </div>
-              <% }); %>
-          </div>
-          
-          <div id="main-content" class="main-content">
-              <h3>Chat with a Donor</h3>
-              <p>lorem ipsum</p>
-          </div>
-      </div>
-      
+        <div class="row row-equal page-container">
+            <!-- Left section: covers half of the page -->
+            <div class="col-lg-6 left-section">
+                <div class="donor-list">
+                    <% donorList.forEach(donorUsername => { %>
+                    <div class="donor" onclick="fetchRequests('<%= donorUsername %>')">
+                        <span class="donor-icon"><%= donorUsername.charAt(0) %></span>
+                        <p class="donor-name"><%= donorUsername %></p>
+                    </div>
+                    <% }); %>
+                </div>
 
-        <!-- Right section: two equal parts -->
-        <div class="col-lg-6 d-flex flex-column">
-          <div class="top-right-section">
-            <h3>Top Right Section</h3>
-            <p>This is the top-right part of the page content.</p>
-          </div>
-          <div class="bottom-right-section">
-            <h3>Bottom Right Section</h3>
-            <p>This is the bottom-right part of the page content.</p>
-          </div>
+                <div id="main-content" class="main-content">
+                    <h3>Chat with a Donor</h3>
+                    <p>lorem ipsum</p>
+                </div>
+            </div>
+
+            <!-- Right section: two equal parts -->
+            <div class="col-lg-6 d-flex flex-column">
+                <div class="top-right-section">
+                    <h3>Top Right Section</h3>
+                    <p>This is the top-right part of the page content.</p>
+                </div>
+                <div class="bottom-right-section">
+                    <h3>Bottom Right Section</h3>
+                    <p>This is the bottom-right part of the page content.</p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
+
+    <!-- Posts Section -->
+    <div id="posts-section">
+      <h3>All Posts</h3>
+      <div>
+          <button onclick="filterPosts('all')" class="btn btn-info">All Deals</button>
+          <button onclick="filterPosts('active')" class="btn btn-success">Active Deals</button>
+          <button onclick="filterPosts('closed')" class="btn btn-danger">Closed Deals</button>
+      </div>
+      <div id="posts-list">
+          <!-- Posts will be dynamically loaded here -->
+      </div>
+      <button onclick="hidePosts()" class="btn btn-secondary">Close</button>
+  </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-  </body>
+    
+</body>
 </html>

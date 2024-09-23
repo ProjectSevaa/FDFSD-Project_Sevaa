@@ -1,10 +1,11 @@
 import 'dotenv/config';
 import express from 'express';
+import axios from 'axios';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.js';
-import { Donor } from '../models/donor.js';
 import { Request } from '../models/request.js';
+import { Post } from '../models/post.js';
 const app = express();
 
 
@@ -97,3 +98,47 @@ export const getUserHomePage = async (req, res) => {
     }
 }
 
+
+export const sendRequest = async (req, res) => {
+    try {
+        const token = req.cookies.user_jwt;
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        const username = decodedToken.username;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const { post_id } = req.body;
+        const post = await Post.findById(post_id);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const requestData = {
+            donorUsername: post.donorUsername,
+            userUsername: username,
+            location: post.location,
+            availableFood: post.availableFood,
+            post_id: post._id
+        };
+
+        const url = process.env.URL; 
+        const response = await axios.post(`${url}/request/addRequest`, requestData);
+        res.status(response.status).json({ message: 'Request sent successfully', request: response.data });
+
+    } catch (error) {
+        console.error('Error in sendRequest:', error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

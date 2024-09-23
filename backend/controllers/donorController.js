@@ -1,11 +1,13 @@
 import 'dotenv/config';
 import express from 'express';
+import axios from 'axios';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import { Donor } from '../models/donor.js';
 const app = express();
 
 
+const url = process.env.URL;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -66,8 +68,16 @@ export const getDonorHomePage = async (req, res) => {
         if (!donor) {
             return res.status(404).json({ success: false, message: 'Donor not found' });
         }
+        
 
-        res.render('donor_homepage' , { donor });
+        const response = await axios.get(`${url}/post/getPosts`, {
+            params: { donorUsername: username }
+        });
+        
+        const postsList = response.data;
+
+
+        res.render('donor_homepage' , { donor , postsList });
     } catch (err) {
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
