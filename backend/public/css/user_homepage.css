@@ -23,6 +23,8 @@
 
 .page-container {
     padding: 20px;
+    height: calc(100vh - 70px); /* Adjust based on the height of your navbar */
+    display: flex;
 }
 
 
@@ -38,9 +40,14 @@
     overflow-y: auto; /* Enable vertical scrolling */
     display: flex;
     flex-direction: column; /* Stack requests vertically */
-    justify-content: flex-end; /* Align requests to the bottom */
+    justify-content: flex-start; /* Align requests to the bottom */
 
 
+}
+
+.main-content::-webkit-scrollbar {
+    width: 0; /* Hide vertical scrollbar */
+    background: transparent; /* Optional: make the background transparent */
 }
 
 .request-box {

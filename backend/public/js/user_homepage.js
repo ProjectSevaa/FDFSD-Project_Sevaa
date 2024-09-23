@@ -16,10 +16,18 @@ async function fetchRequests(donorUsername) {
             // Iterate over requests and add them to the main content
             data.requests.forEach(request => {
                 const foodItems = request.availableFood.join(', '); // Join array items into a string
-                const statusMessage = request.isAccepted ? 
-                    'You\'ve got a Deal!' : 
-                    'Pending request, waiting to be accepted by donor';
+                
+                // Determine the status message based on isAccepted and isRejected flags
+                let statusMessage;
+                if (request.isRejected) {
+                    statusMessage = "Your request has been rejected";
+                } else if (request.isAccepted) {
+                    statusMessage = "You've got a Deal!";
+                } else {
+                    statusMessage = "Pending request, waiting to be accepted by donor";
+                }
 
+                // Display the request details
                 mainContent.innerHTML += `
                     <div class="request-box">
                         <p>Available Food: ${foodItems} ${request.isAccepted ? '✔️' : ''}</p>

@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { User } from '../models/user.js';
 import { Donor } from '../models/donor.js';
 import { Request } from '../models/request.js';
+import { Post } from '../models/post.js';
 const app = express();
 
 
@@ -100,17 +101,41 @@ export const getRequests = async (req, res) => {
 
 export const acceptRequest = async (req, res) => {
     try {
-        const requestId = req.params.id;
-        const updatedRequest = await Request.findByIdAndUpdate(
-            requestId, 
-            { isAccepted: true }, 
-            { new: true }
-        );
-        res.json(updatedRequest);
+      const requestId = req.params.id;
+  
+      // Find the request that is being accepted
+      const acceptedRequest = await Request.findById(requestId);
+  
+      if (!acceptedRequest) {
+        return res.status(404).json({ message: 'Request not found' });
+      }
+  
+      const postId = acceptedRequest.post_id;
+  
+      // Set isAccepted to true for the accepted request
+      const updatedRequest = await Request.findByIdAndUpdate(
+        requestId,
+        { isAccepted: true },
+        { new: true }
+      );
+  
+      // Set isRejected to true for all other requests with the same post_id
+      await Request.updateMany(
+        { post_id: postId, _id: { $ne: requestId } }, // Exclude the accepted request
+        { isRejected: true }
+      );
+  
+      // Update the post to set isDealClosed to true
+      await Post.findByIdAndUpdate(postId, { isDealClosed: true });
+  
+      // Respond with the updated request
+      res.json(updatedRequest);
     } catch (error) {
-        res.status(500).json({ message: 'Error accepting request', error });
+      console.error('Error accepting request:', error);
+      res.status(500).json({ message: 'Error accepting request', error });
     }
-}
+  };
+  
 
 
 export const cancelRequest = async (req, res) => {
@@ -160,3 +185,39 @@ export const getAcceptedRequests = async (req, res) => {
         res.status(500).json({ message: 'Error fetching accepted requests', error });
     }
 };
+
+
+export const getRequestsForPost = async (req, res) => {
+    try {
+      // Get token from cookies and verify it
+      const token = req.cookies.donor_jwt;
+      if (!token) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+  
+      // Verify and decode the JWT to get the donor's username
+      const decodedToken = await new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+          if (err) reject(err);
+          else resolve(decoded);
+        });
+      });
+  
+      const donorUsername = decodedToken.username;
+      const { postId } = req.query;  // Extract postId from query parameters
+  
+      // Fetch all requests where donorUsername and postId match
+      const requests = await Request.find({ donorUsername, post_id : postId });
+  
+      if (!requests) {
+        return res.status(404).json({ success: false, message: 'No requests found.' });
+      }
+  
+      // Return the list of requests
+      res.json({ success: true, requests });
+  
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
+  };

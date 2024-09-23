@@ -34,7 +34,12 @@ const requestSchema = new mongoose.Schema({
     isAccepted: {
         type: Boolean,
         default: false
+    },
+    isRejected: {
+        type: Boolean,
+        default: false
     }
+
 
 });
 

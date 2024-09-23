@@ -42,20 +42,26 @@ let allPosts = []; // Store all fetched posts
                 posts.forEach(post => {
                     const postDiv = document.createElement('div');
                     postDiv.className = 'post mb-2';
+                    
+                    // Create post content with or without button depending on the deal status
                     postDiv.innerHTML = `
                         <p><strong>Donor:</strong> ${post.donorUsername || 'Unknown'}</p>
                         <p><strong>Location:</strong> ${post.location || 'Not specified'}</p>
                         <p><strong>Available Food:</strong> ${post.availableFood.join(', ') || 'None'}</p>
                         <p><strong>Timestamp:</strong> ${new Date(post.timestamp).toLocaleString()}</p>
                         <p><strong>Deal Closed:</strong> ${post.isDealClosed ? 'Yes' : 'No'}</p>
-                        <button class="btn btn-primary" onclick="sendRequest('${post._id}')">Send Request</button>
+                        ${post.isDealClosed 
+                            ? '<p><strong>Status:</strong> Deal Closed</p>' 
+                            : `<button class="btn btn-primary" onclick="sendRequest('${post._id}')">Send Request</button>`}
                     `;
+                    
                     postsList.appendChild(postDiv);
                 });
             } else {
                 postsList.innerHTML = '<p>No posts found.</p>';
             }
         }
+        
         
 
         function sendRequest(postId) {
