@@ -3,123 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery Boy Assignment</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        .delivery-boy, .user {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            padding: 15px;
-        }
-
-        .delivery-boy h3, .user h3 {
-            margin-top: 0;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .btn:disabled {
-            background-color: #ccc;
-        }
-    </style>
+    <title>Add Delivery Boy</title>
 </head>
 <body>
+    <h1>Add Delivery Boy</h1>
 
-<div class="container">
-    <h1>Assign Delivery Boy</h1>
+    <form id="deliveryBoyForm">
+        <!-- Delivery Boy Name -->
+        <label for="deliveryBoyName">Delivery Boy Name:</label><br>
+        <input type="text" id="deliveryBoyName" name="deliveryBoyName" required><br><br>
 
-    <!-- Section to display delivery boys -->
-    <div id="delivery-boys-section">
-        <h2>Available Delivery Boys</h2>
-        <div id="delivery-boys-list">
-            <% deliveryBoys.forEach(boy => { %>
-                <div class="delivery-boy">
-                    <h3><%= boy.name %></h3>
-                    <p><strong>Location:</strong> <%= boy.address.townCity %></p>
-                    <p><strong>Vehicle No:</strong> <%= boy.vehicleNo %></p>
-                    <p><strong>Driving License No:</strong> <%= boy.drivingLicenseNo %></p>
-                    <p><strong>Mobile:</strong> <%= boy.mobileNumber %></p>
-                    <button class="btn" onclick="fetchNearbyUsers('<%= boy.address.townCity %>', '<%= boy._id %>')">View Nearby Users</button>
-                </div>
-            <% }) %>
-        </div>
-    </div>
+        <!-- Mobile Number -->
+        <label for="mobileNumber">Mobile Number:</label><br>
+        <input type="tel" id="mobileNumber" name="mobileNumber" pattern="[0-9]{10}" required><br><br>
 
-    <hr>
+        <!-- Vehicle Number -->
+        <label for="vehicleNo">Vehicle Number:</label><br>
+        <input type="text" id="vehicleNo" name="vehicleNo" required><br><br>
 
-    <!-- Section to display users near delivery boys -->
-    <div id="nearby-users-section" style="display: none;">
-        <h2>Nearby Users</h2>
-        <div id="users-list">
-            <!-- Users will be dynamically added here -->
-        </div>
-    </div>
-</div>
+        <!-- Driving License Number -->
+        <label for="drivingLicenseNo">Driving License Number:</label><br>
+        <input type="text" id="drivingLicenseNo" name="drivingLicenseNo" required><br><br>
 
-<script>
-    // Function to fetch and render nearby users for a delivery boy
-    function fetchNearbyUsers(location, deliveryBoyId) {
-        // Here, you would call your backend to fetch users near the delivery boy's location
-        // For now, we're using mock data.
-        const nearbyUsers = [
-            { id: '101', username: 'User A', address: 'Street 1, ' + location, mobile: '9876543210' },
-            { id: '102', username: 'User B', address: 'Street 2, ' + location, mobile: '8765432109' }
-        ];
+        <!-- Coordinates -->
+        <h3>Current Location (Coordinates)</h3>
+        <label for="longitude">Longitude:</label><br>
+        <input type="number" step="any" id="longitude" name="longitude" required><br><br>
 
-        const usersList = document.getElementById('users-list');
-        usersList.innerHTML = ''; // Clear previous content
+        <label for="latitude">Latitude:</label><br>
+        <input type="number" step="any" id="latitude" name="latitude" required><br><br>
 
-        nearbyUsers.forEach(user => {
-            const userDiv = document.createElement('div');
-            userDiv.className = 'user';
-            userDiv.innerHTML = `
-                <h3>${user.username}</h3>
-                <p><strong>Address:</strong> ${user.address}</p>
-                <p><strong>Mobile:</strong> ${user.mobile}</p>
-                <button class="btn" onclick="assignDelivery('${user.id}', '${deliveryBoyId}')">Assign Delivery</button>
-            `;
-            usersList.appendChild(userDiv);
+        <!-- Submit Button -->
+        <button type="submit">Add Delivery Boy</button>
+    </form>
+
+    <button id="getLocationButton">Get Current Location</button>
+
+    <script>
+        // Function to get the current location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Set the latitude and longitude inputs
+                    document.getElementById('latitude').value = latitude;
+                    document.getElementById('longitude').value = longitude;
+                }, () => {
+                    alert("Unable to retrieve your location.");
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Add event listener to the button
+        document.getElementById('getLocationButton').addEventListener('click', getCurrentLocation);
+
+        document.getElementById('deliveryBoyForm').addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent form from submitting the default way
+
+            const formData = {
+                deliveryBoyName: document.getElementById('deliveryBoyName').value,
+                mobileNumber: document.getElementById('mobileNumber').value,
+                vehicleNo: document.getElementById('vehicleNo').value,
+                drivingLicenseNo: document.getElementById('drivingLicenseNo').value,
+                currentlocation: {
+                    type: 'Point',
+                    coordinates: [
+                        parseFloat(document.getElementById('longitude').value),
+                        parseFloat(document.getElementById('latitude').value)
+                    ]
+                }
+            };
+
+            try {
+                // First, add the delivery boy
+                const response = await fetch('http://localhost:9500/deliveryboy/addDeliveryboy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // If successful, fetch nearby users
+                    const deliveryBoyId = data.deliveryBoy._id; // Get the ID of the added delivery boy
+                    const nearbyUsersResponse = await fetch(`http://localhost:9500/deliveryboy/deliveryboy/${deliveryBoyId}/nearby-users`);
+                    const nearbyUsersData = await nearbyUsersResponse.json();
+
+                    if (nearbyUsersResponse.ok) {
+                        // Show nearby users in a popup or dropdown
+                        showNearbyUsers(nearbyUsersData.users);
+                    } else {
+                        alert(`Failed to fetch nearby users: ${nearbyUsersData.message}`);
+                    }
+                } else {
+                    alert(`Failed to add delivery boy: ${data.message}`);
+                }
+            } catch (error) {
+                alert('Error submitting the form');
+            }
         });
 
-        document.getElementById('nearby-users-section').style.display = 'block';
-    }
-
-    // Function to assign delivery (simulates backend request)
-    function assignDelivery(userId, deliveryBoyId) {
-        console.log(`Assigning Delivery Boy ID ${deliveryBoyId} to User ID ${userId}`);
-        alert(`Delivery assigned to user ID: ${userId}`);
-    }
-</script>
-
+        function showNearbyUsers(users) {
+            const userSelection = document.createElement('div');
+            userSelection.innerHTML = '<h2>Select User to Work Under:</h2>';
+            
+            users.forEach(user => {
+                const userOption = document.createElement('div');
+                userOption.innerText = `Name: ${user.name}, Mobile: ${user.mobileNumber}`;
+                userOption.onclick = () => {
+                    document.getElementById('worksUnder').value = user._id; // Set the worksUnder field
+                    userSelection.remove(); // Close the popup after selection
+                };
+                userSelection.appendChild(userOption);
+            });
+            
+            document.body.appendChild(userSelection);
+        }
+    </script>
 </body>
 </html>

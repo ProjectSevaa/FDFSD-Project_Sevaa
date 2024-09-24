@@ -1,11 +1,20 @@
 import express from 'express';
-import { addDeliveryboy, getDeliveryBoyHomepage, getDeliveryBoysByUser, getAllDeliveryBoys} from "../controllers/deliveryboyController.js";
+import { 
+    addDeliveryBoy,        // Corrected method name to match the controller
+    getDeliveryBoyPage, 
+    getDeliveryBoysByUser, 
+    findNearbyUsers,
+    getAllDeliveryBoys 
+} from "../controllers/deliveryboyController.js";
 
 const router = express.Router();
 
-router.post('/addDeliveryboy', addDeliveryboy);
+router.post('/addDeliveryboy', addDeliveryBoy);
 
-router.get('/deliveryboyPage', getDeliveryBoyHomepage);
+router.post('/deliveryboy', addDeliveryBoy);
+router.get('/deliveryboy/:deliveryBoyId/nearby-users', findNearbyUsers);
+
+router.get('/deliveryboyPage', getDeliveryBoyPage);
 router.get('/deliveryboys/user/:userId', getDeliveryBoysByUser);
 router.get('/deliveryboys', getAllDeliveryBoys);
 

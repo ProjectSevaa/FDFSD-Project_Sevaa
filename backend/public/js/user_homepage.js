@@ -89,6 +89,26 @@ async function fetchRequests(donorUsername) {
 }
 
 
+function showChat(event) {
+    event.preventDefault(); // Prevent the default anchor behavior
+    
+    const mainContent = document.getElementById('main-content');
+    const accountsContainer = document.querySelector('.accounts-container');
+    // Clear main content before displaying chat
+    mainContent.innerHTML = ''; 
+
+    // Create chat HTML
+    const chatHTML = `
+        <h3>Chat with a Donor</h3>
+        <p>Start your conversation here...</p>
+    `;
+     // Show the accounts container again
+    accountsContainer.style.display = 'block';
+    // Set mainContent to display chat
+    mainContent.innerHTML = chatHTML; 
+}
+
+
 // async function acceptRequest(requestId , donorUsername) {
 //     try {
 //         const response = await fetch(`/request/acceptRequest/${requestId}`, {

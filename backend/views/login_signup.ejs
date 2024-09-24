@@ -100,6 +100,14 @@
                                     <label for="pincode" class="form-label">Pincode</label>
                                     <input type="text" id="pincode" name="address[pincode]" class="form-control" required />
                                 </div>
+                                <div class="mb-3">
+                                    <label for="longitude" class="form-label">Longitude</label>
+                                    <input type="number" id="longitude" name="address[coordinates][0]" class="form-control" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="latitude" class="form-label">Latitude</label>
+                                    <input type="number" id="latitude" name="address[coordinates][1]" class="form-control" required />
+                                </div>
                             </fieldset>
                             <div class="d-flex justify-content-between">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="width: 48%">Cancel</button>

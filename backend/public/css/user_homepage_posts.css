@@ -12,6 +12,7 @@
     overflow-y: auto; /* Allow scrolling */
     padding: 20px;
 }
+
 #posts-list {
     background-color: #fff; /* Light background for contrast */
     color: #000; /* Black text for readability */
@@ -20,6 +21,19 @@
     max-height: 80vh; /* Set max height for scrolling */
     overflow-y: auto; /* Allow vertical scrolling */
 }
+
+/* Hide the scrollbar */
+#posts-list::-webkit-scrollbar {
+    width: 0; /* Hide vertical scrollbar */
+    background: transparent; /* Optional: make the background transparent */
+}
+
+/* Optional: Hiding scrollbar in Firefox */
+#posts-list {
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Style for posts */
 .post {
     background-color: #f8f9fa; /* Light grey background for posts */
     border: 1px solid #ced4da; /* Border color */
@@ -27,6 +41,7 @@
     padding: 15px;
     margin-bottom: 10px;
 }
+
 .post p {
     margin: 0; /* Remove default margins */
 }

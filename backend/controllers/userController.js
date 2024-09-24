@@ -49,6 +49,40 @@ export const addUser = async (req, res) => {
     }
 };
 
+export const updateUser = async (req, res) => {
+    const { userId } = req.params; // Get userId from the URL parameters
+    const { address } = req.body; // Address is expected in the request body
+
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update address if provided
+        if (address) {
+            const { coordinates } = address;
+            if (coordinates && coordinates.length === 2) {
+                user.address = {
+                    ...user.address,
+                    ...address,
+                    coordinates: {
+                        type: 'Point',
+                        coordinates: [coordinates[0], coordinates[1]] // Ensure coordinates are in the correct order
+                    }
+                };
+            }
+        }
+
+        await user.save(); // Save the updated user
+        res.status(200).json({ message: 'User updated successfully', user });
+    } catch (err) {
+        console.log(err.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 
 export const getUserHomePage = async (req, res) => {
     try {

@@ -11,8 +11,8 @@ const userSchema = new mongoose.Schema({
         state: { type: String, required: true },
         pincode: { type: String, required: true },
         coordinates: {
-            type: { type: String, default: 'Point' }, // GeoJSON Point
-            coordinates: { type: [Number], required: true } // [longitude, latitude]
+            type: { type: String, default: 'Point' }, 
+            coordinates: { type: [Number], required: true } // Longitude and Latitude
         }
     },
     mobileNumber: { type: String, required: true },
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
 });
 
-
+// Pre-save middleware to hash the password
 userSchema.pre('save', async function (next) {
     const user = this;
     if (!user.isModified('password')) return next();
@@ -32,6 +32,5 @@ userSchema.pre('save', async function (next) {
         return next(error);
     }
 });
-
 
 export const User = mongoose.model("User", userSchema);
