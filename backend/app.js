@@ -13,6 +13,7 @@ import userRoutes from './routes/userRoutes.js';
 import donorRoutes from './routes/donorRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import postRoutes from './routes/postRoutes.js';
+import deliveryboyRoutes from './routes/deliveryboyRoutes.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -47,6 +48,7 @@ app.use('/user', userRoutes);
 app.use('/donor', donorRoutes);
 app.use('/request' , requestRoutes);
 app.use('/post', postRoutes);
+app.use('/deliveryboy', deliveryboyRoutes);
 
 const PORT = process.env.PORT || 9500; 
 app.listen(PORT, () => {

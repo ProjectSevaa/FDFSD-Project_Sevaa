@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Boy Assignment</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .delivery-boy, .user {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+
+        .delivery-boy h3, .user h3 {
+            margin-top: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Assign Delivery Boy</h1>
+
+    <!-- Section to display delivery boys -->
+    <div id="delivery-boys-section">
+        <h2>Available Delivery Boys</h2>
+        <div id="delivery-boys-list">
+            <% deliveryBoys.forEach(boy => { %>
+                <div class="delivery-boy">
+                    <h3><%= boy.name %></h3>
+                    <p><strong>Location:</strong> <%= boy.address.townCity %></p>
+                    <p><strong>Vehicle No:</strong> <%= boy.vehicleNo %></p>
+                    <p><strong>Driving License No:</strong> <%= boy.drivingLicenseNo %></p>
+                    <p><strong>Mobile:</strong> <%= boy.mobileNumber %></p>
+                    <button class="btn" onclick="fetchNearbyUsers('<%= boy.address.townCity %>', '<%= boy._id %>')">View Nearby Users</button>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Section to display users near delivery boys -->
+    <div id="nearby-users-section" style="display: none;">
+        <h2>Nearby Users</h2>
+        <div id="users-list">
+            <!-- Users will be dynamically added here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to fetch and render nearby users for a delivery boy
+    function fetchNearbyUsers(location, deliveryBoyId) {
+        // Here, you would call your backend to fetch users near the delivery boy's location
+        // For now, we're using mock data.
+        const nearbyUsers = [
+            { id: '101', username: 'User A', address: 'Street 1, ' + location, mobile: '9876543210' },
+            { id: '102', username: 'User B', address: 'Street 2, ' + location, mobile: '8765432109' }
+        ];
+
+        const usersList = document.getElementById('users-list');
+        usersList.innerHTML = ''; // Clear previous content
+
+        nearbyUsers.forEach(user => {
+            const userDiv = document.createElement('div');
+            userDiv.className = 'user';
+            userDiv.innerHTML = `
+                <h3>${user.username}</h3>
+                <p><strong>Address:</strong> ${user.address}</p>
+                <p><strong>Mobile:</strong> ${user.mobile}</p>
+                <button class="btn" onclick="assignDelivery('${user.id}', '${deliveryBoyId}')">Assign Delivery</button>
+            `;
+            usersList.appendChild(userDiv);
+        });
+
+        document.getElementById('nearby-users-section').style.display = 'block';
+    }
+
+    // Function to assign delivery (simulates backend request)
+    function assignDelivery(userId, deliveryBoyId) {
+        console.log(`Assigning Delivery Boy ID ${deliveryBoyId} to User ID ${userId}`);
+        alert(`Delivery assigned to user ID: ${userId}`);
+    }
+</script>
+
+</body>
+</html>
