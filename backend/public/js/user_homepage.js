@@ -16,26 +16,44 @@ async function fetchRequests(donorUsername) {
             // Iterate over requests and add them to the main content
             data.requests.forEach(request => {
                 const foodItems = request.availableFood.join(', '); // Join array items into a string
-                
+            
                 // Determine the status message based on isAccepted and isRejected flags
                 let statusMessage;
+                let statusColor; // Add color for the status button
                 if (request.isRejected) {
                     statusMessage = "Your request has been rejected";
+                    statusColor = "bg-red-600 hover:bg-red-500";
                 } else if (request.isAccepted) {
                     statusMessage = "You've got a Deal!";
+                    statusColor = "bg-green-600 hover:bg-green-500";
                 } else {
                     statusMessage = "Pending request, waiting to be accepted by donor";
+                    statusColor = "bg-yellow-600 hover:bg-yellow-500";
                 }
-
-                // Display the request details
+            
+                // Display the request details using the Meraki UI component
                 mainContent.innerHTML += `
-                    <div class="request-box">
-                        <p>Available Food: ${foodItems} ${request.isAccepted ? '✔️' : ''}</p>
-                        ${request.location ? `<p>Location: ${request.location}</p>` : ''}
-                        <p><small>Timestamp: ${new Date(request.timestamp).toLocaleString()}</small></p>
-                        <p><strong>Status: ${statusMessage}</strong></p>
+                    <div class="max-w-2xl px-8 py-4 bg-white rounded-lg shadow-md dark:bg-gray-800 mb-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-light text-gray-600 dark:text-gray-400">${new Date(request.timestamp).toLocaleDateString()}</span>
+                            <a class="px-3 py-1 text-sm font-bold text-gray-100 transition-colors duration-300 transform ${statusColor} rounded cursor-pointer" tabindex="0" role="button">${statusMessage}</a>
+                        </div>
+            
+                        <div class="mt-2">
+                            <p class="text-xl font-bold text-gray-700 dark:text-white" tabindex="0">Available Food: ${foodItems} ${request.isAccepted ? '✔️' : ''}</p>
+                            ${request.location ? `<p class="mt-2 text-gray-600 dark:text-gray-300">Location: ${request.location}</p>` : ''}
+                        </div>
+            
+                        <div class="flex items-center justify-between mt-4">
+                            <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline" tabindex="0">View Details</a>
+            
+                            <div class="flex items-center">
+                                <a class="font-bold text-gray-700 cursor-pointer dark:text-gray-200" tabindex="0">Donor: ${request.donorUsername}</a>
+                            </div>
+                        </div>
                     </div>`;
             });
+            
 
 
             // data.requests.forEach(request => {

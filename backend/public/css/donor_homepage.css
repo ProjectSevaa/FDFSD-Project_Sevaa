@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.form-section, .post-list-section {
+    display: none;
+  }
