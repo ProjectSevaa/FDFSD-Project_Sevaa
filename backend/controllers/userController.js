@@ -8,6 +8,8 @@ import { Request } from '../models/request.js';
 import { Post } from '../models/post.js';
 const app = express();
 
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY; // Ensure this is set in your environment variables
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -49,42 +51,38 @@ export const addUser = async (req, res) => {
     }
 };
 
-export const updateUser = async (req, res) => {
-    const { userId } = req.params; // Get userId from the URL parameters
-    const { address } = req.body; // Address is expected in the request body
+export const updateUserLocation = async (req, res) => {
+    const { userId } = req.params;
+    const { coordinates } = req.body; // Expecting latitude and longitude in the request body
+
+    if (!coordinates || coordinates.length !== 2) {
+        return res.status(400).json({ success: false, message: "Invalid coordinates provided." });
+    }
 
     try {
-        // Find the user by ID
+        // Find the user by their ID
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ success: false, message: "User not found." });
         }
 
-        // Update address if provided
-        if (address) {
-            const { coordinates } = address;
-            if (coordinates && coordinates.length === 2) {
-                user.address = {
-                    ...user.address,
-                    ...address,
-                    coordinates: {
-                        type: 'Point',
-                        coordinates: [coordinates[0], coordinates[1]] // Ensure coordinates are in the correct order
-                    }
-                };
-            }
-        }
+        // Update the user's coordinates (longitude, latitude)
+        user.address.coordinates = {
+            type: 'Point',
+            coordinates: [coordinates.lng, coordinates.lat], // Ensure proper longitude-latitude order
+        };
 
-        await user.save(); // Save the updated user
-        res.status(200).json({ message: 'User updated successfully', user });
-    } catch (err) {
-        console.log(err.message);
-        res.status(500).json({ message: 'Server error' });
+        // Save the updated user information
+        await user.save();
+
+        res.status(200).json({ success: true, message: "Location updated successfully." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error." });
     }
 };
 
-
-export const getUserHomePage = async (req, res) => {
+export const getUserHomePage = async (req, res) => { 
     try {
         const token = req.cookies.user_jwt;
 
@@ -107,7 +105,6 @@ export const getUserHomePage = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-
         // Fetch requests for the specific user
         const requests = await Request.find({ userUsername: username }).sort({ timestamp: 1 });
 
@@ -124,8 +121,9 @@ export const getUserHomePage = async (req, res) => {
         const donorList = Array.from(donorMap.entries())
             .sort((a, b) => new Date(b[1]) - new Date(a[1])) // Sort by timestamp
             .map(([donorUsername]) => donorUsername); // Extract the usernames
-
-        res.render('user_homepage', { user, donorList });
+        
+        // Pass the Google Maps API key along with other data to the view
+        res.render('user_homepage', { user, donorList, googleMapsApiKey: GOOGLE_MAPS_API_KEY });
     } catch (err) {
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });

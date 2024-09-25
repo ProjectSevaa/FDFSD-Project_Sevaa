@@ -9,7 +9,7 @@ const donorSchema = new mongoose.Schema({
         landmarks: { type: String }, 
         townCity: { type: String, required: true }, 
         state: { type: String, required: true }, 
-        pincode: { type: String, required: true } 
+        pincode: { type: String, required: true },
     },
     mobileNumber: { type: String, required: true }, 
     email: { type: String, required: true, unique: true }, 

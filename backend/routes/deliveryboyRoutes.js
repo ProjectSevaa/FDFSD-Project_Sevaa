@@ -1,21 +1,23 @@
 import express from 'express';
 import { 
-    addDeliveryBoy,        // Corrected method name to match the controller
-    getDeliveryBoyPage, 
-    getDeliveryBoysByUser, 
-    findNearbyUsers,
-    getAllDeliveryBoys 
-} from "../controllers/deliveryboyController.js";
+    createDeliveryBoy, 
+    findNearbyPosts, 
+    getAllDeliveryBoys, 
+    getDeliveryBoysByUser 
+} from '../controllers/deliveryBoyController.js';
 
 const router = express.Router();
 
-router.post('/addDeliveryboy', addDeliveryBoy);
+// Add a new delivery boy
+router.post('/createDeliveryBoy', createDeliveryBoy);
 
-router.post('/deliveryboy', addDeliveryBoy);
-router.get('/deliveryboy/:deliveryBoyId/nearby-users', findNearbyUsers);
+// Get all delivery boys assigned to a particular user
+router.get('/deliveryBoysByUser/:userId', getDeliveryBoysByUser);
 
-router.get('/deliveryboyPage', getDeliveryBoyPage);
-router.get('/deliveryboys/user/:userId', getDeliveryBoysByUser);
-router.get('/deliveryboys', getAllDeliveryBoys);
+// Get all delivery boys
+router.get('/getAllDeliveryBoys', getAllDeliveryBoys);
+
+// Find nearby users for a delivery boy
+router.get('/findNearbyPosts', findNearbyPosts);
 
 export default router;

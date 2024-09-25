@@ -27,6 +27,7 @@ document.getElementById("toggleRequestForm").addEventListener("click", function(
         // Send GET request to get requests for the selected post
         const response = await fetch(`/request/getRequestsForPost?postId=${postId}`);
         const data = await response.json();
+        console.log("printing");
   
         if (data.success) {
           // Populate the modal with the list of requests

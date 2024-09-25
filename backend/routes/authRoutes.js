@@ -1,5 +1,5 @@
 import express from 'express';
-import { loginUser , loginDonor , signupUser , signupDonor , logoutUser , logoutDonor } from '../controllers/authController.js';
+import { loginUser , loginDonor , signupUser , signupDonor , logoutUser , logoutDonor,loginDel,signupDel } from '../controllers/authController.js';
 
 const router = express.Router();
 
@@ -9,6 +9,9 @@ router.get('/d_logout', logoutDonor);
 
 router.post('/donorLogin', loginDonor);
 router.post('/userLogin', loginUser);
+
+router.post('/delLogin',loginDel);
+router.post('/delSignup',signupDel);
 
 router.post('/userSignup' , signupUser);
 router.post('/donorSignup' , signupDonor);

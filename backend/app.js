@@ -43,6 +43,10 @@ app.get("/d_login" , (req,res) => {
   res.render("login_signup_donor");
 });
 
+app.get("/del_login" , (req,res) => {
+  res.render("login_signup_deliveryboy");
+});
+
 app.use('/auth' , authRoutes);
 app.use('/user', userRoutes);
 app.use('/donor', donorRoutes);

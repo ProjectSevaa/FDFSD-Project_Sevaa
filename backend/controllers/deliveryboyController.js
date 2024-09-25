@@ -4,8 +4,8 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
-import { User } from '../models/user.js';
 import { DeliveryBoy } from '../models/deliveryboy.js';
+import { Post } from '../models/post.js';
 
 const app = express();
 
@@ -14,6 +14,68 @@ app.use(express.json());
 app.use(cookieParser());
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY; // Ensure this is set in your environment variables
+
+// Helper function to calculate the Haversine distance between two points
+const getDistance = (lon1, lat1, lon2, lat2) => {
+    const R = 6371e3; // meters
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // in meters
+};
+
+export const findNearbyPosts = async (req, res) => {
+    const { postId } = req.query;
+
+    try {
+        // Fetch the post by ID to get its coordinates
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const [postLongitude, postLatitude] = post.currentlocation.coordinates;
+
+        // Fetch all delivery boys
+        const deliveryBoys = await DeliveryBoy.find({});
+        if (deliveryBoys.length === 0) {
+            return res.status(404).json({ message: 'No delivery boys found.' });
+        }
+
+        // Create an array to hold delivery boys with their distances
+        const deliveryBoysWithDistances = deliveryBoys.map(deliveryBoy => {
+            const [boyLongitude, boyLatitude] = deliveryBoy.currentlocation.coordinates || [];
+            
+            if (boyLongitude == null || boyLatitude == null) {
+                console.error(`Invalid coordinates for delivery boy ${deliveryBoy._id}`);
+                return { ...deliveryBoy.toObject(), distance: null }; // Explicitly set distance to null
+            }
+            
+            const distance = getDistance(postLongitude, postLatitude, boyLongitude, boyLatitude);
+            return { ...deliveryBoy.toObject(), distance }; // Convert deliveryBoy to a plain object and add distance
+        });
+
+        // Sort the array by distance and get the closest 5 delivery boys
+        const closestDeliveryBoys = deliveryBoysWithDistances
+        .filter(boy => boy.distance !== null) // Exclude delivery boys with null distance
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 5);
+
+        res.status(200).json({ closestDeliveryBoys });
+    } catch (error) {
+        console.error('Error fetching nearby users:', error);
+        res.status(500).json({ message: 'Error fetching nearby users', error });
+    }
+};
+
+
 
 // Controller to render the delivery boy form page
 export const getDeliveryBoyPage = (req, res) => {
@@ -26,30 +88,39 @@ export const getDeliveryBoyPage = (req, res) => {
 };
 
 // Controller to add a new Delivery Boy
-export const addDeliveryBoy = async (req, res) => {
-    const {
-        deliveryBoyName,
-        mobileNumber,
-        vehicleNo,
-        drivingLicenseNo,
-        currentlocation
-    } = req.body;
-
+export const createDeliveryBoy = async (req, res) => {
     try {
-        const newDeliveryBoy = new DeliveryBoy({
+        const { deliveryBoyName, mobileNumber, password, vehicleNo, drivingLicenseNo } = req.body;
+        
+        // Ensure coordinates are parsed correctly
+        const longitude = parseFloat(req.body.currentLocation.coordinates[0]);
+        const latitude = parseFloat(req.body.currentLocation.coordinates[1]);
+
+        if (isNaN(longitude) || isNaN(latitude)) {
+            return res.status(400).json({ message: 'Invalid coordinates provided.' });
+        }
+
+        // Create the delivery boy object
+        const deliveryBoy = new DeliveryBoy({
             deliveryBoyName,
             mobileNumber,
+            password: await bcrypt.hash(password, 10), // Hash the password
             vehicleNo,
             drivingLicenseNo,
-            currentlocation
+            currentLocation: {
+                type: "Point",
+                coordinates: [longitude, latitude] // Ensure these are numbers
+            }
         });
 
-        await newDeliveryBoy.save();
-        res.status(201).json({ message: 'Delivery boy added successfully!', deliveryBoy: newDeliveryBoy });
+        await deliveryBoy.save();
+        res.status(201).json({ message: 'Delivery boy created successfully', deliveryBoy });
     } catch (error) {
+        console.error('Error adding delivery boy:', error);
         res.status(400).json({ message: 'Error adding delivery boy', error: error.message });
     }
 };
+
 
 // New controller to find nearby users
 // export const findNearbyUsers = async (req, res) => {
@@ -96,41 +167,6 @@ export const addDeliveryBoy = async (req, res) => {
 //     return R * c; // in meters
 // };
 
-export const findNearbyUsers = async (req, res) => {
-    const { deliveryBoyId } = req.params;
-
-    try {
-        // Fetch the delivery boy by ID
-        const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
-        if (!deliveryBoy) {
-            return res.status(404).json({ message: 'Delivery boy not found' });
-        }
-
-        const [longitude, latitude] = deliveryBoy.currentlocation.coordinates;
-
-        // Fetch all users with their locations
-        const users = await User.find({}); // Ensure User model has a 'currentlocation' field
-
-        // Filter users based on distance
-        const nearbyUsers = users.filter(user => {
-            if (!user.currentlocation || !user.currentlocation.coordinates) {
-                console.error(`User ${user._id} has no location data.`);
-                return false; // Skip users without location
-            }
-
-            const userCoordinates = user.currentlocation.coordinates;
-            const distance = getDistance(longitude, latitude, userCoordinates[0], userCoordinates[1]);
-            return distance <= 10000; // For example, 10 km
-        });
-
-        res.status(200).json({ users: nearbyUsers });
-    } catch (error) {
-        console.error('Error fetching nearby users:', error); // Log error details
-        res.status(500).json({ message: 'Error fetching nearby users', error });
-    }
-};
-
-
 // Controller to get all delivery boys assigned under a particular user
 export const getDeliveryBoysByUser = async (req, res) => {
     const { userId } = req.params; // Get the user ID from the request parameters
@@ -164,3 +200,5 @@ export const getAllDeliveryBoys = async (req, res) => {
         res.status(500).json({ message: 'Error fetching delivery boys', error });
     }
 };
+
+

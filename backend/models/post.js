@@ -22,7 +22,11 @@ const postSchema = new mongoose.Schema({
     isDealClosed: {
         type: Boolean,
         default: false
-    }
+    },
+    currentlocation: {
+        type: { type: String, default: 'Point' },
+        coordinates: { type: [Number], required: true } // [longitude, latitude]
+    },
 
 });
 

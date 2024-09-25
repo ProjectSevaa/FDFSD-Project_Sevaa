@@ -15,7 +15,7 @@
                 <!-- Login Form -->
                 <div class="form-container" id="loginCard">
                     <h5 class="text-center">Delivery Boy Login</h5>
-                    <form action="/auth/deliveryBoyLogin" method="POST" id="loginFormStep">
+                    <form action="/auth/delLogin" method="POST" id="loginFormStep">
                         <!-- Delivery Boy Name -->
                         <div id="nameSectionLogin">
                             <div class="mb-3">
@@ -50,10 +50,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="signupForm" action="/auth/deliveryBoySignup" method="POST">
+                    <form id="signupForm" action="/auth/delSignup" method="POST">
                         <!-- Delivery Boy Name -->
                         <div class="mb-3">
-                            <label for="deliveryBoyName" class="form-label">Delivery Boy Name:</label>
+                            <label for="deliveryBoyNameSignup" class="form-label">Delivery Boy Name:</label>
                             <input type="text" id="deliveryBoyNameSignup" name="deliveryBoyName" class="form-control" required>
                         </div>
 
@@ -87,12 +87,12 @@
                             <label for="longitude" class="form-label">Longitude:</label>
                             <input type="number" step="any" id="longitude" name="longitude" class="form-control" required>
                         </div>
-
+                        
                         <div class="mb-3">
                             <label for="latitude" class="form-label">Latitude:</label>
                             <input type="number" step="any" id="latitude" name="latitude" class="form-control" required>
                         </div>
-
+                        
                         <!-- Get Location Button -->
                         <button type="button" class="btn btn-secondary" id="getLocationButton">Get Current Location</button>
 
@@ -127,6 +127,7 @@
             document.getElementById('getLocationButton').addEventListener('click', () => {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition((position) => {
+                        // Ensure latitude and longitude are set correctly
                         document.getElementById('latitude').value = position.coords.latitude;
                         document.getElementById('longitude').value = position.coords.longitude;
                     }, () => {
@@ -136,7 +137,26 @@
                     alert("Geolocation is not supported by this browser.");
                 }
             });
-        });
+
+            // Validate and log coordinates on form submission
+           // Validate and log coordinates on form submission
+document.getElementById('signupForm').addEventListener('submit', (e) => {
+    const latitude = parseFloat(document.getElementById('latitude').value);
+    const longitude = parseFloat(document.getElementById('longitude').value);
+
+    // Validate coordinates
+    if (isNaN(latitude) || isNaN(longitude)) {
+        alert('Invalid coordinates provided. Please ensure you have obtained your location.');
+        e.preventDefault(); // Prevent form submission
+        return;
+    }
+
+    // If valid, proceed with form submission
+    e.currentTarget.submit(); // Submit the form if everything is valid
+});
+
+            });
+        
     </script>
 </body>
 

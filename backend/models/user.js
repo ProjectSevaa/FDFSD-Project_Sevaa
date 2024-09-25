@@ -18,6 +18,14 @@ const userSchema = new mongoose.Schema({
     mobileNumber: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+
+    // Array of references to DeliveryBoy model
+    deliveryBoys: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'DeliveryBoy' // Reference to the DeliveryBoy model
+        }
+    ]
 });
 
 // Pre-save middleware to hash the password

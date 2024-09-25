@@ -155,3 +155,85 @@ function showChat(event) {
 //     }
 // }
 
+
+
+function initMap() {
+    // Define map options
+    var mapOptions = {
+        center: { lat: 0, lng: 0 }, // Default coordinates
+        zoom: 8
+    };
+    // Create the map
+    var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+}
+
+let map, selectedLatLng;
+      
+        function loadGoogleMapsScript(callback) {
+          const existingScript = document.getElementById('googleMaps');
+          
+          if (!existingScript) {
+            const script = document.createElement('script');
+            script.src = "https://maps.googleapis.com/maps/api/js?key=GOOGLE_MAPS_API_KEY&loading=async&libraries=maps&v=beta";
+            script.id = 'googleMaps';
+            document.head.appendChild(script);
+      
+            // Ensure the script is loaded before executing callback
+            script.onload = () => {
+              if (callback) callback();
+            };
+          } else {
+            // If the script is already loaded, immediately call the callback
+            if (callback) callback();
+          }
+        }
+      
+        function initMap() {
+          try {
+            // Create a new map instance
+            map = new google.maps.Map(document.getElementById("map"), {
+              center: { lat: 37.42, lng: -122.1 },  // Set your desired coordinates
+              zoom: 14,
+              mapId: "4504f8b37365c3d0",  // Optional map styling ID
+            });
+      
+            // Create a marker (optional)
+            const marker = new google.maps.Marker({
+              position: { lat: 37.42, lng: -122.1 },
+              map: map,
+            });
+      
+            // Listen for clicks on the map to get coordinates
+            map.addListener("click", (e) => {
+              selectedLatLng = e.latLng;
+              console.log("Location selected:", selectedLatLng.lat(), selectedLatLng.lng());
+      
+              // Update marker position on map click
+              marker.setPosition(selectedLatLng);
+            });
+      
+          } catch (error) {
+            console.error('Error initializing the map:', error);
+          }
+        }
+      
+        function showLocationPicker(event) {
+          event.preventDefault();
+          document.getElementById('location-modal').classList.remove('hidden');
+          if (!map) {
+            // Load the Google Maps script and initialize the map
+            loadGoogleMapsScript(initMap);
+          }
+        }
+      
+        function saveLocation() {
+          if (selectedLatLng) {
+            console.log("Selected location:", selectedLatLng.lat(), selectedLatLng.lng());
+          } else {
+            console.log("No location selected.");
+          }
+        }
+      
+        function closeModal() {
+          document.getElementById('location-modal').classList.add('hidden');
+        }
