@@ -26,4 +26,4 @@ modSchema.pre('save', async function (next) {
     }
 });
 
-export const User = mongoose.model("Mod", modSchema);
+export const Mod = mongoose.model("Mod", modSchema);

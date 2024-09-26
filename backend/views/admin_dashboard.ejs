@@ -1,0 +1,8 @@
+hi <%= mod.username %> (Role : <%= mod.role %>)
+
+<% if (mod.role === 'superuser') { %>
+    <div id="moderators-container">
+        <h2>Moderators List</h2>
+        <ul id="moderators-list"></ul>
+    </div>
+<% } %>
