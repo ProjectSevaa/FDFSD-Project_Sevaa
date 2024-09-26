@@ -8,6 +8,7 @@ import 'dotenv/config';
 import { fileURLToPath } from 'url';
 import { connectDB } from './db/connectDB.js';
 
+import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import donorRoutes from './routes/donorRoutes.js';
@@ -47,6 +48,12 @@ app.get("/del_login" , (req,res) => {
   res.render("login_signup_deliveryboy");
 });
 
+app.get("/admin" , (req,res) => {
+  res.render("login_admin");
+});
+
+
+app.use('/admin', adminRoutes);
 app.use('/auth' , authRoutes);
 app.use('/user', userRoutes);
 app.use('/donor', donorRoutes);
