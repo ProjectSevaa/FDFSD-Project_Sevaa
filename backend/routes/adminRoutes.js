@@ -1,5 +1,5 @@
 import express from 'express';
-import { loginAdmin , signupAdmin , getAdminDashboard , getModerators , getAdmins , getDonors , toggleBan , logoutAdmin} from '../controllers/adminController.js';
+import { loginAdmin , signupAdmin , getAdminDashboard , getModerators , getAdmins , changeRole, getDonors , toggleBan , logoutAdmin} from '../controllers/adminController.js';
 
 const router = express.Router();
 
@@ -13,6 +13,7 @@ router.get('/getAdmins' , getAdmins)
 router.get('/getDonors' , getDonors);
 
 
+router.post('/changeRole/:modId' , changeRole);
 router.post('/signupAdmin' , signupAdmin);
 router.post('/loginAdmin' , loginAdmin);
 router.get('/logoutAdmin', logoutAdmin);

@@ -176,7 +176,7 @@ export const getAcceptedRequests = async (req, res) => {
 
         const username = decodedToken.username;
 
-        const acceptedRequests = await Request.find({ userUsername: username, isAccepted: true });
+        const acceptedRequests = await Request.find({ userUsername: username, isAccepted: true , deliveryAssigned : false });
 
 
         res.json({ success: true, acceptedRequests });

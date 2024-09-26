@@ -34,26 +34,28 @@ async function fetchAcceptedRequests() {
         requestDiv.classList.add("accepted-request");
 
         requestDiv.innerHTML = `
-                    <p>Donor: ${request.donorUsername}</p>
-                    <p>Available Food: ${request.availableFood.join(", ")}</p>
-                    <p>Location: ${request.location || "N/A"}</p>
-                    <p><small>Timestamp: ${new Date(
-                      request.timestamp
-                    ).toLocaleString()}</small></p>
-                    
-                    <label for="delivery-boy-${
-                      request._id
-                    }">Assign Delivery Boy:</label>
-                    <select id="delivery-boy-${request._id}">
-                        <option value="">Select Delivery Boy</option>
-                    </select>
+              <p>Donor: ${request.donorUsername}</p>
+              <p>Available Food: ${request.availableFood.join(", ")}</p>
+              <p>Location: ${request.location || "N/A"}</p>
+              <p><small>Timestamp: ${new Date(
+                request.timestamp
+              ).toLocaleString()}</small></p>
+              
+              <label for="delivery-boy-${
+                request._id
+              }">Assign Delivery Boy:</label>
+              <select id="delivery-boy-${request._id}">
+            <option value="">Select Delivery Boy</option>
+              </select>
 
-                    <button id="fetch-delivery-${request._id}" data-post-id="${
+              <button id="fetch-delivery-${request._id}" data-post-id="${
           request.post_id
         }">
-                        Fetch Nearby Delivery Boys
-                    </button>
-                `;
+            Fetch Nearby Delivery Boys
+              </button>
+
+              <button style='color: blue;' id="assign-delivery-${request._id}" data-request-id="${request._id}" >Assign</button>
+          `;
 
         topRightSection.appendChild(requestDiv);
 
@@ -67,7 +69,6 @@ async function fetchAcceptedRequests() {
             // Call the function to fetch nearby delivery boys
             const nearbyDeliveryBoys = await fetchNearbyDeliveryBoys(postId);
 
-            console.log("hello"); // This should now print to the console
 
             // Update the dropdown with the fetched nearby delivery boys
             const deliveryBoySelect = document.getElementById(
@@ -87,6 +88,35 @@ async function fetchAcceptedRequests() {
                 .join("");
 
             console.log("Nearby Delivery Boys:", nearbyDeliveryBoys);
+          });
+
+        // Add event listener to the assign button
+        document
+          .getElementById(`assign-delivery-${request._id}`)
+          .addEventListener("click", async function () {
+            const requestId = this.getAttribute("data-request-id");
+            const deliveryBoySelect = document.getElementById(
+              `delivery-boy-${request._id}`
+            );
+            const selectedDeliveryBoy = deliveryBoySelect.value;
+
+            if (!selectedDeliveryBoy) {
+              alert("Please select a delivery boy.");
+              return;
+            }
+
+            // Prompt the user to input the delivery location
+            const deliveryLocation = prompt(
+              "Please enter the delivery location:"
+            );
+
+            if (!deliveryLocation) {
+              alert("Delivery location is required.");
+              return;
+            }
+
+            // Call the function to assign the order
+            await assignOrder(requestId, selectedDeliveryBoy, deliveryLocation);
           });
       }
     } else {
@@ -120,5 +150,31 @@ async function fetchNearbyDeliveryBoys(postId) {
   } catch (error) {
     console.error("Error fetching nearby delivery boys:", error);
     return [];
+  }
+}
+
+async function assignOrder(requestId, deliveryBoyId, deliveryLocation) {
+  try {
+    const response = await fetch("/order/assignOrder", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("user_jwt")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestId,
+        deliveryBoyId,
+        deliveryLocation,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to assign order.");
+    }
+
+    const result = await response.json();
+    alert("Order assigned successfully!");
+  } catch (error) {
+    console.error("Error assigning order:", error);
   }
 }

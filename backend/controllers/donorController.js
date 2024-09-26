@@ -93,3 +93,27 @@ export const getDonorHomePage = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+
+export const toggleBan = async (req, res) => {
+    const { donorId } = req.params;
+    const { isBanned } = req.body; // The new ban status
+
+    try {
+        // Find the donor by ID and update the isBanned field
+        const donor = await Donor.findByIdAndUpdate(
+            donorId, 
+            { isBanned }, 
+            { new: true } // Return the updated document
+        );
+
+        if (!donor) {
+            return res.status(404).json({ success: false, message: 'Donor not found' });
+        }
+
+        res.status(200).json({ success: true, message: 'Ban status updated', donor });
+    } catch (error) {
+        console.error('Error toggling ban status:', error);
+        res.status(500).json({ success: false, message: 'Server error while toggling ban status' });
+    }
+};

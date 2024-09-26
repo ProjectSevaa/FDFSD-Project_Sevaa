@@ -26,7 +26,7 @@ const postSchema = new mongoose.Schema({
     currentlocation: {
         type: { type: String, default: 'Point' },
         coordinates: { type: [Number], required: true } // [longitude, latitude]
-    },
+    }
 
 });
 

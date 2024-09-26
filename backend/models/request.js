@@ -38,6 +38,10 @@ const requestSchema = new mongoose.Schema({
     isRejected: {
         type: Boolean,
         default: false
+    },
+    deliveryAssigned: {
+        type: Boolean,
+        default: false
     }
 
 

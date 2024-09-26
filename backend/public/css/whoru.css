@@ -14,6 +14,13 @@ body {
     width: 50px; /* adjust as per your icon size */
     height: 50px; /* adjust as per your icon size */
   }
+  .company-name {
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000; /* or any color you prefer */
+  }
+  
   
   .main-content {
     display: flex;
@@ -254,11 +261,12 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 60%;
 }
 
 .s3-video-player {
     width: 90%; /* Large video size */
-    height: auto;
+    height: 90%;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6); /* Adding depth */
 }
@@ -340,13 +348,10 @@ button {
   }
   
   
-  
- 
-  
   #s4main-image {
     max-width: 100%;
     border-radius: 10px;
-    height:20rem;
+    height:40rem;
   }
   
 
@@ -473,3 +478,89 @@ button {
 }
 
 
+.site-footer {
+  background-color: #483C32; /* Brown background */
+  color: #eeece6; /* Light beige text */
+  padding: 25px;
+  width: 100vw;
+  box-sizing: border-box;
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+}
+
+.footer-content {
+  width: 100%;
+  max-width: 1200px; /* Adjust max-width to center the content nicely */
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* Three equal columns */
+  gap: 30px; /* Increase space between columns */
+  align-items: center;
+}
+
+.footer-logo {
+  max-width: 250px; /* Ensure the logo scales nicely */
+  height: auto;
+  fill: #ffffff; /* White fill for the logo */
+}
+
+.footer-info {
+  max-width: 100%;
+}
+
+.footer-business-name {
+  font-size: 18px !important;
+letter-spacing:3px;
+  font-weight: 600;
+text-transform:uppercase;
+  margin-bottom: 10px;
+}
+
+.footer-business-address,
+.footer-business-phone {
+  font-size: 16px;
+  margin: 5px 0;
+  line-height: 1.5;
+letter-spacing:1px;
+}
+
+.footer-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.footer-nav li {
+  margin-right: 15px;
+  margin-bottom: 10px;
+}
+
+.footer-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.3s ease;
+letter-spacing:2px;
+text-transform:uppercase;
+}
+
+.footer-nav a:hover {
+  color: #d1bfa7; /* Lightened color on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .footer-content {
+      grid-template-columns: 1fr; /* Stack columns vertically on small screens */
+      text-align: center;
+    transform:scale(0.90);
+  }
+
+  .footer-nav ul {
+      justify-content: center;
+  }
+}

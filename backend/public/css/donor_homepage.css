@@ -67,3 +67,9 @@ h1, h2 {
 .modal-footer {
     border-top: none;
 }
+.nav-item {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px; /* Optional spacing */
+}

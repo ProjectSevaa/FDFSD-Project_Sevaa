@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/css/requests.css" />
   <link rel="stylesheet" href="/css/user_homepage_posts.css" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/user_homepage_order.css">
 
   <style>
     /* Basic styling for the map and modal */
@@ -32,6 +33,7 @@
   </style>
   <script src="/js/user_homepage.js"></script>
   <script src="/js/user_homepage_topRight.js"></script>
+  <script src="/js/user_homepage_bottomRight.js"></script>
   <script src="/js/user_homepage_posts.js"></script>
 </head>
 
@@ -73,9 +75,10 @@
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                      d="M21 21l-4.35-4.35M17.5 10.5a7 7 0 1 0-14 0 7 7 0 0 0 14 0z" />
                   </svg>
                 </a>
+
 
                 <!-- Button that shows chat -->
                 <a href="#" id="show-chat-btn"
@@ -143,9 +146,11 @@
               <p>This is the top-right part of the page content.</p>
             </div>
             <div class="bottom-right-section">
-              <h3>Bottom Right Section</h3>
-              <p>This is the bottom-right part of the page content.</p>
+              <h3>Assigned Orders</h3>
+              <div id="orders-container" class="max-w-2xl mx-auto"></div>
             </div>
+            
+            
           </div>
         </div>
       </div>

@@ -65,7 +65,6 @@ export const loginDonor = async (req, res) => {
             return res.status(400).json({ message: 'Donor does not exist' });
         }
 
-        console.log(password,donor.password);
         const isPasswordValid = await bcrypt.compare(password, donor.password);
 
         if (!isPasswordValid) {
