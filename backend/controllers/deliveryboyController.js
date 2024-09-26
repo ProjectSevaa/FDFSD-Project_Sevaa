@@ -43,6 +43,8 @@ export const findNearbyPosts = async (req, res) => {
 
         const [postLongitude, postLatitude] = post.currentlocation.coordinates;
 
+        console.log(postLatitude , postLongitude);
+
         // Fetch all delivery boys
         const deliveryBoys = await DeliveryBoy.find({});
         if (deliveryBoys.length === 0) {
@@ -51,7 +53,7 @@ export const findNearbyPosts = async (req, res) => {
 
         // Create an array to hold delivery boys with their distances
         const deliveryBoysWithDistances = deliveryBoys.map(deliveryBoy => {
-            const [boyLongitude, boyLatitude] = deliveryBoy.currentlocation.coordinates || [];
+            const [boyLongitude, boyLatitude] = deliveryBoy.currentLocation.coordinates || [];
             
             if (boyLongitude == null || boyLatitude == null) {
                 console.error(`Invalid coordinates for delivery boy ${deliveryBoy._id}`);
@@ -59,6 +61,7 @@ export const findNearbyPosts = async (req, res) => {
             }
             
             const distance = getDistance(postLongitude, postLatitude, boyLongitude, boyLatitude);
+
             return { ...deliveryBoy.toObject(), distance }; // Convert deliveryBoy to a plain object and add distance
         });
 

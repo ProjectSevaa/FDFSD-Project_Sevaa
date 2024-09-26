@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import { Mod } from '../models/mod.js';
 import 'dotenv/config';
+import axios from 'axios';
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -30,6 +31,10 @@ export const loginAdmin = async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
+        if(mod.isBanned){
+            return res.status(401).json({ error: 'You are banned' });
+        }
+        
         const token = jwt.sign({ username: mod.username , role : mod.role }, process.env.JWT_SECRET_KEY, {
             expiresIn: '1h'
         });
@@ -136,5 +141,135 @@ export const getModerators = async (req, res) => {
     } catch (err) {
         console.error('Error in getModerators:', err.message);
         res.status(500).json({ message: 'Server error in retrieving moderators' });
+    }
+};
+
+export const getDonors = async (req , res) => {
+    try {
+        const token = req.cookies.admin_jwt;
+
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+        const { username, role } = decodedToken;
+
+        const mod = await Mod.findOne({ username, role });
+
+        if (!mod) {
+            return res.status(400).json({ message: 'Invalid moderator credentials' });
+        }
+
+        const response = await axios.get('http://localhost:9500/donor/getDonors', {
+            headers: {
+                Cookie: `admin_jwt=${token}`
+            }
+        });
+
+        const donors = response.data.donors;
+
+        res.status(200).json({ donors });
+    }catch(err){
+        console.error('Error in getDonors:', err.message);
+        res.status(500).json({ message: 'Server error in retrieving donors' });
+    }
+};
+
+export const getAdmins = async (req, res) => {
+    try {
+        const token = req.cookies.admin_jwt;
+
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+        const { username, role } = decodedToken;
+
+        const mod = await Mod.findOne({ username, role });
+
+        if (!mod) {
+            return res.status(400).json({ message: 'Invalid moderator credentials' });
+        }
+
+        const admins = await Mod.find({ role: 'admin' });
+
+        res.status(200).json({ admins });
+    } catch (err) {
+        console.error('Error in getAdmins:', err.message);
+        res.status(500).json({ message: 'Server error in retrieving admins' });
+    }
+}
+
+
+export const toggleBan = async (req, res) => {
+    try {
+        const token = req.cookies.admin_jwt;
+
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const { username, role } = decodedToken;
+
+        const targetId = req.params.modId; // This should reference the ID of the user to be banned
+
+        // Determine the target user type based on the ID format or use another logic to identify the model
+        let targetUser;
+        if (role === 'superuser' || role === 'moderator') {
+            targetUser = await Mod.findById(targetId); // Assume modId for moderators and admins
+        } else {
+            targetUser = await Donor.findById(targetId); // Assume modId for donors
+        }
+
+        if (!targetUser) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Role-specific banning logic
+        if (role === 'superuser') {
+            // Superuser can ban moderators and admins
+            const updatedIsBanned = !targetUser.isBanned;
+            await Mod.findByIdAndUpdate(targetId, { isBanned: updatedIsBanned }, { new: true });
+            return res.status(200).json({ success: true, message: 'Ban status updated', isBanned: updatedIsBanned });
+        } else if (role === 'moderator') {
+            // Moderator can ban admins and donors
+            if (targetUser.role === 'admin' || targetUser instanceof Donor) {
+                const updatedIsBanned = !targetUser.isBanned;
+                await Mod.findByIdAndUpdate(targetId, { isBanned: updatedIsBanned }, { new: true });
+                return res.status(200).json({ success: true, message: 'Ban status updated', isBanned: updatedIsBanned });
+            } else {
+                return res.status(403).json({ success: false, message: 'Moderators cannot ban other moderators' });
+            }
+        } else if (role === 'admin') {
+            // Admin can only ban donors
+            if (targetUser instanceof Donor) {
+                const updatedIsBanned = !targetUser.isBanned;
+                await Donor.findByIdAndUpdate(targetId, { isBanned: updatedIsBanned }, { new: true });
+                return res.status(200).json({ success: true, message: 'Ban status updated', isBanned: updatedIsBanned });
+            } else {
+                return res.status(403).json({ success: false, message: 'Admins cannot ban moderators' });
+            }
+        } else {
+            return res.status(403).json({ success: false, message: 'Insufficient permissions' });
+        }
+    } catch (err) {
+        console.error('Error in toggleBan:', err.message);
+        res.status(500).json({ message: 'Server error while toggling ban status' });
+    }
+};
+
+
+export const logoutAdmin= async (req, res) => {
+    try {
+        res.clearCookie('admin_jwt');
+        res.status(200).redirect('/');
+    } catch (error) {
+        console.error('Error logging out:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };

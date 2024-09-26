@@ -10,7 +10,8 @@ const modSchema = new mongoose.Schema({
         type: String, 
         required: true,
         enum: ['moderator', 'admin', 'superuser']
-    }
+    },
+    isBanned: { type: Boolean, default: false }
 });
 
 
