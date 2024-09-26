@@ -21,7 +21,7 @@
                         <div id="emailSectionLogin">
                             <div class="mb-3">
                                 <label for="emailLogin" class="form-label">Email:</label>
-                                <input type="email" id="emailLogin" name="email" class="form-control" required>
+                                <input type="email" id="emailLogin" name="email" class="form-control" required pattern=".+@food\.in$" title="Email must end with @food.in">
                             </div>
                             <button type="button" class="btn btn-primary" id="nextToPasswordLogin">Next</button>
                         </div>
@@ -59,7 +59,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="emailSignup" class="form-label">Email:</label>
-                                <input type="email" id="emailSignup" name="email" class="form-control" required>
+                                <input type="email" id="emailSignup" name="email" class="form-control" required pattern=".+@food\.in$" title="Email must end with @food.in">
                             </div>
                             <div class="mb-3">
                                 <label for="mobileNumber" class="form-label">Mobile Number:</label>
@@ -122,36 +122,47 @@
             const nextToPasswordLoginBtn = document.getElementById("nextToPasswordLogin");
             const emailSectionLogin = document.getElementById("emailSectionLogin");
             const passwordSectionLogin = document.getElementById("passwordSectionLogin");
-
+            const emailLogin = document.getElementById("emailLogin");
+    
             nextToPasswordLoginBtn.addEventListener("click", () => {
-                const emailInput = document.getElementById("emailLogin");
-                if (emailInput.value.trim() === "") {
-                    alert("Please enter your email.");
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@food\.in$/;
+    
+                if (emailLogin.value.trim() === "") {
+                    emailLogin.setCustomValidity("Please enter your email.");
+                } else if (!emailPattern.test(emailLogin.value)) {
+                    emailLogin.setCustomValidity("Email must end with @food.in.");
                 } else {
+                    emailLogin.setCustomValidity(""); // Clear the custom message
                     emailSectionLogin.style.display = "none";
                     passwordSectionLogin.style.display = "block";
                 }
+                emailLogin.reportValidity(); // Show validation message
             });
-
+    
             // Sign-Up Section
             const nextToPasswordBtn = document.getElementById("nextToPassword");
             const usernameSection = document.getElementById("usernameSection");
             const passwordSection = document.getElementById("passwordSection");
             const addressSection = document.getElementById("addressSection");
-
+            const emailSignup = document.getElementById("emailSignup");
+    
             nextToPasswordBtn.addEventListener("click", () => {
                 const usernameInput = document.getElementById("username");
-                const emailInput = document.getElementById("emailSignup");
                 const mobileNumberInput = document.getElementById("mobileNumber");
-                
-                if (usernameInput.value.trim() === "" || emailInput.value.trim() === "" || mobileNumberInput.value.trim() === "") {
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@food\.in$/;
+    
+                if (usernameInput.value.trim() === "" || emailSignup.value.trim() === "" || mobileNumberInput.value.trim() === "") {
                     alert("Please fill all required fields.");
+                } else if (!emailPattern.test(emailSignup.value)) {
+                    emailSignup.setCustomValidity("Email must end with @food.in.");
+                    emailSignup.reportValidity(); // Show validation message
                 } else {
+                    emailSignup.setCustomValidity(""); // Clear the custom message
                     usernameSection.style.display = "none";
                     passwordSection.style.display = "block";
                 }
             });
-
+    
             const nextToAddressBtn = document.getElementById("nextToAddress");
             nextToAddressBtn.addEventListener("click", () => {
                 const passwordInput = document.getElementById("passwordSignup");
@@ -162,16 +173,16 @@
                     addressSection.style.display = "block";
                 }
             });
-
+    
             // Reset forms on modal close
             const signupModal = document.getElementById("signupModal");
             signupModal.addEventListener("hidden.bs.modal", resetForms);
-
+    
             function resetForms() {
                 usernameSection.style.display = "block";
                 passwordSection.style.display = "none";
                 addressSection.style.display = "none";
-
+    
                 document.getElementById("username").value = "";
                 document.getElementById("emailSignup").value = "";
                 document.getElementById("mobileNumber").value = "";
@@ -185,6 +196,7 @@
             }
         });
     </script>
+    
 </body>
 
 </html>
