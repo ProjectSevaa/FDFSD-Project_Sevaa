@@ -111,37 +111,30 @@ export const getAdminDashboard = async (req, res) => {
 
 }
 
-
 export const getModerators = async (req, res) => {
-    try{
+    try {
         const token = req.cookies.admin_jwt;
 
         if (!token) {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
 
-        const decodedToken = await new Promise((resolve, reject) => {
-            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-                if (err) reject(err);
-                else resolve(decoded);
-            });
-        });
-        
-        const username = decodedToken.username;
-        const role = decodedToken.role;
+        const decodedToken = await jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-        const mod = await Mod.findOne({ username , role });
+        const { username, role } = decodedToken;
+
+        const mod = await Mod.findOne({ username, role });
 
         if (!mod) {
-            return res.status(400).json({ message: 'Checking the jwt Mod does not exist' });
+            return res.status(400).json({ message: 'Invalid moderator credentials' });
         }
 
-        const moderators = await Mod.find({ role : 'moderator' });
+        // Find all moderators
+        const moderators = await Mod.find({ role: 'moderator' });
 
-        res.status(201).json( { moderators });
-
-    }catch(err){
-        console.log(err.message);
-        res.status(500).json({ message: 'Error at getModerators' });
+        res.status(200).json({ moderators });
+    } catch (err) {
+        console.error('Error in getModerators:', err.message);
+        res.status(500).json({ message: 'Server error in retrieving moderators' });
     }
-}
+};

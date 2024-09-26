@@ -129,7 +129,7 @@ export const loginDel = async (req, res) => {
         });
 
         console.log('Login successful');
-        res.status(200).redirect('/deliveryboy/deliveryboyPage'); // Adjust this if needed
+        res.status(200).redirect('/deliveryboy/getDeliveryBoyDashboard'); // Adjust this if needed
     } catch (err) {
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
@@ -147,7 +147,6 @@ export const signupUser = async (req, res) => {
             password: req.body.password,
             address: req.body.address,
         };
-
 
 
         const response = await axios.post(`${url}/user/addUser`, userData);
@@ -190,7 +189,6 @@ export const signupDonor = async (req,res) => {
 
 export const signupDel = async (req, res) => {
     try {
-        // Parse the longitude and latitude to ensure they are numbers
         const longitude = parseFloat(req.body.longitude);
         const latitude = parseFloat(req.body.latitude);
 

@@ -204,3 +204,34 @@ export const getAllDeliveryBoys = async (req, res) => {
 };
 
 
+export const getDeliveryBoyDashboard = async (req, res) => {
+    try {
+        const token = req.cookies.deliveryboy_jwt;
+
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+        
+        const username = decodedToken.username;
+
+        const deliveryboy = await DeliveryBoy.findOne({ deliveryBoyName :  username });
+
+        if (!deliveryboy) {
+            return res.status(404).json({ success: false, message: 'Delivery Boy not found' });
+        }
+
+        res.render('deliveryboy_dashboard', { deliveryboy });
+
+    }catch(err){
+        console.log(err.message);
+        res.status(500).json({ message: 'Server error' });
+
+    }
+};
