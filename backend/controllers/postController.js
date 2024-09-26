@@ -1,10 +1,20 @@
 import { Post } from '../models/post.js';
+import { Donor } from '../models/donor.js';
 
 // Create a new post with current location
 export const createPost = async (req, res) => {
     const { donorUsername, location, availableFood, longitude, latitude } = req.body;
 
     try {
+        // Check if the donor is banned
+        const donor = await Donor.findOne({ username: donorUsername });
+        if (!donor) {
+            return res.status(404).send('Donor not found');
+        }
+        if (donor.isBanned) { // Assuming you have an `isBanned` field
+            return res.status(403).send('Access denied: You are banned from posting.');
+        }
+
         const newPost = new Post({
             donorUsername,
             location,
@@ -22,6 +32,7 @@ export const createPost = async (req, res) => {
         res.status(500).send('Server Error'); 
     }
 };
+   
 
 // Fetch all posts
 export const getAllPosts = async (req, res) => {
