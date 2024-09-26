@@ -45,16 +45,6 @@ export const addDonor = async (req, res) => {
     }
 };
 
-export const getDonors = async (req, res) => {
-    try {
-        const donors = await Donor.find();
-        res.status(200).json({ donors });
-    } catch (err) {
-        console.log(err.message);
-        res.status(500).json({ message: 'Server error' });
-    }
-}
-
 export const getDonorHomePage = async (req, res) => {
     try {
 

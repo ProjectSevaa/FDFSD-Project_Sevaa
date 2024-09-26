@@ -65,7 +65,6 @@ export const loginDonor = async (req, res) => {
             return res.status(400).json({ message: 'Donor does not exist' });
         }
 
-        console.log(password,donor.password);
         const isPasswordValid = await bcrypt.compare(password, donor.password);
 
         if (!isPasswordValid) {
@@ -109,8 +108,6 @@ export const loginDel = async (req, res) => {
         // Log the retrieved deliveryboy for debugging
         console.log('Found delivery boy:', deliveryboy);
 
-        console.log(password , deliveryboy.password);
-
         const isPasswordValid = await bcrypt.compare(password, deliveryboy.password);
         console.log('Password valid:', isPasswordValid);
 
@@ -129,7 +126,7 @@ export const loginDel = async (req, res) => {
         });
 
         console.log('Login successful');
-        res.status(200).redirect('/deliveryboy/getDeliveryBoyDashboard'); // Adjust this if needed
+        res.status(200).redirect('/deliveryboy/deliveryboyPage'); // Adjust this if needed
     } catch (err) {
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
@@ -147,6 +144,7 @@ export const signupUser = async (req, res) => {
             password: req.body.password,
             address: req.body.address,
         };
+
 
 
         const response = await axios.post(`${url}/user/addUser`, userData);
@@ -189,6 +187,7 @@ export const signupDonor = async (req,res) => {
 
 export const signupDel = async (req, res) => {
     try {
+        // Parse the longitude and latitude to ensure they are numbers
         const longitude = parseFloat(req.body.longitude);
         const latitude = parseFloat(req.body.latitude);
 
@@ -207,7 +206,6 @@ export const signupDel = async (req, res) => {
                 coordinates: [longitude, latitude]
             }
         };
-
 
         const response = await axios.post(`${url}/deliveryboy/createDeliveryBoy`, deliveryboydata);
 

@@ -125,54 +125,20 @@
 
             // Get current location for sign-up
             document.getElementById('getLocationButton').addEventListener('click', () => {
-                // Display loading message or indicator
-        getLocationButton.innerText = 'Fetching location...';
-        getLocationButton.disabled = true;
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    // Set latitude and longitude values
-                    document.getElementById('latitude').value = position.coords.latitude;
-                    document.getElementById('longitude').value = position.coords.longitude;
-
-                    // Reset button state
-                    getLocationButton.innerText = 'Get Current Location';
-                    getLocationButton.disabled = false;
-                },
-                (error) => {
-                    // Handle different geolocation errors
-                    let errorMessage = '';
-                    switch (error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage = 'Location permission denied by user.';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage = 'Location information is unavailable.';
-                            break;
-                        case error.TIMEOUT:
-                            errorMessage = 'The request to get user location timed out.';
-                            break;
-                        default:
-                            errorMessage = 'An unknown error occurred while fetching location.';
-                            break;
-                    }
-                    alert(errorMessage);
-
-                    // Reset button state
-                    getLocationButton.innerText = 'Get Current Location';
-                    getLocationButton.disabled = false;
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        // Ensure latitude and longitude are set correctly
+                        document.getElementById('latitude').value = position.coords.latitude;
+                        document.getElementById('longitude').value = position.coords.longitude;
+                    }, () => {
+                        alert("Unable to retrieve your location.");
+                    });
+                } else {
+                    alert("Geolocation is not supported by this browser.");
                 }
-            );
-        } else {
-            alert("Geolocation is not supported by this browser.");
-
-            // Reset button state
-            getLocationButton.innerText = 'Get Current Location';
-            getLocationButton.disabled = false;
-        }
             });
 
+            // Validate and log coordinates on form submission
            // Validate and log coordinates on form submission
 document.getElementById('signupForm').addEventListener('submit', (e) => {
     const latitude = parseFloat(document.getElementById('latitude').value);

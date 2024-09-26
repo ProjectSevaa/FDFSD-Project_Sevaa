@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
 const deliveryBoySchema = new mongoose.Schema({
-    deliveryBoyName: { type: String, required: true , unique: true },
+    deliveryBoyName: { type: String, required: true },
     mobileNumber: { type: String, required: true },
     password: { type: String, required: true },
     vehicleNo: { type: String, required: true },

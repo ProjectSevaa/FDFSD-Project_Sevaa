@@ -3,9 +3,8 @@ import {
     createDeliveryBoy, 
     findNearbyPosts, 
     getAllDeliveryBoys, 
-    getDeliveryBoysByUser,
-    getDeliveryBoyDashboard
-} from '../controllers/deliveryboyController.js';
+    getDeliveryBoysByUser 
+} from '../controllers/deliveryBoyController.js';
 
 const router = express.Router();
 
@@ -20,7 +19,5 @@ router.get('/getAllDeliveryBoys', getAllDeliveryBoys);
 
 // Find nearby users for a delivery boy
 router.get('/findNearbyPosts', findNearbyPosts);
-
-router.get('/getDeliveryBoyDashboard', getDeliveryBoyDashboard);
 
 export default router;

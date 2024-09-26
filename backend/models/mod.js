@@ -10,8 +10,7 @@ const modSchema = new mongoose.Schema({
         type: String, 
         required: true,
         enum: ['moderator', 'admin', 'superuser']
-    },
-    isBanned: { type: Boolean, default: false }
+    }
 });
 
 
@@ -27,4 +26,4 @@ modSchema.pre('save', async function (next) {
     }
 });
 
-export const Mod = mongoose.model("Mod", modSchema);
+export const User = mongoose.model("Mod", modSchema);

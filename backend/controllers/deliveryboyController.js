@@ -43,8 +43,6 @@ export const findNearbyPosts = async (req, res) => {
 
         const [postLongitude, postLatitude] = post.currentlocation.coordinates;
 
-        console.log(postLatitude , postLongitude);
-
         // Fetch all delivery boys
         const deliveryBoys = await DeliveryBoy.find({});
         if (deliveryBoys.length === 0) {
@@ -53,7 +51,7 @@ export const findNearbyPosts = async (req, res) => {
 
         // Create an array to hold delivery boys with their distances
         const deliveryBoysWithDistances = deliveryBoys.map(deliveryBoy => {
-            const [boyLongitude, boyLatitude] = deliveryBoy.currentLocation.coordinates || [];
+            const [boyLongitude, boyLatitude] = deliveryBoy.currentlocation.coordinates || [];
             
             if (boyLongitude == null || boyLatitude == null) {
                 console.error(`Invalid coordinates for delivery boy ${deliveryBoy._id}`);
@@ -61,7 +59,6 @@ export const findNearbyPosts = async (req, res) => {
             }
             
             const distance = getDistance(postLongitude, postLatitude, boyLongitude, boyLatitude);
-
             return { ...deliveryBoy.toObject(), distance }; // Convert deliveryBoy to a plain object and add distance
         });
 
@@ -90,12 +87,11 @@ export const getDeliveryBoyPage = (req, res) => {
     }
 };
 
-
 // Controller to add a new Delivery Boy
 export const createDeliveryBoy = async (req, res) => {
     try {
         const { deliveryBoyName, mobileNumber, password, vehicleNo, drivingLicenseNo } = req.body;
-
+        
         // Ensure coordinates are parsed correctly
         const longitude = parseFloat(req.body.currentLocation.coordinates[0]);
         const latitude = parseFloat(req.body.currentLocation.coordinates[1]);
@@ -108,7 +104,7 @@ export const createDeliveryBoy = async (req, res) => {
         const deliveryBoy = new DeliveryBoy({
             deliveryBoyName,
             mobileNumber,
-            password, // Hash the password
+            password: await bcrypt.hash(password, 10), // Hash the password
             vehicleNo,
             drivingLicenseNo,
             currentLocation: {
@@ -124,7 +120,6 @@ export const createDeliveryBoy = async (req, res) => {
         res.status(400).json({ message: 'Error adding delivery boy', error: error.message });
     }
 };
-
 
 
 // New controller to find nearby users
@@ -207,34 +202,3 @@ export const getAllDeliveryBoys = async (req, res) => {
 };
 
 
-export const getDeliveryBoyDashboard = async (req, res) => {
-    try {
-        const token = req.cookies.deliveryboy_jwt;
-
-        if (!token) {
-            return res.status(401).json({ success: false, message: 'Unauthorized' });
-        }
-
-        const decodedToken = await new Promise((resolve, reject) => {
-            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-                if (err) reject(err);
-                else resolve(decoded);
-            });
-        });
-        
-        const username = decodedToken.username;
-
-        const deliveryboy = await DeliveryBoy.findOne({ deliveryBoyName :  username });
-
-        if (!deliveryboy) {
-            return res.status(404).json({ success: false, message: 'Delivery Boy not found' });
-        }
-
-        res.render('deliveryboy_dashboard', { deliveryboy });
-
-    }catch(err){
-        console.log(err.message);
-        res.status(500).json({ message: 'Server error' });
-
-    }
-};
