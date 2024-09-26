@@ -87,11 +87,12 @@ export const getDeliveryBoyPage = (req, res) => {
     }
 };
 
+
 // Controller to add a new Delivery Boy
 export const createDeliveryBoy = async (req, res) => {
     try {
         const { deliveryBoyName, mobileNumber, password, vehicleNo, drivingLicenseNo } = req.body;
-        
+
         // Ensure coordinates are parsed correctly
         const longitude = parseFloat(req.body.currentLocation.coordinates[0]);
         const latitude = parseFloat(req.body.currentLocation.coordinates[1]);
@@ -104,7 +105,7 @@ export const createDeliveryBoy = async (req, res) => {
         const deliveryBoy = new DeliveryBoy({
             deliveryBoyName,
             mobileNumber,
-            password: await bcrypt.hash(password, 10), // Hash the password
+            password, // Hash the password
             vehicleNo,
             drivingLicenseNo,
             currentLocation: {
@@ -120,6 +121,7 @@ export const createDeliveryBoy = async (req, res) => {
         res.status(400).json({ message: 'Error adding delivery boy', error: error.message });
     }
 };
+
 
 
 // New controller to find nearby users

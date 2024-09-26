@@ -65,6 +65,7 @@ export const loginDonor = async (req, res) => {
             return res.status(400).json({ message: 'Donor does not exist' });
         }
 
+        console.log(password,donor.password);
         const isPasswordValid = await bcrypt.compare(password, donor.password);
 
         if (!isPasswordValid) {
@@ -107,6 +108,8 @@ export const loginDel = async (req, res) => {
 
         // Log the retrieved deliveryboy for debugging
         console.log('Found delivery boy:', deliveryboy);
+
+        console.log(password , deliveryboy.password);
 
         const isPasswordValid = await bcrypt.compare(password, deliveryboy.password);
         console.log('Password valid:', isPasswordValid);
@@ -206,6 +209,7 @@ export const signupDel = async (req, res) => {
                 coordinates: [longitude, latitude]
             }
         };
+
 
         const response = await axios.post(`${url}/deliveryboy/createDeliveryBoy`, deliveryboydata);
 
