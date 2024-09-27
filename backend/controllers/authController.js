@@ -68,7 +68,7 @@ export const loginDonor = async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, donor.password);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Invalid username or password' });
+            return res.status(401).json({ error: 'Invalid password' });
         }
 
 

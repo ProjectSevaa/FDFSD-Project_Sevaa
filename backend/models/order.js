@@ -47,7 +47,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: { 
         type: String, 
-        enum: [ 'on-going', 'delivered' ],
+        enum: [ 'on-going','picked-up','delivered' ],
         required: true 
     }
 });

@@ -115,3 +115,32 @@ export const getOrders = async (req, res) => {
     });
   }
 };
+
+
+export const setOrderDelivered = async (req,res) => {
+  const orderId = req.body.orderId;
+    
+  try {
+      // Assuming you are using Mongoose
+      await Order.findByIdAndUpdate(orderId, { status: 'delivered' });
+
+      res.redirect('/deliveryboy/getDeliveryBoyDashboard'); // Redirect to dashboard or wherever you need.
+  } catch (error) {
+      console.error('Error updating order status:', error);
+      res.status(500).send('Error updating order status');
+  }
+};
+
+export const setOrderPickedUp= async (req,res) => {
+  const orderId = req.body.orderId;
+    
+  try {
+      // Assuming you are using Mongoose
+      await Order.findByIdAndUpdate(orderId, { status: 'picked-up' });
+
+      res.redirect('/deliveryboy/getDeliveryBoyDashboard'); // Redirect to dashboard or wherever you need.
+  } catch (error) {
+      console.error('Error updating order status:', error);
+      res.status(500).send('Error updating order status');
+  }
+};

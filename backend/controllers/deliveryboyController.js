@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import { DeliveryBoy } from '../models/deliveryboy.js';
 import { Post } from '../models/post.js';
+import { Order } from '../models/order.js';
+import { User } from '../models/user.js';
 
 const app = express();
 
@@ -80,15 +82,33 @@ export const findNearbyPosts = async (req, res) => {
 
 
 
-// Controller to render the delivery boy form page
-export const getDeliveryBoyPage = (req, res) => {
-    try {
-        // Render the 'deliveryboy.ejs' form page
-        res.render('deliveryboy');
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
-    }
-};
+// // Controller to render the delivery boy form page
+// export const getDeliveryBoyPage = async (req, res) => {
+//     try {
+
+//         const token = req.cookies.deliveryboy_jwt;
+
+//         if (!token) {
+//             return res.status(401).json({ success: false, message: 'Unauthorized' });
+//         }
+
+//         const decodedToken = await new Promise((resolve, reject) => {
+//             jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+//                 if (err) reject(err);
+//                 else resolve(decoded);
+//             });
+//         });
+        
+//         const username = decodedToken.username;
+
+
+
+
+//         res.render('deliveryboy');
+//     } catch (error) {
+//         res.status(500).json({ message: 'Server error', error });
+//     }
+// };
 
 
 // Controller to add a new Delivery Boy
@@ -172,18 +192,21 @@ export const createDeliveryBoy = async (req, res) => {
 //     return R * c; // in meters
 // };
 
-// Controller to get all delivery boys assigned under a particular user
+
 export const getDeliveryBoysByUser = async (req, res) => {
     const { userId } = req.params; // Get the user ID from the request parameters
 
     try {
-        // Fetch delivery boys that work under the specified user
-        const deliveryBoys = await DeliveryBoy.find({ worksUnder: userId });
+        // Find the user by userId and populate the deliveryBoys
+        const user = await User.findById(userId).populate('deliveryBoys');
 
-        if (deliveryBoys.length === 0) {
-            return res.status(404).json({ message: 'No delivery boys found for this user.' });
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
+        // Return the delivery boys associated with the user
+        const deliveryBoys = user.deliveryBoys; // This will be an array of DeliveryBoy objects
         res.status(200).json({ deliveryBoys });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching delivery boys', error });
@@ -224,17 +247,73 @@ export const getDeliveryBoyDashboard = async (req, res) => {
         
         const username = decodedToken.username;
 
-        const deliveryboy = await DeliveryBoy.findOne({ deliveryBoyName :  username });
+        const deliveryboy = await DeliveryBoy.findOne({ deliveryBoyName: username });
 
         if (!deliveryboy) {
             return res.status(404).json({ success: false, message: 'Delivery Boy not found' });
         }
 
-        res.render('deliveryboy_dashboard', { deliveryboy });
+        // Find all orders where the deliveryBoyName matches the delivery boy's username
+        const orders = await Order.find({ deliveryBoyName: username });
 
-    }catch(err){
+        // If no orders are found, handle it
+        if (!orders.length) {
+            return res.status(404).json({ success: false, message: 'No orders found for this delivery boy' });
+        }
+
+        // Render the dashboard view with deliveryboy info and their orders
+        res.render('deliveryboy_dashboard', { deliveryboy, orders });
+
+    } catch (err) {
         console.log(err.message);
         res.status(500).json({ message: 'Server error' });
+    }
+};
 
+
+export const addDeliveryBoyToUser = async (req, res) => {
+    try {
+        const token = req.cookies.user_jwt;
+
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        const username = decodedToken.username;
+
+        // Find the user by username
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Get the delivery boy ID from the request body
+        const deliveryBoyName = req.body.deliveryBoyName;
+
+        console.log(req.body);
+
+        // Find the delivery boy by their ID
+        const deliveryBoy = await DeliveryBoy.findOne({deliveryBoyName});
+        if (!deliveryBoy) {
+            return res.status(404).json({ success: false, message: 'Delivery boy not found' });
+        }
+
+        // Add the delivery boy's ID to the user's deliveryBoys list
+        if (!user.deliveryBoys.includes(deliveryBoy._id)) {
+            user.deliveryBoys.push(deliveryBoy._id);
+            await user.save();
+        }
+
+        res.status(200).json({ success: true, deliveryBoy });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 };

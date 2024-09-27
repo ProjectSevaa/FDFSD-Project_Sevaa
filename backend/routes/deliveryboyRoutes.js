@@ -4,16 +4,18 @@ import {
     findNearbyPosts, 
     getAllDeliveryBoys, 
     getDeliveryBoysByUser,
-    getDeliveryBoyDashboard
+    getDeliveryBoyDashboard,
+    addDeliveryBoyToUser
 } from '../controllers/deliveryboyController.js';
 
 const router = express.Router();
 
 // Add a new delivery boy
 router.post('/createDeliveryBoy', createDeliveryBoy);
+router.post('/addDeliveryBoyToUser', addDeliveryBoyToUser);
 
 // Get all delivery boys assigned to a particular user
-router.get('/deliveryBoysByUser/:userId', getDeliveryBoysByUser);
+router.get('/deliveryBoysByUser', getDeliveryBoysByUser);
 
 // Get all delivery boys
 router.get('/getAllDeliveryBoys', getAllDeliveryBoys);

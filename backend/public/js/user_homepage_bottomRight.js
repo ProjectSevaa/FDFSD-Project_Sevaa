@@ -23,8 +23,13 @@ async function fetchAssignedOrders() {
 
     if (Array.isArray(assignedOrders) && assignedOrders.length > 0) {
       for (const order of assignedOrders) {
-        const statusColor = order.status === "delivered" ? "bg-green-600" : "bg-yellow-600";
-        const statusMessage = order.status === "delivered" ? "Delivered" : "On-Going";
+        const statusColor = order.status === "delivered" 
+        ? "bg-green-600" 
+        : order.status === "picked-up" 
+        ? "bg-yellow-600" 
+        : "bg-red-600";
+    
+        const statusMessage = order.status === "delivered" ? "Delivered" : order.status === "picked-up" ? "Picked-Up" : "On-Going";
 
         // Create a div for each order with Meraki-inspired styling
         const orderDiv = document.createElement("div");
@@ -45,7 +50,7 @@ async function fetchAssignedOrders() {
 
           <div class="flex items-center justify-between mt-4">
             <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">View Details</a>
-           <div class="font-bold text-gray-700 dark:text-gray-200">Status: ${order.deliveryBoyName}</div>
+           <div class="font-bold text-gray-700 dark:text-gray-200">deliveryboy name: ${order.deliveryBoyName}</div>
  
           </div>
         `;
