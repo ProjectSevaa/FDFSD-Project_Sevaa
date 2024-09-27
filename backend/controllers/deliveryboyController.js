@@ -37,6 +37,21 @@ export const findNearbyPosts = async (req, res) => {
     const { postId } = req.query;
 
     try {
+        const token = req.cookies.user_jwt;
+
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+        
+        const username = decodedToken.username;
+
         // Fetch the post by ID to get its coordinates
         const post = await Post.findById(postId);
         if (!post) {
@@ -47,8 +62,15 @@ export const findNearbyPosts = async (req, res) => {
 
         console.log(postLatitude , postLongitude);
 
-        // Fetch all delivery boys
-        const deliveryBoys = await DeliveryBoy.find({});
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const deliveryBoyIds = user.deliveryBoys; // List of ObjectIds for delivery boys
+
+        // Fetch all delivery boys whose IDs match the ones in user.deliveryBoys without using populate
+        const deliveryBoys = await DeliveryBoy.find({ _id: { $in: deliveryBoyIds } });
         if (deliveryBoys.length === 0) {
             return res.status(404).json({ message: 'No delivery boys found.' });
         }
