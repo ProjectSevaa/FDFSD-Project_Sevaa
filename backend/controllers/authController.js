@@ -108,13 +108,13 @@ export const loginDel = async (req, res) => {
         // Log the retrieved deliveryboy for debugging
         console.log('Found delivery boy:', deliveryboy);
 
-        console.log(password , deliveryboy.password);
+        // console.log(password , deliveryboy.password);
 
         const isPasswordValid = await bcrypt.compare(password, deliveryboy.password);
         console.log('Password valid:', isPasswordValid);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).json({ message: 'Invalid  password' });
         }
 
         const token = jwt.sign({ username: deliveryboy.deliveryBoyName, role: "deliveryboy" }, process.env.JWT_SECRET_KEY, {
