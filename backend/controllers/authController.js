@@ -48,7 +48,9 @@ export const loginUser = async (req, res) => {
 
     console.log("Login successful");
 
-    res.status(200).redirect("/user/user_homepage");
+    return res
+      .status(200)
+      .json({ message: "Login successful", redirectTo: "/user/user_homepage" });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ message: "Server error" });
@@ -87,7 +89,10 @@ export const loginDonor = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    res.status(200).redirect("/donor/donor_homepage");
+    res.status(200).json({
+      message: "Login successful",
+      redirectTo: "/donor/donor_homepage",
+    });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ message: "Server error" });

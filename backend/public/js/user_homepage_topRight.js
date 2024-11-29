@@ -54,7 +54,9 @@ async function fetchAcceptedRequests() {
             Fetch Nearby Delivery Boys
               </button>
 
-              <button style='color: blue;' id="assign-delivery-${request._id}" data-request-id="${request._id}" >Assign</button>
+              <button style='color: blue;' id="assign-delivery-${
+                request._id
+              }" data-request-id="${request._id}" >Assign</button>
           `;
 
         topRightSection.appendChild(requestDiv);
@@ -68,7 +70,6 @@ async function fetchAcceptedRequests() {
 
             // Call the function to fetch nearby delivery boys
             const nearbyDeliveryBoys = await fetchNearbyDeliveryBoys(postId);
-
 
             // Update the dropdown with the fetched nearby delivery boys
             const deliveryBoySelect = document.getElementById(
