@@ -19,7 +19,11 @@ const DonorFormSchema = z.object({
     .regex(/^(?!.*(.)\1{9})[6-9]\d{9}$/, {
       message: "Mobile number must be a valid 10-digit number starting with 6-9.",
     }),
-  email: z.string().email({ message: "Invalid email address." }),
+  email: z.string()
+  .email({ message: "Invalid email address." })
+  .regex(/@food\.in$/, {
+    message: "Email must be from the food.in domain.",
+  }),
   password: z
     .string()
     .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$/, {

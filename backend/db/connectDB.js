@@ -12,7 +12,7 @@ export async function connectDB() {
       useUnifiedTopology: true,
     });
     console.log("MongoDB connected");
-    await recalculateAllRatings();
+    
     
   } catch (err) {
     console.error("MongoDB connection error:", err);
