@@ -12,9 +12,9 @@ export default function HeroScrollDemo() {
         titleComponent={
           <>
             <h1 className="text-4xl font-semibold text-black dark:text-white mb-80">
-              Unleash the power of <br />
-              <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none">
-                Scroll Animations
+              Global Vision for <br />
+              <span className="text-4xl md:text-[5rem] font-bold mt-1 leading-none">
+                Hunger-Free Tomorrow
               </span>
             </h1>
           </>
@@ -37,35 +37,35 @@ export default function HeroScrollDemo() {
     </div>
   );
 }
-
 const testimonials = [
-    {
-      quote:
-        "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair.",
-      name: "Charles Dickens",
-      title: "A Tale of Two Cities",
-    },
-    {
-      quote:
-        "To be, or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune, Or to take Arms against a Sea of troubles, And by opposing end them: to die, to sleep.",
-      name: "William Shakespeare",
-      title: "Hamlet",
-    },
-    {
-      quote: "All that we see or seem is but a dream within a dream.",
-      name: "Edgar Allan Poe",
-      title: "A Dream Within a Dream",
-    },
-    {
-      quote:
-        "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-      name: "Jane Austen",
-      title: "Pride and Prejudice",
-    },
-    {
-      quote:
-        "Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.",
-      name: "Herman Melville",
-      title: "Moby-Dick",
-    },
-  ];
+  {
+    quote:
+      "It was the best of times when we shared food with those in need, and the worst of times when we wasted it. It was the age of wisdom to redistribute leftovers, and the age of foolishness to ignore hunger. It was a season of hope, turning despair into joy.",
+    name: "Charles Dickens",
+    title: "Inspired by A Tale of Two Cities",
+  },
+  {
+    quote:
+      "To give, or not to give, that is the question: Whether 'tis nobler to share our abundance with the hungry, or to let it go to waste. By taking action, we not only feed others but also nourish our souls.",
+    name: "William Shakespeare",
+    title: "Inspired by Hamlet",
+  },
+  {
+    quote:
+      "All that we cook or save can be a dream of sustenance for someone in need. A meal within a meal can spark hope within despair.",
+    name: "Edgar Allan Poe",
+    title: "Inspired by A Dream Within a Dream",
+  },
+  {
+    quote:
+      "It is a truth universally acknowledged that food left untouched is best shared with those in hunger, rather than wasted.",
+    name: "Jane Austen",
+    title: "Inspired by Pride and Prejudice",
+  },
+  {
+    quote:
+      "Call me a helper. Some days ago—never mind how long precisely—I saw leftovers that could feed many, and chose to bridge the gap between surplus and scarcity.",
+    name: "Herman Melville",
+    title: "Inspired by Moby-Dick",
+  },
+];

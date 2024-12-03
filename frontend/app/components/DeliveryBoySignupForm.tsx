@@ -105,7 +105,7 @@ const DeliveryBoySignupForm: React.FC<DeliveryBoySignupFormProps> = () => {
                 id="mobileNumber"
                 name="mobileNumber"
                 type="tel"
-                pattern="[0-9]{10}"
+                pattern="^[0-9]{10}$"  // Regex to ensure it's a 10-digit mobile number
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
                 required
@@ -121,6 +121,7 @@ const DeliveryBoySignupForm: React.FC<DeliveryBoySignupFormProps> = () => {
                 id="vehicleNo"
                 name="vehicleNo"
                 type="text"
+                pattern="^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$"  // Regex for vehicle number format (e.g., KA01AB1234)
                 value={vehicleNo}
                 onChange={(e) => setVehicleNo(e.target.value)}
                 required
@@ -136,6 +137,7 @@ const DeliveryBoySignupForm: React.FC<DeliveryBoySignupFormProps> = () => {
                 id="drivingLicenseNo"
                 name="drivingLicenseNo"
                 type="text"
+                pattern="^[A-Z]{2}[0-9]{2}[A-Z]{1}[0-9]{11}$"  // Regex for driving license number format
                 value={drivingLicenseNo}
                 onChange={(e) => setDrivingLicenseNo(e.target.value)}
                 required
