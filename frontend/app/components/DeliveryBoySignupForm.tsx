@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Input } from "@/components/ui/input"; // Importing Input component
-import { Button } from "@/components/ui/button"; // Assuming you have a button component
-import { useToast } from "@/hooks/use-toast"; // Using a toast library for notifications
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const DeliveryBoySignupForm: React.FC = () => {
   const [deliveryBoyName, setDeliveryBoyName] = useState("");
-  const [password, setPassword] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
+  const [password, setPassword] = useState("");
   const [vehicleNo, setVehicleNo] = useState("");
   const [drivingLicenseNo, setDrivingLicenseNo] = useState("");
   const [longitude, setLongitude] = useState("");
@@ -19,8 +19,8 @@ const DeliveryBoySignupForm: React.FC = () => {
 
     if (
       !deliveryBoyName ||
-      !password ||
       !mobileNumber ||
+      !password ||
       !vehicleNo ||
       !drivingLicenseNo
     ) {
@@ -43,16 +43,21 @@ const DeliveryBoySignupForm: React.FC = () => {
 
     const signupData = {
       deliveryBoyName,
-      password,
       mobileNumber,
+      password, // Ensure password is part of the request payload
       vehicleNo,
       drivingLicenseNo,
-      longitude: parseFloat(longitude) || 0,
-      latitude: parseFloat(latitude) || 0,
+      currentLocation: {
+        type: "Point",
+        coordinates: [
+          parseFloat(longitude) || 0,
+          parseFloat(latitude) || 0,
+        ],
+      },
     };
 
     try {
-      const response = await fetch("http://localhost:9500/auth/delSignup", {
+      const response = await fetch("http://localhost:9500/deliveryboy/createDeliveryBoy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,10 +71,9 @@ const DeliveryBoySignupForm: React.FC = () => {
           title: "Signup Successful",
           description: "Your account has been created successfully.",
         });
-        // Reset the form fields
         setDeliveryBoyName("");
-        setPassword("");
         setMobileNumber("");
+        setPassword("");
         setVehicleNo("");
         setDrivingLicenseNo("");
         setLongitude("");
