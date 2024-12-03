@@ -117,7 +117,12 @@ async function fetchAcceptedRequests() {
             }
 
             // Call the function to assign the order
-            await assignOrder(requestId, selectedDeliveryBoy, deliveryLocation);
+            const result = await assignOrder(requestId, selectedDeliveryBoy, deliveryLocation);
+
+            // If the result contains an alert message, show it to the user
+            if (result && result.message) {
+              alert(result.message);
+            }
           });
       }
     } else {
@@ -169,13 +174,20 @@ async function assignOrder(requestId, deliveryBoyId, deliveryLocation) {
       }),
     });
 
+    // Check if the response is not OK (status code not in 200-299 range)
     if (!response.ok) {
-      throw new Error("Failed to assign order.");
+      const result = await response.json();
+      // Show the message from the server in an alert or log it
+      alert(result.message || "An error occurred while assigning the order.");
+      return { message: result.message };
     }
 
     const result = await response.json();
     alert("Order assigned successfully!");
+
   } catch (error) {
     console.error("Error assigning order:", error);
+    alert("An error occurred while assigning the order.");
+    return { message: "An error occurred while assigning the order." };
   }
 }

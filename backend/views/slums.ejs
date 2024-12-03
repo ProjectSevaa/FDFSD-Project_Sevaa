@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slums Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Make sure jQuery is included -->
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+
+  <!-- Main content -->
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Slums Management</h1>
+
+    <!-- Create Slum Form -->
+    <section class="mt-6 bg-white rounded-lg shadow-lg p-6 dark:bg-gray-800">
+        <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Create a New Slum</h2>
+        <form id="createSlumForm" action="/slum/slums" method="POST" enctype="multipart/form-data">
+            <div class="mb-4">
+              <label for="name" class="block text-gray-700 dark:text-gray-200">Slum Name</label>
+              <input type="text" name="name" id="name" class="w-full p-2 border rounded-md" placeholder="Enter slum name" required>
+            </div>
+          
+            <div class="mb-4">
+              <label for="description" class="block text-gray-700 dark:text-gray-200">Description</label>
+              <textarea name="description" id="description" rows="4" class="w-full p-2 border rounded-md" placeholder="Enter slum description" required></textarea>
+            </div>
+          
+            <div class="mb-4">
+              <label for="photos" class="block text-gray-700 dark:text-gray-200">Upload Photos (Max 10)</label>
+              <input type="file" name="photos" id="photos" accept="image/*" multiple class="w-full p-2 border rounded-md" required>
+              <small class="text-gray-500 dark:text-gray-400">You can upload up to 10 photos.</small>
+            </div>
+          
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Create Slum</button>
+          </form>                   
+    </section>
+
+    <!-- List of Slums -->
+    <section class="mt-10 bg-white rounded-lg shadow-lg p-6 dark:bg-gray-800">
+      <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">All Slums</h2>
+
+      <% if (slums.length > 0) { %>
+        <div class="space-y-4">
+          <% slums.forEach(slum => { %>
+            <div class="flex max-w-md overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800" id="slum-<%= slum._id %>">
+              <div class="w-2/3 p-4">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white"><%= slum.name %></h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><%= slum.description || 'No description available' %></p>
+
+                <!-- Display Slum Images -->
+                <div class="mt-4 flex space-x-2">
+                  <% slum.photos.forEach((photo, index) => { %>
+                    <img src="<%= photo %>" alt="Slum Image <%= index + 1 %>" class="w-16 h-16 object-cover rounded-md shadow-sm" />
+                  <% }) %>
+                </div>
+              </div>
+
+              <div class="w-1/3 flex items-center justify-end p-4">
+                <button class="px-4 py-2 text-xs font-bold text-white uppercase transition-colors duration-300 transform bg-gray-800 rounded dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-700 dark:focus:bg-gray-600" onclick="viewDetails('<%= slum._id %>')">View Details</button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="text-gray-600 dark:text-gray-400">No slums available at the moment.</p>
+      <% } %>
+    </section>
+
+    <!-- Modal for Slum Details -->
+    <div id="slumModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+      <div class="bg-white rounded-lg p-6 w-2/3 max-w-2xl">
+        <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4" id="modalSlumName">Slum Name</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4" id="modalSlumDescription">Description goes here.</p>
+        
+        <div id="modalSlumImages" class="grid grid-cols-3 gap-4"></div>
+
+        <button onclick="closeModal()" class="mt-4 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Close</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    $(document).ready(function () {
+        // Handle form submission with AJAX
+        $('#createSlumForm').submit(function (event) {
+            event.preventDefault();  // Prevent default form submission
+
+            var formData = new FormData(this);  // Create FormData object
+
+            $.ajax({
+                url: '/slum/slums',  // API endpoint to send data to
+                type: 'POST',  // HTTP request type
+                data: formData,  // Form data to send
+                contentType: false,  // Let the browser determine the content type
+                processData: false,  // Prevent jQuery from processing the data
+                success: function (response) {
+                    alert('Slum created successfully!');
+                    $('#createSlumForm')[0].reset();  // Reset the form
+                    // Optionally, update the slums list without refreshing
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    alert('Error: ' + xhr.responseText);  // Handle errors
+                }
+            });
+        });
+    });
+
+    // View details of a specific slum
+    function viewDetails(slumId) {
+      $.ajax({
+        url: '/slum/slums/' + slumId,  // Fetch slum details by ID
+        type: 'GET',
+        success: function (data) {
+          // Populate modal with the slum details
+          $('#modalSlumName').text(data.name);
+          $('#modalSlumDescription').text(data.description);
+
+          // Clear previous images
+          $('#modalSlumImages').empty();
+
+          // Display slum images
+          data.photos.forEach(function (photo, index) {
+            $('#modalSlumImages').append('<img src="' + photo + '" class="w-full h-32 object-cover rounded-md shadow-sm" />');
+          });
+
+          // Show the modal
+          $('#slumModal').removeClass('hidden');
+        },
+        error: function (xhr, status, error) {
+          alert('Error: ' + xhr.responseText);
+        }
+      });
+    }
+
+    // Close the modal
+    function closeModal() {
+      $('#slumModal').addClass('hidden');
+    }
+  </script>
+</body>
+</html>

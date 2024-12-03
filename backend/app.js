@@ -17,6 +17,7 @@ import requestRoutes from "./routes/requestRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import deliveryboyRoutes from "./routes/deliveryboyRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import slumRoutes from "./routes/slumRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +63,7 @@ app.use("/request", requestRoutes);
 app.use("/post", postRoutes);
 app.use("/deliveryboy", deliveryboyRoutes);
 app.use("/order", orderRoutes);
+app.use("/slum", slumRoutes);
 
 const PORT = process.env.PORT || 9500;
 app.listen(PORT, () => {

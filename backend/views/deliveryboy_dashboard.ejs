@@ -12,6 +12,35 @@
 <body class="bg-gray-100 p-6">
     <div class="max-w-4xl mx-auto">
         <h1 class="text-2xl font-semibold mb-4">Welcome, <%= deliveryboy.deliveryBoyName %></h1>
+    
+        <!-- Toggle Active/Inactive Status Buttons -->
+        <div class="mb-6">
+            <!-- Set Active Button -->
+            <button 
+                id="setActiveButton"
+                onclick="toggleStatus('available')"
+                class="px-6 py-2 text-white bg-green-500 rounded-md mr-4"
+                <%= deliveryboy.status === 'available' ? 'disabled' : '' %>
+            >
+                Set Available
+            </button>
+            
+            <!-- Set Inactive Button -->
+            <button 
+                id="setInactiveButton"
+                onclick="toggleStatus('inactive')"
+                class="px-6 py-2 text-white bg-red-500 rounded-md"
+                <%= deliveryboy.status === 'inactive' ? 'disabled' : '' %>
+            >
+                Set Inactive
+            </button>
+        </div>
+    </div>
+    
+
+
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-semibold mb-4">Welcome, <%= deliveryboy.deliveryBoyName %></h1>
 
         <!-- Tabs for Ongoing and Delivered Orders -->
         <div class="flex overflow-x-auto whitespace-nowrap border-b border-gray-300 dark:border-gray-500 mb-6">
@@ -47,14 +76,18 @@
                     <span class="text-sm font-bold text-gray-700 dark:text-gray-200">Timestamp: <%= new Date(order.timestamp).toLocaleString() %></span>
                     <div class="space-x-2">
                         <!-- Picked-Up Button -->
-                        <form method="POST" action="/order/setOrderPickedUp" class="inline-block">
+                        <form id="pickUpForm-<%= order._id %>" method="POST" action="/order/setOrderPickedUp" class="inline-block">
                             <input type="hidden" name="orderId" value="<%= order._id %>" />
                             <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-blue-500 rounded">Mark as Picked-Up</button>
                         </form>
+                            
+
                         <!-- Delivered Button -->
-                        <form method="POST" action="/order/setOrderDelivered" class="inline-block">
+                        <form id="deliveredForm-<%= order._id %>" method="POST" action="/order/setOrderDelivered" class="inline-block">
                             <input type="hidden" name="orderId" value="<%= order._id %>" />
-                            <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-green-500 rounded">Mark as Delivered</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-green-500 rounded">
+                                Mark as Delivered
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -113,6 +146,102 @@
                 ongoingTab.classList.remove('border-red-500');
             }
         }
+        // Function to handle order status update (picked-up or delivered)
+        async function updateOrderStatus(orderId, status) {
+            try {
+                // Depending on the status, call the corresponding endpoint
+                const url = status === 'picked-up' ? '/order/setOrderPickedUp' : '/order/setOrderDelivered';
+
+                const response = await fetch(url, { // Endpoint for either picking up or delivering the order
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('user_jwt')}`,
+                    },
+                    body: JSON.stringify({ orderId })
+                });
+
+                const result = await response.json();
+                console.log(result); // Log the response to debug
+
+                if (response.ok) {
+                    // If the order status update is successful, log it to the console
+                    console.log(`Order with ID: ${orderId} has been marked as ${status}.`);
+                    alert(`Order marked as ${status}`); // Optional alert
+
+                    // Update the UI dynamically (e.g., hide the "Picked-Up" button, show the "Delivered" button)
+                    if (status === 'picked-up') {
+                        // Disable the "Picked-Up" button and show the "Delivered" button
+                        document.getElementById(`pickUpForm-${orderId}`).querySelector('button').disabled = true;
+                        document.getElementById(`deliveredForm-${orderId}`).style.display = 'inline-block';
+                    } else if (status === 'delivered') {
+                        // Optionally, hide the "Delivered" button after marking it delivered
+                        document.getElementById(`deliveredForm-${orderId}`).style.display = 'none';
+                    }
+
+                    // Dynamically reload the page to show the latest data
+                    location.reload(); // Reload the page to reflect the updated status
+
+                } else {
+                    // Handle error or unsuccessful status update
+                    console.error('Error updating order status', result.message || result);
+                    alert('Error updating order status');
+                }
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                alert('Error updating order status');
+            }
+        }
+
+        // Add event listeners to the buttons for dynamic order updates
+        document.addEventListener("DOMContentLoaded", function() {
+            // Handle "Picked-Up" form submission
+            document.querySelectorAll('form[id^="pickUpForm-"]').forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevent the form from submitting normally
+                    const orderId = form.querySelector('input[name="orderId"]').value;
+                    updateOrderStatus(orderId, 'picked-up'); // Call function to update status to "picked-up"
+                });
+            });
+
+            // Handle "Delivered" form submission
+            document.querySelectorAll('form[id^="deliveredForm-"]').forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevent the form from submitting normally
+                    const orderId = form.querySelector('input[name="orderId"]').value;
+                    updateOrderStatus(orderId, 'delivered'); // Call function to update status to "delivered"
+                });
+            });
+        });
+
+
+        
+    async function toggleStatus(status) {
+    const deliveryBoyId = '<%= deliveryboy._id %>'; // Assuming the delivery boy ID is embedded in the template
+
+    fetch(`/deliveryboy/toggle-status/${deliveryBoyId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: status }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.deliveryBoy) {
+            alert(`Status updated to ${status}`);
+            // Optionally, you can reload the page to update the status
+            window.location.reload();
+        } else {
+            alert('Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error toggling status');
+    });
+}
+
     </script>
 </body>
 

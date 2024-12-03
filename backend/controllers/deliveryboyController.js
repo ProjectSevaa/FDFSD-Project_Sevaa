@@ -339,3 +339,36 @@ export const addDeliveryBoyToUser = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 };
+
+// Controller function to toggle the status of a delivery boy
+export const toggleStatus = async (req, res) => {
+    const deliveryBoyId = req.params.id; // Get the delivery boy ID from the URL params
+    const { status } = req.body; // Get the new status from the request body
+
+    try {
+        // Find the delivery boy by ID
+        const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
+        
+        if (!deliveryBoy) {
+            return res.status(404).json({ message: 'Delivery Boy not found' });
+        }
+
+        // Check if the provided status is valid
+        if (status !== 'available' && status !== 'inactive') {
+            return res.status(400).json({ message: 'Invalid status. Must be "available" or "inactive"' });
+        }
+
+        // Update the delivery boy's status
+        deliveryBoy.status = status;
+        await deliveryBoy.save(); // Save the changes to the database
+
+        // Send a success response with the updated delivery boy
+        return res.status(200).json({
+            message: `Delivery boy status updated to ${status}`,
+            deliveryBoy: deliveryBoy,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

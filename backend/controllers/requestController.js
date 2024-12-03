@@ -6,6 +6,7 @@ import { User } from "../models/user.js";
 import { Donor } from "../models/donor.js";
 import { Request } from "../models/request.js";
 import { Post } from "../models/post.js";
+import { recalculateAllRatings } from './ratingController.js'; 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -86,7 +87,38 @@ export const acceptRequest = async (req, res) => {
     }
 
     const postId = acceptedRequest.post_id;
+    const userUsername = acceptedRequest.userUsername;
+    const donorUsername = acceptedRequest.donorUsername;
 
+    // Find the user associated with the request (using userUsername)
+    const user = await User.findOne({ username: userUsername });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find the donor associated with the request (using donorUsername)
+    const donor = await Donor.findOne({ username: donorUsername });
+
+    if (!donor) {
+      return res.status(404).json({ message: "Donor not found" });
+    }
+
+    // Ensure donor's name is populated
+    if (!donor.username) {
+      return res.status(400).json({ message: "Donor's name is missing. Cannot accept request." });
+    }
+
+    // Increment the user's donorOrdersCount
+    user.donorOrdersCount += 1;
+
+    // Increment the donor's donationsCount
+    donor.donationsCount += 1;
+
+    // Save the updated user and donor data
+    await user.save();
+    await donor.save();
+    await recalculateAllRatings();
     // Set isAccepted to true for the accepted request
     const updatedRequest = await Request.findByIdAndUpdate(
       requestId,
@@ -94,7 +126,7 @@ export const acceptRequest = async (req, res) => {
       { new: true }
     );
 
-    // Set isRejected to true for all other requests with the same post_id
+    // Reject all other requests for this post
     await Request.updateMany(
       { post_id: postId, _id: { $ne: requestId } }, // Exclude the accepted request
       { isRejected: true }
@@ -103,13 +135,28 @@ export const acceptRequest = async (req, res) => {
     // Update the post to set isDealClosed to true
     await Post.findByIdAndUpdate(postId, { isDealClosed: true });
 
-    // Respond with the updated request
-    res.json(updatedRequest);
+    // Respond with the updated request and donor data
+    res.json({
+      message: "Request accepted and donor data updated",
+      updatedRequest,
+      donor: {
+        username: donor.username,
+        donationsCount: donor.donationsCount,
+        name: donor.name, // Include donor's name in response
+      },
+      user: {
+        username: user.username,
+        donorOrdersCount: user.donorOrdersCount,
+      }
+    });
   } catch (error) {
     console.error("Error accepting request:", error);
     res.status(500).json({ message: "Error accepting request", error });
   }
 };
+
+
+
 
 export const cancelRequest = async (req, res) => {
   try {

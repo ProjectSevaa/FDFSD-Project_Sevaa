@@ -176,22 +176,33 @@ export function ManageSection() {
           deliveryLocation,
         }),
       });
-
+    
       if (!response.ok) {
-        throw new Error("Failed to assign order");
+        // Handle the case for 400 response
+        if (response.status === 400) {
+          const errorData = await response.json();
+          const errorMessage = errorData.message || "Failed to assign order";
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        } else {
+          throw new Error("Failed to assign order");
+        }
+      } else {
+        await response.json();
+        toast({
+          title: "Success",
+          description: "Order assigned successfully!",
+        });
+        fetchAcceptedRequests();
+        fetchAssignedOrders();
+        setSelectedRequest(null);
+        setSelectedDeliveryBoy("");
+        setDeliveryLocation("");
+        setIsDialogOpen(false);
       }
-
-      await response.json();
-      toast({
-        title: "Success",
-        description: "Order assigned successfully!",
-      });
-      fetchAcceptedRequests();
-      fetchAssignedOrders();
-      setSelectedRequest(null);
-      setSelectedDeliveryBoy("");
-      setDeliveryLocation("");
-      setIsDialogOpen(false);
     } catch (error) {
       console.error("Error assigning order:", error);
       toast({
@@ -200,7 +211,8 @@ export function ManageSection() {
         variant: "destructive",
       });
     }
-  };
+  }
+    
 
   const fetchAssignedOrders = async () => {
     try {

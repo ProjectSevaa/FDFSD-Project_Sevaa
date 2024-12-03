@@ -5,7 +5,8 @@ import {
     getAllDeliveryBoys, 
     getDeliveryBoysByUser,
     getDeliveryBoyDashboard,
-    addDeliveryBoyToUser
+    addDeliveryBoyToUser,
+    toggleStatus 
 } from '../controllers/deliveryboyController.js';
 
 const router = express.Router();
@@ -24,5 +25,7 @@ router.get('/getAllDeliveryBoys', getAllDeliveryBoys);
 router.get('/findNearbyPosts', findNearbyPosts);
 
 router.get('/getDeliveryBoyDashboard', getDeliveryBoyDashboard);
+
+router.post('/toggle-status/:id', toggleStatus);
 
 export default router;

@@ -5,8 +5,10 @@ import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import { Request } from "../models/request.js";
 import { Post } from "../models/post.js";
+import { User } from "../models/user.js";
 import { Order } from "../models/order.js";
 import { DeliveryBoy } from "../models/deliveryboy.js";
+import { recalculateAllRatings } from './ratingController.js'; 
 const app = express();
 
 const url = process.env.URL;
@@ -31,7 +33,19 @@ export const assignOrder = async (req, res) => {
     const post = await Post.findById(request.post_id);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
+    // Find the delivery boy, excluding inactive delivery boys
+    const deliveryBoy = await DeliveryBoy.findOne({
+      _id: deliveryBoyId,
+      status: { $ne: 'inactive' } // Exclude inactive delivery boys
+    });
+
+    if (!deliveryBoy) return res.status(404).json({ message: "Delivery boy not found or inactive" });
+
+    // Check if the delivery boy is already on an ongoing delivery
+    if (deliveryBoy.status === 'on-going') {
+      return res.status(400).json({ message: `${deliveryBoy.deliveryBoyName} is already assigned to another delivery` });
+    }
+
     // Create a new order
     const newOrder = new Order({
       donorUsername: request.donorUsername,
@@ -55,6 +69,10 @@ export const assignOrder = async (req, res) => {
     request.deliveryAssigned = true;
     await request.save();
 
+    // Update the delivery boy status to "on-going"
+    deliveryBoy.status = 'on-going';
+    await deliveryBoy.save();
+
     // Send a success response
     res.status(201).json({
       message: "Order created successfully",
@@ -65,6 +83,8 @@ export const assignOrder = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 export const getOrders = async (req, res) => {
   try {
@@ -110,29 +130,73 @@ export const getOrders = async (req, res) => {
 };
 
 export const setOrderDelivered = async (req, res) => {
-  const orderId = req.body.orderId;
+  const { orderId } = req.body;
 
   try {
-    // Assuming you are using Mongoose
-    await Order.findByIdAndUpdate(orderId, { status: "delivered" });
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
 
-    res.redirect("/deliveryboy/getDeliveryBoyDashboard"); // Redirect to dashboard or wherever you need.
+    // Check the current status of the order before marking it as delivered
+    if (order.status !== 'on-going' && order.status !== 'picked-up') {
+      return res.status(400).json({ message: `Order marked as delivered in its current state` });
+    }
+
+    // Set order status to 'delivered'
+    order.status = "delivered";
+    const deliveryBoy = await DeliveryBoy.findById(order.deliveryBoy);
+    const user = await User.findOne({ username: order.userUsername });
+    await order.save();
+    if (!user) {
+      return res.status(404).json({ message: "User not found"});
+    }
+
+    if (!deliveryBoy) {
+      return res.status(404).json({ message: "Delivery boy not found" });
+    }
+    user.deliveredOrdersCount +=1;
+    deliveryBoy.deliveredOrders += 1;
+    deliveryBoy.status = "available"; 
+    await deliveryBoy.save();
+    await user.save();
+    recalculateAllRatings();
+    res.status(200).json({ message: "Order delivered successfully"});
   } catch (error) {
-    console.error("Error updating order status:", error);
-    res.status(500).send("Error updating order status");
+    console.error("Error details:", error);  // Log the actual error
+    res.status(500).json({ message: "Error updating order status", error: error.message });
   }
+  
 };
 
 export const setOrderPickedUp = async (req, res) => {
-  const orderId = req.body.orderId;
+  const { orderId } = req.body;
 
   try {
-    // Assuming you are using Mongoose
-    await Order.findByIdAndUpdate(orderId, { status: "picked-up" });
+    // Find the order by ID and update its status
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
 
-    res.redirect("/deliveryboy/getDeliveryBoyDashboard"); // Redirect to dashboard or wherever you need.
+    // Set order status to 'picked-up'
+    if (order.status !== 'on-going') { // Optional: Prevent updating if it's not in 'on-going' status
+        return res.status(400).json({ message: "Order must be in ongoing status to be marked as picked up" });
+    }
+    order.status = "picked-up";
+    await order.save();
+
+    const deliveryBoy = await DeliveryBoy.findById(order.deliveryBoy);
+    if (deliveryBoy) {
+      deliveryBoy.status = "on-going";
+      await deliveryBoy.save();
+    } else {
+      console.error("Delivery boy not found");
+    }
+
+    res.status(200).json({ message: "Order picked up successfully", order });
   } catch (error) {
     console.error("Error updating order status:", error);
-    res.status(500).send("Error updating order status");
+    res.status(500).json({ message: "Error updating order status" });
   }
 };
+
+

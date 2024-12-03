@@ -346,3 +346,9 @@ async function addDeliveryBoyToUser(deliveryBoyName) {
     console.error("Error:", error);
   }
 }
+
+// Add event listener to the button
+document.getElementById("show-slums-btn").addEventListener("click", function(event) {
+  event.preventDefault(); // Prevent the default anchor behavior
+  window.location.href = "/slum/showslums";  // Redirect to the slums page
+});

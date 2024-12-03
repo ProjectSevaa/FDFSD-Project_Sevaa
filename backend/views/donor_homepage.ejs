@@ -98,8 +98,8 @@
             <h2>Submit a Request</h2>
             <form id="requestForm" action="/request/addRequest" method="POST">
               <div class="form-group">
-                <label for="donorUsername">Donor Username:</label>
-                <input type="text" id="donorUsername" name="donorUsername" value="<%= donor.username %>" readonly required class="form-control">
+                <label for="donorEmail">Donor Username:</label>
+                <input type="text" id="donorEmail" name="donorEmail" value="<%= donor.username %>" readonly required class="form-control">
               </div>
               <div class="form-group">
                 <label for="userUsername">User Username:</label>
@@ -122,8 +122,8 @@
             <h2>Create a Post</h2>
             <form action="/post/createPost" method="POST">
               <div class="form-group">
-                  <label for="donorUsername">Donor Username:</label>
-                  <input type="text" id="donorUsername" name="donorUsername" value="<%= donor.username %>" readonly required class="form-control">
+                  <label for="donorEmail">Donor Email:</label>
+                  <input type="text" id="donorEmail" name="donorEmail" value="<%= donor.email %>" readonly required class="form-control">
               </div>
               <div class="form-group">
                   <label for="location">Location (optional):</label>
@@ -149,7 +149,7 @@
               <ul class="list-group">
                 <% postsList.forEach(post => { %>
                   <li class="list-group-item">
-                    <strong>Donor:</strong> <%= post.donorUsername %><br>
+                    <strong>Donor:</strong> <%= post.donorEmail %><br>
                     <strong>Location:</strong> <%= post.location || 'Not provided' %><br>
                     <strong>Available Food:</strong> <%= post.availableFood.join(', ') %><br>
                     <strong>Deal Closed:</strong> <%= post.isDealClosed ? 'Yes' : 'No' %><br>
@@ -242,7 +242,7 @@
                     ${request.isAccepted ? '<strong>Status:</strong> Accepted Request<br>' : ''}
                     ${request.isRejected ? '<strong>Status:</strong> You Rejected this<br>' : ''}
                     ${!request.isAccepted && !request.isRejected ? 
-                      `<button class="btn btn-success accept-btn" data-request-id="${request._id}">Accept</button>` 
+                      `<button class="btn btn-success accept-btn" data-request-id="${request._id}" data-post-id="${postId}">Accept</button>` 
                       : ''}
                   `;
                   requestsList.appendChild(li);
@@ -252,24 +252,38 @@
                 document.querySelectorAll('.accept-btn').forEach(acceptBtn => {
                   acceptBtn.addEventListener('click', async function() {
                     const requestId = this.getAttribute('data-request-id');
-        
+                    const postId = this.getAttribute('data-post-id'); // Get the postId from the button
+                    const requestsList = document.querySelector('#requestsList'); // Get the requests list container
+
                     try {
+                      // Ensure the postId is a valid value before proceeding
+                      if (!postId || !requestId) {
+                        alert('Post ID or Request ID is missing');
+                        return;
+                      }
+
                       // Send PATCH request to accept the request
                       const response = await fetch(`/request/acceptRequest/${requestId}`, {
                         method: 'PATCH',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          post_id: postId, // Send postId as part of the request body
+                        }),
                       });
-      
+
                       if (response.ok) {
                         const updatedRequest = await response.json();
-                        alert(`Request accepted: ${updatedRequest._id}`);
-      
+                        alert(`Request accepted`);
+
                         // Refresh the requests to reflect the updated status
                         const postResponse = await fetch(`/request/getRequestsForPost?postId=${postId}`);
                         const updatedData = await postResponse.json();
-      
+
                         // Update the request list in the modal
-                        requestsList.innerHTML = ''; // Clear requests again
-      
+                        requestsList.innerHTML = ''; // Clear previous requests
+
                         updatedData.requests.forEach(request => {
                           const li = document.createElement('li');
                           li.innerHTML = `
@@ -278,11 +292,18 @@
                             <strong>Available Food:</strong> ${request.availableFood.join(', ')}<br>
                             ${request.isAccepted ? '<strong>Status:</strong> Accepted Request<br>' : ''}
                             ${request.isRejected ? '<strong>Status:</strong> You Rejected this<br>' : ''}
+                            <button 
+                              class="accept-btn" 
+                              data-request-id="${request._id}" 
+                              data-post-id="${postId}">Accept</button>
                           `;
-                          requestsList.appendChild(li);
+                          requestsList.appendChild(li); // Add updated request item to the list
                         });
+
                       } else {
-                        alert('Failed to accept request');
+                        const errorData = await response.json(); // Parse the error response from the backend
+                        console.error('Error details:', errorData); // Log the error details
+                        alert(`Failed to accept request: ${errorData.message || 'Unknown error'}`);
                       }
                     } catch (error) {
                       console.error('Error accepting request:', error);
@@ -290,7 +311,10 @@
                     }
                   });
                 });
-      
+
+                
+                
+                
               } else {
                 requestsList.innerHTML = '<p>No requests available for this post.</p>';
               }

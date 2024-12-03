@@ -4,7 +4,7 @@ import { Donor } from "../models/donor.js";
 // Create a new post with current location
 export const createPost = async (req, res) => {
   const { donorEmail, location, availableFood, longitude, latitude } = req.body;
-
+  console.log(donorEmail);
   try {
     // Check if the donor is banned
     const donor = await Donor.findOne({ email: donorEmail });
