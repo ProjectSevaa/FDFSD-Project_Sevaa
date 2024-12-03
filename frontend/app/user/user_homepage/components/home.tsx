@@ -15,7 +15,13 @@ export function HomeSection() {
           <h3 className="font-medium mb-2">Notifications</h3>
           {/* Add content */}
         </div>
+        <div className="w-full h-full overflow-hidden">
+      {/* Your section content goes here */}
+      <h1>Home Section</h1>
+      {/* Other content */}
+    </div>
       </div>
     </div>
+    
   );
 }

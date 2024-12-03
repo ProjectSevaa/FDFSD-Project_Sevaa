@@ -15,6 +15,11 @@ export function SettingsSection() {
           <h3 className="font-medium mb-2">Notifications</h3>
           {/* Add notifications content */}
         </div>
+        <div className="w-full h-full overflow-hidden">
+      {/* Your settings content goes here */}
+      <h1>Settings Section</h1>
+      {/* Other content */}
+    </div>
       </div>
     </div>
   );
