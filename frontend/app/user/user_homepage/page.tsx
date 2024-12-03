@@ -1,4 +1,3 @@
-// app/user/user_homepage/page.tsx
 "use client";
 
 import { HomeSection } from "./components/home";
@@ -34,5 +33,9 @@ export default function UserHomepage() {
     }
   };
 
-  return <div className="w-full h-full">{renderSection()}</div>;
+  return (
+    <div className="w-full h-full overflow-hidden">
+      {renderSection()}
+    </div>
+  );
 }
