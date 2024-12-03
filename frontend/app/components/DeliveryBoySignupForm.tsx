@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label"; // Importing Label component
 import { Input } from "@/components/ui/input"; // Importing Input component
+import { Button } from "@/components/ui/button"; // Assuming you have a button component
+import { useToast } from "@/hooks/use-toast"; // Using a toast library for notifications
 
-interface DeliveryBoySignupFormProps {
-  toggleForm: () => void;
-}
-
-const DeliveryBoySignupForm: React.FC<DeliveryBoySignupFormProps> = () => {
+const DeliveryBoySignupForm: React.FC = () => {
   const [deliveryBoyName, setDeliveryBoyName] = useState("");
   const [password, setPassword] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
@@ -16,219 +12,168 @@ const DeliveryBoySignupForm: React.FC<DeliveryBoySignupFormProps> = () => {
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Delivery Boy Signup Submitted", {
+
+    if (
+      !deliveryBoyName ||
+      !password ||
+      !mobileNumber ||
+      !vehicleNo ||
+      !drivingLicenseNo
+    ) {
+      toast({
+        title: "Error",
+        description: "Please fill out all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!/^[0-9]{10}$/.test(mobileNumber)) {
+      toast({
+        title: "Invalid Mobile Number",
+        description: "Mobile number must be 10 digits.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const signupData = {
       deliveryBoyName,
       password,
       mobileNumber,
       vehicleNo,
       drivingLicenseNo,
-      longitude,
-      latitude,
-    });
-    // Handle signup logic here
+      longitude: parseFloat(longitude) || 0,
+      latitude: parseFloat(latitude) || 0,
+    };
+
+    try {
+      const response = await fetch("http://localhost:9500/auth/delSignup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(signupData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({
+          title: "Signup Successful",
+          description: "Your account has been created successfully.",
+        });
+        // Reset the form fields
+        setDeliveryBoyName("");
+        setPassword("");
+        setMobileNumber("");
+        setVehicleNo("");
+        setDrivingLicenseNo("");
+        setLongitude("");
+        setLatitude("");
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Signup Failed",
+          description:
+            errorData.message || "An error occurred. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to connect to the server. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setLongitude(position.coords.longitude.toString());
-        setLatitude(position.coords.latitude.toString());
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLongitude(position.coords.longitude.toString());
+          setLatitude(position.coords.latitude.toString());
+          toast({
+            title: "Location Retrieved",
+            description: "Your current location has been set.",
+          });
+        },
+        (error) => {
+          toast({
+            title: "Location Error",
+            description: `Failed to get location: ${error.message}`,
+            variant: "destructive",
+          });
+        }
+      );
     } else {
-      alert("Geolocation is not supported by this browser.");
+      toast({
+        title: "Geolocation Not Supported",
+        description: "Your browser doesn't support geolocation.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <>
-      <style jsx>{`
-        .modal-body {
-          max-height: 400px;
-          overflow-y: auto;
-          -ms-overflow-style: none;  /* Internet Explorer 10+ */
-          scrollbar-width: none;  /* Firefox */
-        }
-
-        .modal-body::-webkit-scrollbar {
-          display: none;  /* Chrome, Safari, and Opera */
-        }
-      `}</style>
-      <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black text-white">
-        <div className="modal-header">
-          <h5 className="font-bold text-xl text-neutral-200">Delivery Boy Sign Up</h5>
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Close"
-            style={{ color: "#fff" }}
-            onClick={() => {}}
-          ></button>
+    <div className="max-w-md mx-auto p-4 bg-black text-white rounded-md">
+      <h2 className="text-xl font-bold mb-4">Delivery Boy Sign Up</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          placeholder="Delivery Boy Name"
+          value={deliveryBoyName}
+          onChange={(e) => setDeliveryBoyName(e.target.value)}
+          required
+        />
+        <Input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <Input
+          placeholder="Mobile Number"
+          value={mobileNumber}
+          onChange={(e) => setMobileNumber(e.target.value)}
+          required
+        />
+        <Input
+          placeholder="Vehicle Number"
+          value={vehicleNo}
+          onChange={(e) => setVehicleNo(e.target.value)}
+          required
+        />
+        <Input
+          placeholder="Driving License Number"
+          value={drivingLicenseNo}
+          onChange={(e) => setDrivingLicenseNo(e.target.value)}
+          required
+        />
+        <div className="flex space-x-2">
+          <Input
+            placeholder="Longitude"
+            value={longitude}
+            onChange={(e) => setLongitude(e.target.value)}
+            disabled
+          />
+          <Input
+            placeholder="Latitude"
+            value={latitude}
+            onChange={(e) => setLatitude(e.target.value)}
+            disabled
+          />
         </div>
-        <div className="modal-body">
-          <form onSubmit={handleSubmit} className="my-8">
-            {/* Delivery Boy Name */}
-            <LabelInputContainer className="mb-4">
-              <Label htmlFor="deliveryBoyName" className="text-neutral-200">Name</Label>
-              <Input
-                id="deliveryBoyNameSignup"
-                name="deliveryBoyName"
-                type="text"
-                value={deliveryBoyName}
-                onChange={(e) => setDeliveryBoyName(e.target.value)}
-                required
-                placeholder="Enter your name"
-                className="bg-black text-white border border-neutral-500"
-              />
-            </LabelInputContainer>
-
-            {/* Password */}
-            <LabelInputContainer className="mb-4">
-              <Label htmlFor="passwordDel" className="text-neutral-200">Password</Label>
-              <Input
-                id="passwordDel"
-                name="passwordDel"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Enter your password"
-                className="bg-black text-white border border-neutral-500"
-              />
-            </LabelInputContainer>
-
-            {/* Mobile Number */}
-            <LabelInputContainer className="mb-4">
-              <Label htmlFor="mobileNumber" className="text-neutral-200">Mobile Number</Label>
-              <Input
-                id="mobileNumber"
-                name="mobileNumber"
-                type="tel"
-                pattern="^[0-9]{10}$"  // Regex to ensure it's a 10-digit mobile number
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-                required
-                placeholder="Enter your mobile number"
-                className="bg-black text-white border border-neutral-500"
-              />
-            </LabelInputContainer>
-
-            {/* Vehicle Number */}
-            <LabelInputContainer className="mb-4">
-              <Label htmlFor="vehicleNo" className="text-neutral-200">Vehicle Number</Label>
-              <Input
-                id="vehicleNo"
-                name="vehicleNo"
-                type="text"
-                pattern="^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$"  // Regex for vehicle number format (e.g., KA01AB1234)
-                value={vehicleNo}
-                onChange={(e) => setVehicleNo(e.target.value)}
-                required
-                placeholder="Enter your vehicle number"
-                className="bg-black text-white border border-neutral-500"
-              />
-            </LabelInputContainer>
-
-            {/* Driving License Number */}
-            <LabelInputContainer className="mb-4">
-              <Label htmlFor="drivingLicenseNo" className="text-neutral-200">Driving License Number</Label>
-              <Input
-                id="drivingLicenseNo"
-                name="drivingLicenseNo"
-                type="text"
-                pattern="^[A-Z]{2}[0-9]{2}[A-Z]{1}[0-9]{11}$"  // Regex for driving license number format
-                value={drivingLicenseNo}
-                onChange={(e) => setDrivingLicenseNo(e.target.value)}
-                required
-                placeholder="Enter your driving license number"
-                className="bg-black text-white border border-neutral-500"
-              />
-            </LabelInputContainer>
-
-            {/* Coordinates Section */}
-            <fieldset className="border p-3 mb-3 border-neutral-500">
-              <legend className="text-neutral-200">Current Location (Coordinates)</legend>
-
-              {/* Longitude */}
-              <LabelInputContainer className="mb-4">
-                <Label htmlFor="longitude" className="text-neutral-200">Longitude</Label>
-                <Input
-                  id="longitude"
-                  name="longitude"
-                  type="number"
-                  step="any"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                  required
-                  placeholder="Longitude"
-                  className="bg-black text-white border border-neutral-500"
-                />
-              </LabelInputContainer>
-
-              {/* Latitude */}
-              <LabelInputContainer className="mb-4">
-                <Label htmlFor="latitude" className="text-neutral-200">Latitude</Label>
-                <Input
-                  id="latitude"
-                  name="latitude"
-                  type="number"
-                  step="any"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
-                  required
-                  placeholder="Latitude"
-                  className="bg-black text-white border border-neutral-500"
-                />
-              </LabelInputContainer>
-
-              {/* Get Location Button */}
-              <div className="mb-4">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary text-white border border-neutral-500 bg-black rounded-md py-2 px-4 hover:bg-neutral-700"
-                  onClick={getCurrentLocation}
-                >
-                  Get Current Location
-                </button>
-              </div>
-            </fieldset>
-
-            {/* Submit Button */}
-            <div className="flex justify-between items-center space-x-4 mb-4">
-              <button
-                type="button"
-                className="btn btn-outline-secondary text-white border border-neutral-500 bg-black rounded-md py-2 px-4 hover:bg-neutral-700"
-                onClick={() => {}}
-                style={{ width: "48%" }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary text-white bg-blue-500 border border-transparent rounded-md py-2 px-4 hover:bg-blue-600"
-                style={{ width: "48%" }}
-              >
-                Sign Up
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </>
-  );
-};
-
-const LabelInputContainer = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  return (
-    <div className={cn("flex flex-col space-y-2 w-full", className)}>
-      {children}
+        <Button type="button" onClick={getCurrentLocation}>
+          Get Current Location
+        </Button>
+        <Button type="submit">Sign Up</Button>
+      </form>
     </div>
   );
 };

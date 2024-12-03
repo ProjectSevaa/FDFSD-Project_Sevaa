@@ -142,7 +142,11 @@ export const loginDel = async (req, res) => {
     });
 
     console.log("Login successful");
-    res.status(200).redirect("/deliveryboy/getDeliveryBoyDashboard"); // Adjust this if needed
+    // res.status(200).redirect("/deliveryboy/getDeliveryBoyDashboard"); // Adjust this if needed
+    return res.status(200).json({
+      message: "Login successful",
+      redirectTo: "/deliveryboy/deliveryboy_homepage",
+    });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ message: "Server error" });

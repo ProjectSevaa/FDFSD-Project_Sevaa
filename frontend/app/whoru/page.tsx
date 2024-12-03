@@ -20,7 +20,7 @@ export default function Home() {
         </Button>
 
         <Button variant="outline" asChild>
-          <Link href="/user_login">Delivery</Link>
+          <Link href="/deliveryboy_login">Delivery</Link>
         </Button>
       </div>
     </div>

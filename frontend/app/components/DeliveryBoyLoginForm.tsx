@@ -1,26 +1,64 @@
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 interface DeliveryBoyLoginFormProps {
   toggleForm: () => void;
 }
 
-const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({ toggleForm }) => {
+const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({
+  toggleForm,
+}) => {
   const [deliveryBoyName, setDeliveryBoyName] = useState("");
   const [password, setPassword] = useState("");
+  const { toast } = useToast();
+  const router = useRouter();
 
   // Handle form submission (login logic)
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Delivery Boy Login Submitted", { deliveryBoyName, password });
-    // Handle login logic here (e.g., API call)
+    try {
+      const response = await fetch("http://localhost:9500/auth/delLogin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deliveryBoyName, password }),
+        credentials: "include", // Include cookies
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+        if (result.redirectTo) {
+          router.push(result.redirectTo);
+        }
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Login Failed",
+          description: errorData.message || "Invalid credentials",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to connect to the server. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black text-white border-2 border-black">
       <div className="modal-header">
-        <h5 className="font-bold text-xl text-neutral-200">Delivery Boy Login</h5>
+        <h5 className="font-bold text-xl text-neutral-200">
+          Delivery Boy Login
+        </h5>
         <button
           type="button"
           className="btn-close"
@@ -33,7 +71,10 @@ const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({ toggleForm 
         <form onSubmit={handleSubmit} className="my-8">
           {/* Delivery Boy Name input */}
           <div className="mb-4">
-            <Label htmlFor="deliveryBoyName" className="block text-neutral-200 font-semibold mb-2">
+            <Label
+              htmlFor="deliveryBoyName"
+              className="block text-neutral-200 font-semibold mb-2"
+            >
               Delivery Boy Name:
             </Label>
             <Input
@@ -50,7 +91,10 @@ const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({ toggleForm 
 
           {/* Password input */}
           <div className="mb-4">
-            <Label htmlFor="passwordLogin" className="block text-neutral-200 font-semibold mb-2">
+            <Label
+              htmlFor="passwordLogin"
+              className="block text-neutral-200 font-semibold mb-2"
+            >
               Password:
             </Label>
             <Input
