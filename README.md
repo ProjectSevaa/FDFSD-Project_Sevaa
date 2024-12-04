@@ -170,14 +170,3 @@ You can now interact with the application, send requests to the API, and view th
 ## Conclusion
 
 This guide provides the basic steps to set up and run both the backend and frontend of your project. If you run into any issues, make sure the dependencies are installed properly and the environment variables are correctly set up.
-
-Feel free to ask for any further assistance!
-
-### Steps to create the file:
-
-1. Open your project folder.
-2. Create a new file called `README.md` in the root directory.
-3. Copy and paste the above content into the `README.md` file.
-4. Save the file.
-
-Now, you should have a well-structured `README.md` for your project that you can use to guide anyone through the setup and running process. Let me know if you need anything else!
