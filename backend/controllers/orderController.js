@@ -8,7 +8,7 @@ import { Post } from "../models/post.js";
 import { User } from "../models/user.js";
 import { Order } from "../models/order.js";
 import { DeliveryBoy } from "../models/deliveryboy.js";
-import { recalculateAllRatings } from './ratingController.js'; 
+import { recalculateAllRatings } from "./ratingController.js";
 const app = express();
 
 const url = process.env.URL;
@@ -36,14 +36,19 @@ export const assignOrder = async (req, res) => {
     // Find the delivery boy, excluding inactive delivery boys
     const deliveryBoy = await DeliveryBoy.findOne({
       _id: deliveryBoyId,
-      status: { $ne: 'inactive' } // Exclude inactive delivery boys
+      status: { $ne: "inactive" }, // Exclude inactive delivery boys
     });
 
-    if (!deliveryBoy) return res.status(404).json({ message: "Delivery boy not found or inactive" });
+    if (!deliveryBoy)
+      return res
+        .status(404)
+        .json({ message: "Delivery boy not found or inactive" });
 
     // Check if the delivery boy is already on an ongoing delivery
-    if (deliveryBoy.status === 'on-going') {
-      return res.status(400).json({ message: `${deliveryBoy.deliveryBoyName} is already assigned to another delivery` });
+    if (deliveryBoy.status === "on-going") {
+      return res.status(400).json({
+        message: `${deliveryBoy.deliveryBoyName} is already assigned to another delivery`,
+      });
     }
 
     // Create a new order
@@ -70,7 +75,7 @@ export const assignOrder = async (req, res) => {
     await request.save();
 
     // Update the delivery boy status to "on-going"
-    deliveryBoy.status = 'on-going';
+    deliveryBoy.status = "on-going";
     await deliveryBoy.save();
 
     // Send a success response
@@ -83,8 +88,6 @@ export const assignOrder = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
 
 export const getOrders = async (req, res) => {
   try {
@@ -106,19 +109,17 @@ export const getOrders = async (req, res) => {
 
     const username = decodedToken.username;
 
-    // Find all orders for the given userUsername
-    const userOrders = await Order.find({
-      userUsername: username,
-    });
+    const userOrders = await Order.find({ userUsername: username });
 
     if (!userOrders || userOrders.length === 0) {
       return res.status(404).json({
+        success: false,
         message: "No orders found for this user.",
       });
     }
 
-    // Respond with the list of orders
     res.status(200).json({
+      success: true,
       assignedOrders: userOrders,
     });
   } catch (error) {
@@ -139,8 +140,10 @@ export const setOrderDelivered = async (req, res) => {
     }
 
     // Check the current status of the order before marking it as delivered
-    if (order.status !== 'on-going' && order.status !== 'picked-up') {
-      return res.status(400).json({ message: `Order marked as delivered in its current state` });
+    if (order.status !== "on-going" && order.status !== "picked-up") {
+      return res
+        .status(400)
+        .json({ message: `Order marked as delivered in its current state` });
     }
 
     // Set order status to 'delivered'
@@ -149,24 +152,25 @@ export const setOrderDelivered = async (req, res) => {
     const user = await User.findOne({ username: order.userUsername });
     await order.save();
     if (!user) {
-      return res.status(404).json({ message: "User not found"});
+      return res.status(404).json({ message: "User not found" });
     }
 
     if (!deliveryBoy) {
       return res.status(404).json({ message: "Delivery boy not found" });
     }
-    user.deliveredOrdersCount +=1;
+    user.deliveredOrdersCount += 1;
     deliveryBoy.deliveredOrders += 1;
-    deliveryBoy.status = "available"; 
+    deliveryBoy.status = "available";
     await deliveryBoy.save();
     await user.save();
     recalculateAllRatings();
-    res.status(200).json({ message: "Order delivered successfully"});
+    res.status(200).json({ message: "Order delivered successfully" });
   } catch (error) {
-    console.error("Error details:", error);  // Log the actual error
-    res.status(500).json({ message: "Error updating order status", error: error.message });
+    console.error("Error details:", error); // Log the actual error
+    res
+      .status(500)
+      .json({ message: "Error updating order status", error: error.message });
   }
-  
 };
 
 export const setOrderPickedUp = async (req, res) => {
@@ -178,8 +182,11 @@ export const setOrderPickedUp = async (req, res) => {
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     // Set order status to 'picked-up'
-    if (order.status !== 'on-going') { // Optional: Prevent updating if it's not in 'on-going' status
-        return res.status(400).json({ message: "Order must be in ongoing status to be marked as picked up" });
+    if (order.status !== "on-going") {
+      // Optional: Prevent updating if it's not in 'on-going' status
+      return res.status(400).json({
+        message: "Order must be in ongoing status to be marked as picked up",
+      });
     }
     order.status = "picked-up";
     await order.save();
@@ -198,5 +205,3 @@ export const setOrderPickedUp = async (req, res) => {
     res.status(500).json({ message: "Error updating order status" });
   }
 };
-
-

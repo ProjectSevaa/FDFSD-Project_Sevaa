@@ -312,10 +312,10 @@ export function InboxSection() {
             </div>
           )}
           <div className="w-full h-full overflow-hidden">
-      {/* Your inbox content goes here */}
-      <h1>Inbox Section</h1>
-      {/* Other content */}
-    </div>
+            {/* Your inbox content goes here */}
+            <h1></h1>
+            {/* Other content */}
+          </div>
         </ScrollArea>
       </ResizablePanel>
     </ResizablePanelGroup>

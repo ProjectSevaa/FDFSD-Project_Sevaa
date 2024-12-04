@@ -77,10 +77,15 @@ interface AssignedOrder {
 }
 
 export function ManageSection() {
-  const [acceptedRequests, setAcceptedRequests] = useState<AcceptedRequest[]>([]);
-  const [nearbyDeliveryBoys, setNearbyDeliveryBoys] = useState<DeliveryBoy[]>([]);
+  const [acceptedRequests, setAcceptedRequests] = useState<AcceptedRequest[]>(
+    []
+  );
+  const [nearbyDeliveryBoys, setNearbyDeliveryBoys] = useState<DeliveryBoy[]>(
+    []
+  );
   const [assignedOrders, setAssignedOrders] = useState<AssignedOrder[]>([]);
-  const [selectedRequest, setSelectedRequest] = useState<AcceptedRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<AcceptedRequest | null>(null);
   const [selectedDeliveryBoy, setSelectedDeliveryBoy] = useState<string>("");
   const [deliveryLocation, setDeliveryLocation] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -212,7 +217,7 @@ export function ManageSection() {
     try {
       const response = await fetch("http://localhost:9500/order/getOrders", {
         method: "GET",
-        credentials: "include",
+        credentials: "include", // Include cookies for authentication
       });
 
       if (!response.ok) {
@@ -220,12 +225,23 @@ export function ManageSection() {
       }
 
       const data = await response.json();
+
+      // Handle the case where no orders are found
+      if (!data.assignedOrders || data.assignedOrders.length === 0) {
+        toast({
+          title: "No Orders Found",
+          description: "You have no assigned orders.",
+          variant: "destructive", // You can customize the variant to fit your UI
+        });
+        return;
+      }
+
       setAssignedOrders(data.assignedOrders);
     } catch (error) {
       console.error("Error fetching assigned orders:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch assigned orders",
+        description: error.message || "Failed to fetch assigned orders",
         variant: "destructive",
       });
     }
@@ -314,7 +330,9 @@ export function ManageSection() {
                             className="w-full"
                             placeholder="Enter Delivery Location"
                             value={deliveryLocation}
-                            onChange={(e) => setDeliveryLocation(e.target.value)}
+                            onChange={(e) =>
+                              setDeliveryLocation(e.target.value)
+                            }
                           />
                           <Button onClick={assignOrder} className="w-full">
                             Assign Order
@@ -332,7 +350,9 @@ export function ManageSection() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle>Delivery Status</CardTitle>
-            <CardDescription>Track the status of assigned orders</CardDescription>
+            <CardDescription>
+              Track the status of assigned orders
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex-grow overflow-hidden">
             <ScrollArea className="h-full">
@@ -380,7 +400,8 @@ export function ManageSection() {
                             <HoverCard>
                               <HoverCardTrigger className="cursor-help">
                                 <p>
-                                  <strong>Pickup:</strong> {order.pickupLocation}
+                                  <strong>Pickup:</strong>{" "}
+                                  {order.pickupLocation}
                                 </p>
                               </HoverCardTrigger>
                               <HoverCardContent>
@@ -396,13 +417,15 @@ export function ManageSection() {
                           <div className="flex items-center space-x-2">
                             <MapPin className="h-4 w-4" />
                             <p>
-                              <strong>Delivery:</strong> {order.deliveryLocation}
+                              <strong>Delivery:</strong>{" "}
+                              {order.deliveryLocation}
                             </p>
                           </div>
                           <div className="flex items-center space-x-2 col-span-2">
                             <TruckIcon className="h-4 w-4" />
                             <p>
-                              <strong>Delivery Boy:</strong> {order.deliveryBoyName}
+                              <strong>Delivery Boy:</strong>{" "}
+                              {order.deliveryBoyName}
                             </p>
                           </div>
                         </div>
