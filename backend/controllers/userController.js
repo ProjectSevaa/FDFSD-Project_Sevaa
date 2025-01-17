@@ -174,3 +174,38 @@ export const sendRequest = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+export const getUserStats = async (req, res) => {
+    try {
+        const token = req.cookies.user_jwt;
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        const username = decodedToken.username;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Return the stats
+        const stats = {
+            donorOrdersCount: user.donorOrdersCount,
+            deliveredOrdersCount: user.deliveredOrdersCount,
+            registeredDeliveryBoysCount: user.registeredDeliveryBoysCount,
+            rating: user.rating,
+        };
+
+        res.status(200).json({ success: true, stats });
+    } catch (err) {
+        console.error('Error fetching user stats:', err.message);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
