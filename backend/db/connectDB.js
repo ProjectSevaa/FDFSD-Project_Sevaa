@@ -1,8 +1,7 @@
 import 'dotenv/config';
 import mongoose from "mongoose";
-import { recalculateAllRatings } from '../controllers/ratingController.js'; 
 
-const url = process.env.MONGO_URL || "mongodb://0.0.0.0:27017/SEVaa";
+const url = process.env.MONGO_URL || "mongodb+srv://HungerHearts:GAB44WOzmHDe4SIA@hungerheartssevaa.nnaj2.mongodb.net/SEVaa";
 
 export async function connectDB() {
   try {
@@ -11,9 +10,6 @@ export async function connectDB() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("MongoDB connected");
-    
-    
   } catch (err) {
     console.error("MongoDB connection error:", err);
     process.exit(1);

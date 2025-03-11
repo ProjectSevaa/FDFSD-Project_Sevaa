@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,6 +25,7 @@ interface DeliveryBoy {
   _id: string
   deliveryBoyName: string
   status: string
+  deliveredOrders: number // Include deliveredOrders in the DeliveryBoy interface
 }
 
 export default function DeliveryBoyHomepage() {
@@ -107,6 +109,14 @@ export default function DeliveryBoyHomepage() {
             onStatusChange={fetchDashboardData}
           />
 
+          {/* Add stats */}
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Your Stats</h3>
+            <p>
+              <strong>Delivered Orders:</strong> {deliveryBoy.deliveredOrders}
+            </p>
+          </div>
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
@@ -132,6 +142,7 @@ export default function DeliveryBoyHomepage() {
           </Tabs>
         </CardContent>
       </Card>
+      <Button variant="destructive" ><Link href="/">Logout</Link></Button>
     </div>
   )
 }

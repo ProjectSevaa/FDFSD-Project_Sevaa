@@ -292,12 +292,18 @@ export const getDeliveryBoyDashboard = async (req, res) => {
     // Find all orders where the deliveryBoyName matches the delivery boy's username
     const orders = await Order.find({ deliveryBoyName: username });
 
-    res.json({ success: true, deliveryboy, orders });
+    res.json({
+      success: true,
+      deliveryboy,
+      orders,
+      stats: { deliveredOrders: deliveryboy.deliveredOrders },
+    });
   } catch (err) {
-    console.log(err.message);
+    console.error(err.message);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 export const addDeliveryBoyToUser = async (req, res) => {
   try {

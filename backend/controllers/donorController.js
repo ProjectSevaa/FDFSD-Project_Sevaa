@@ -162,3 +162,26 @@ export const toggleBan = async (req, res) => {
     });
   }
 };
+
+export const getDonorStats = async (req, res) => {
+  const { donorEmail } = req.params;
+
+  try {
+    const donor = await Donor.findOne({ email: donorEmail });
+
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    const stats = {
+      donationsCount: donor.donationsCount,
+      rating: donor.rating,
+    };
+
+    res.status(200).json({ success: true, stats });
+  } catch (error) {
+    console.error("Error fetching donor stats:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
