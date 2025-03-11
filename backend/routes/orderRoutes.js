@@ -1,16 +1,24 @@
 import express from "express";
+import csrf from "csurf";
 import {
-  assignOrder,
-  getOrders,
-  setOrderDelivered,
-  setOrderPickedUp,
+    assignOrder,
+    getOrders,
+    setOrderDelivered,
+    setOrderPickedUp,
 } from "../controllers/orderController.js";
 
 const router = express.Router();
+const csrfProtection = csrf({ cookie: true });
 
-router.get("/getOrders", getOrders);
+// CSRF token endpoint
+router.get("/csrf-token", csrfProtection, (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
 
-router.post("/assignOrder", assignOrder);
-router.post("/setOrderDelivered", setOrderDelivered);
-router.post("/setOrderPickedUp", setOrderPickedUp);
+// Protected routes
+router.get("/getOrders", csrfProtection, getOrders);
+router.post("/assignOrder", csrfProtection, assignOrder);
+router.post("/setOrderDelivered", csrfProtection, setOrderDelivered);
+router.post("/setOrderPickedUp", csrfProtection, setOrderPickedUp);
+
 export default router;

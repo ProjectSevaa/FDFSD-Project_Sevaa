@@ -19,97 +19,99 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY; // Ensure this is s
 
 // Helper function to calculate the Haversine distance between two points
 const getDistance = (lon1, lat1, lon2, lat2) => {
-  const R = 6371e3; // meters
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+    const R = 6371e3; // meters
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const a =
+        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c; // in meters
+    return R * c; // in meters
 };
 
 export const findNearbyPosts = async (req, res) => {
-  const { postId } = req.query;
+    const { postId } = req.query;
 
-  try {
-    const token = req.cookies.user_jwt;
+    try {
+        const token = req.cookies.user_jwt;
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+        if (!token) {
+            return res
+                .status(401)
+                .json({ success: false, message: "Unauthorized" });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        const username = decodedToken.username;
+
+        // Fetch the post by ID to get its coordinates
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        const [postLongitude, postLatitude] = post.currentlocation.coordinates;
+
+        console.log(postLatitude, postLongitude);
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const deliveryBoyIds = user.deliveryBoys; // List of ObjectIds for delivery boys
+
+        // Fetch all delivery boys whose IDs match the ones in user.deliveryBoys without using populate
+        const deliveryBoys = await DeliveryBoy.find({
+            _id: { $in: deliveryBoyIds },
+        });
+        if (deliveryBoys.length === 0) {
+            return res.status(404).json({ message: "No delivery boys found." });
+        }
+
+        // Create an array to hold delivery boys with their distances
+        const deliveryBoysWithDistances = deliveryBoys.map((deliveryBoy) => {
+            const [boyLongitude, boyLatitude] =
+                deliveryBoy.currentLocation.coordinates || [];
+
+            if (boyLongitude == null || boyLatitude == null) {
+                console.error(
+                    `Invalid coordinates for delivery boy ${deliveryBoy._id}`
+                );
+                return { ...deliveryBoy.toObject(), distance: null }; // Explicitly set distance to null
+            }
+
+            const distance = getDistance(
+                postLongitude,
+                postLatitude,
+                boyLongitude,
+                boyLatitude
+            );
+
+            return { ...deliveryBoy.toObject(), distance }; // Convert deliveryBoy to a plain object and add distance
+        });
+
+        // Sort the array by distance and get the closest 5 delivery boys
+        const closestDeliveryBoys = deliveryBoysWithDistances
+            .filter((boy) => boy.distance !== null) // Exclude delivery boys with null distance
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 5);
+
+        res.status(200).json({ closestDeliveryBoys });
+    } catch (error) {
+        console.error("Error fetching nearby users:", error);
+        res.status(500).json({ message: "Error fetching nearby users", error });
     }
-
-    const decodedToken = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-        if (err) reject(err);
-        else resolve(decoded);
-      });
-    });
-
-    const username = decodedToken.username;
-
-    // Fetch the post by ID to get its coordinates
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
-    }
-
-    const [postLongitude, postLatitude] = post.currentlocation.coordinates;
-
-    console.log(postLatitude, postLongitude);
-
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const deliveryBoyIds = user.deliveryBoys; // List of ObjectIds for delivery boys
-
-    // Fetch all delivery boys whose IDs match the ones in user.deliveryBoys without using populate
-    const deliveryBoys = await DeliveryBoy.find({
-      _id: { $in: deliveryBoyIds },
-    });
-    if (deliveryBoys.length === 0) {
-      return res.status(404).json({ message: "No delivery boys found." });
-    }
-
-    // Create an array to hold delivery boys with their distances
-    const deliveryBoysWithDistances = deliveryBoys.map((deliveryBoy) => {
-      const [boyLongitude, boyLatitude] =
-        deliveryBoy.currentLocation.coordinates || [];
-
-      if (boyLongitude == null || boyLatitude == null) {
-        console.error(
-          `Invalid coordinates for delivery boy ${deliveryBoy._id}`
-        );
-        return { ...deliveryBoy.toObject(), distance: null }; // Explicitly set distance to null
-      }
-
-      const distance = getDistance(
-        postLongitude,
-        postLatitude,
-        boyLongitude,
-        boyLatitude
-      );
-
-      return { ...deliveryBoy.toObject(), distance }; // Convert deliveryBoy to a plain object and add distance
-    });
-
-    // Sort the array by distance and get the closest 5 delivery boys
-    const closestDeliveryBoys = deliveryBoysWithDistances
-      .filter((boy) => boy.distance !== null) // Exclude delivery boys with null distance
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 5);
-
-    res.status(200).json({ closestDeliveryBoys });
-  } catch (error) {
-    console.error("Error fetching nearby users:", error);
-    res.status(500).json({ message: "Error fetching nearby users", error });
-  }
 };
 
 // // Controller to render the delivery boy form page
@@ -139,46 +141,50 @@ export const findNearbyPosts = async (req, res) => {
 
 // Controller to add a new Delivery Boy
 export const createDeliveryBoy = async (req, res) => {
-  try {
-    const {
-      deliveryBoyName,
-      mobileNumber,
-      password,
-      vehicleNo,
-      drivingLicenseNo,
-    } = req.body;
+    try {
+        const {
+            deliveryBoyName,
+            mobileNumber,
+            password,
+            vehicleNo,
+            drivingLicenseNo,
+        } = req.body;
 
-    // Ensure coordinates are parsed correctly
-    const longitude = parseFloat(req.body.currentLocation.coordinates[0]);
-    const latitude = parseFloat(req.body.currentLocation.coordinates[1]);
+        // Ensure coordinates are parsed correctly
+        const longitude = parseFloat(req.body.currentLocation.coordinates[0]);
+        const latitude = parseFloat(req.body.currentLocation.coordinates[1]);
 
-    if (isNaN(longitude) || isNaN(latitude)) {
-      return res.status(400).json({ message: "Invalid coordinates provided." });
+        if (isNaN(longitude) || isNaN(latitude)) {
+            return res
+                .status(400)
+                .json({ message: "Invalid coordinates provided." });
+        }
+
+        // Create the delivery boy object
+        const deliveryBoy = new DeliveryBoy({
+            deliveryBoyName,
+            mobileNumber,
+            password, // Hash the password
+            vehicleNo,
+            drivingLicenseNo,
+            currentLocation: {
+                type: "Point",
+                coordinates: [longitude, latitude], // Ensure these are numbers
+            },
+        });
+
+        await deliveryBoy.save();
+        res.status(201).json({
+            message: "Delivery boy created successfully",
+            deliveryBoy,
+        });
+    } catch (error) {
+        console.error("Error adding delivery boy:", error);
+        res.status(400).json({
+            message: "Error adding delivery boy",
+            error: error.message,
+        });
     }
-
-    // Create the delivery boy object
-    const deliveryBoy = new DeliveryBoy({
-      deliveryBoyName,
-      mobileNumber,
-      password, // Hash the password
-      vehicleNo,
-      drivingLicenseNo,
-      currentLocation: {
-        type: "Point",
-        coordinates: [longitude, latitude], // Ensure these are numbers
-      },
-    });
-
-    await deliveryBoy.save();
-    res
-      .status(201)
-      .json({ message: "Delivery boy created successfully", deliveryBoy });
-  } catch (error) {
-    console.error("Error adding delivery boy:", error);
-    res
-      .status(400)
-      .json({ message: "Error adding delivery boy", error: error.message });
-  }
 };
 
 // New controller to find nearby users
@@ -227,168 +233,230 @@ export const createDeliveryBoy = async (req, res) => {
 // };
 
 export const getDeliveryBoysByUser = async (req, res) => {
-  const { userId } = req.params; // Get the user ID from the request parameters
+    const { userId } = req.params; // Get the user ID from the request parameters
 
-  try {
-    // Find the user by userId and populate the deliveryBoys
-    const user = await User.findById(userId).populate("deliveryBoys");
+    try {
+        // Find the user by userId and populate the deliveryBoys
+        const user = await User.findById(userId).populate("deliveryBoys");
 
-    // Check if the user exists
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Return the delivery boys associated with the user
+        const deliveryBoys = user.deliveryBoys; // This will be an array of DeliveryBoy objects
+        res.status(200).json({ deliveryBoys });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error fetching delivery boys",
+            error,
+        });
     }
-
-    // Return the delivery boys associated with the user
-    const deliveryBoys = user.deliveryBoys; // This will be an array of DeliveryBoy objects
-    res.status(200).json({ deliveryBoys });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching delivery boys", error });
-  }
 };
 
 // Controller to get all delivery boys
 export const getAllDeliveryBoys = async (req, res) => {
-  try {
-    // Fetch all delivery boys from the database
-    const deliveryBoys = await DeliveryBoy.find({});
+    try {
+        // Fetch all delivery boys from the database
+        const deliveryBoys = await DeliveryBoy.find({})
+            .select("-password") // Exclude sensitive data
+            .sort({ createdAt: -1 });
 
-    if (deliveryBoys.length === 0) {
-      return res.status(404).json({ message: "No delivery boys found." });
+        if (deliveryBoys.length === 0) {
+            return res.status(200).json({
+                deliveryBoys: [],
+                message: "No delivery boys found.",
+            });
+        }
+
+        res.status(200).json({ deliveryBoys });
+    } catch (error) {
+        console.error("Error in getAllDeliveryBoys:", error);
+        res.status(500).json({
+            message: "Error fetching delivery boys",
+            error: error.message,
+        });
     }
-
-    res.status(200).json({ deliveryBoys });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching delivery boys", error });
-  }
 };
 
 export const getDeliveryBoyDashboard = async (req, res) => {
-  try {
-    const token = req.cookies.deliveryboy_jwt;
+    try {
+        const token = req.cookies.deliveryboy_jwt;
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+        if (!token) {
+            return res
+                .status(401)
+                .json({ success: false, message: "Unauthorized" });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        const username = decodedToken.username;
+        console.log("Fetching dashboard for delivery boy:", username);
+
+        const deliveryboy = await DeliveryBoy.findOne({
+            deliveryBoyName: username,
+        });
+
+        if (!deliveryboy) {
+            return res
+                .status(404)
+                .json({ success: false, message: "Delivery Boy not found" });
+        }
+
+        const orders = await Order.find({ deliveryBoyName: username });
+
+        res.json({
+            success: true,
+            deliveryboy,
+            orders,
+            stats: { deliveredOrders: deliveryboy.deliveredOrders },
+        });
+    } catch (err) {
+        console.error("Error in getDeliveryBoyDashboard:", err);
+        res.status(500).json({ message: "Server error" });
     }
-
-    const decodedToken = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-        if (err) reject(err);
-        else resolve(decoded);
-      });
-    });
-
-    const username = decodedToken.username;
-
-    const deliveryboy = await DeliveryBoy.findOne({
-      deliveryBoyName: username,
-    });
-
-    if (!deliveryboy) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Delivery Boy not found" });
-    }
-
-    // Find all orders where the deliveryBoyName matches the delivery boy's username
-    const orders = await Order.find({ deliveryBoyName: username });
-
-    res.json({
-      success: true,
-      deliveryboy,
-      orders,
-      stats: { deliveredOrders: deliveryboy.deliveredOrders },
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: "Server error" });
-  }
 };
 
-
 export const addDeliveryBoyToUser = async (req, res) => {
-  try {
-    const token = req.cookies.user_jwt;
+    try {
+        const token = req.cookies.user_jwt;
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        const username = decodedToken.username;
+        console.log("Adding delivery boy for user:", username);
+
+        // Find the user by username
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        // Get the delivery boy name from the request body
+        const { deliveryBoyName } = req.body;
+        if (!deliveryBoyName) {
+            return res.status(400).json({
+                success: false,
+                message: "Delivery boy name is required",
+            });
+        }
+
+        // Find the delivery boy by name
+        const deliveryBoy = await DeliveryBoy.findOne({ deliveryBoyName });
+        if (!deliveryBoy) {
+            return res.status(404).json({
+                success: false,
+                message: "Delivery boy not found",
+            });
+        }
+
+        // Check if delivery boy is already added
+        if (user.deliveryBoys.includes(deliveryBoy._id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Delivery boy already added to user",
+            });
+        }
+
+        // Add the delivery boy's ID to the user's deliveryBoys array
+        user.deliveryBoys.push(deliveryBoy._id);
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Delivery boy added successfully",
+            deliveryBoy,
+        });
+    } catch (error) {
+        console.error("Error in addDeliveryBoyToUser:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
-
-    const decodedToken = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-        if (err) reject(err);
-        else resolve(decoded);
-      });
-    });
-
-    const username = decodedToken.username;
-
-    // Find the user by username
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
-
-    // Get the delivery boy ID from the request body
-    const deliveryBoyName = req.body.deliveryBoyName;
-
-    console.log(req.body);
-
-    // Find the delivery boy by their ID
-    const deliveryBoy = await DeliveryBoy.findOne({ deliveryBoyName });
-    if (!deliveryBoy) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Delivery boy not found" });
-    }
-
-    // Add the delivery boy's ID to the user's deliveryBoys list
-    if (!user.deliveryBoys.includes(deliveryBoy._id)) {
-      user.deliveryBoys.push(deliveryBoy._id);
-      await user.save();
-    }
-
-    res.status(200).json({ success: true, deliveryBoy });
-  } catch (err) {
-    console.error(err.message);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: err.message });
-  }
 };
 
 // Controller function to toggle the status of a delivery boy
 export const toggleStatus = async (req, res) => {
-  const deliveryBoyId = req.params.id; // Get the delivery boy ID from the URL params
-  const { status } = req.body; // Get the new status from the request body
+    try {
+        const deliveryBoyId = req.params.id;
+        const { status } = req.body;
 
-  try {
-    // Find the delivery boy by ID
-    const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
+        if (!status || (status !== "available" && status !== "inactive")) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid status. Must be "available" or "inactive"',
+            });
+        }
 
-    if (!deliveryBoy) {
-      return res.status(404).json({ message: "Delivery Boy not found" });
+        const token = req.cookies.deliveryboy_jwt;
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Not authenticated",
+            });
+        }
+
+        const decoded = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        // Find and update the delivery boy
+        const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
+        if (!deliveryBoy) {
+            return res.status(404).json({
+                success: false,
+                message: "Delivery boy not found",
+            });
+        }
+
+        // Verify that the logged-in delivery boy is updating their own status
+        if (deliveryBoy.deliveryBoyName !== decoded.username) {
+            return res.status(403).json({
+                success: false,
+                message: "Not authorized to update this delivery boy's status",
+            });
+        }
+
+        deliveryBoy.status = status;
+        await deliveryBoy.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Status updated successfully",
+            deliveryBoy,
+        });
+    } catch (error) {
+        console.error("Error in toggleStatus:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
-
-    // Check if the provided status is valid
-    if (status !== "available" && status !== "inactive") {
-      return res
-        .status(400)
-        .json({ message: 'Invalid status. Must be "available" or "inactive"' });
-    }
-
-    // Update the delivery boy's status
-    deliveryBoy.status = status;
-    await deliveryBoy.save(); // Save the changes to the database
-
-    // Send a success response with the updated delivery boy
-    return res.status(200).json({
-      message: `Delivery boy status updated to ${status}`,
-      deliveryBoy: deliveryBoy,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
 };

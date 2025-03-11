@@ -28,7 +28,18 @@ const userSchema = new mongoose.Schema({
     donorOrdersCount: { type: Number, default: 0 },
     deliveredOrdersCount: { type: Number, default: 0 },
     registeredDeliveryBoysCount: { type: Number, default: 0 },
-    rating: { type: Number, default: 0 },
+    rating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5,
+        validate: {
+            validator: function (v) {
+                return !isNaN(v);
+            },
+            message: (props) => `${props.value} is not a valid rating number!`,
+        },
+    },
 });
 
 // Pre-save hook to hash password and update delivery boy count
@@ -51,15 +62,20 @@ userSchema.pre("save", async function (next) {
 });
 
 // Method to calculate and update user rating
-userSchema.methods.updateRating = function () {
-    const maxOrdersCount = this.donorOrdersCount; // Example, the max number of orders that gives a full rating of 5
-    let rating =
-        ((this.donorOrdersCount + this.deliveredOrdersCount) /
-            (2 * maxOrdersCount)) *
-        5; // Normalize and scale
+userSchema.methods.updateRating = function (ratings) {
+    // If no ratings, set a default rating or keep the current one
+    if (!ratings || ratings.length === 0) {
+        // Either keep the current rating if it exists, or set a default (e.g., 0 or 5)
+        this.rating = this.rating || 0; // Default to 0 if no ratings
+        return;
+    }
 
-    this.rating = Math.min(rating, 5); // Cap rating at 5
-    return this.save(); // Save the updated rating
+    // Calculate the average rating
+    const sum = ratings.reduce((total, rating) => total + rating.value, 0);
+    const average = sum / ratings.length;
+
+    // Ensure the result is a valid number
+    this.rating = isNaN(average) ? 0 : average;
 };
 
 export const User = mongoose.model("User", userSchema);
