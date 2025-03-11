@@ -21,7 +21,7 @@ export default function HeroScrollDemo() {
         }
       >
         {/* <Image
-          src={`/1.webp`}
+          src={`/1.webp`}2
           alt="hero"
           height={720}
           width={1400}
@@ -29,11 +29,8 @@ export default function HeroScrollDemo() {
           draggable={false}
         /> */}
 
-
-           <TypewriterEffectSmoothDemo/>
+        <TypewriterEffectSmoothDemo />
       </ContainerScroll>
-
-      
     </div>
   );
 }

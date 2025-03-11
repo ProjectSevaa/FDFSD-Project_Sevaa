@@ -1,20 +1,20 @@
 import express from "express";
 import {
-  loginAdmin,
-  signupAdmin,
-  getAdminDashboard,
-  getModerators,
-  getAdmins,
-  changeRole,
-  getDonors,
-  toggleBan,
-  logoutAdmin,
+    loginAdmin,
+    signupAdmin,
+    getAdminDashboard,
+    getModerators,
+    getAdmins,
+    changeRole,
+    getDonors,
+    toggleBan,
+    logoutAdmin,
 } from "../controllers/adminController.js";
 
 const router = express.Router();
 
 router.get("/secret", (req, res) => {
-  res.render("signup_admin");
+    res.render("signup_admin");
 });
 
 router.get("/admin_dashboard", getAdminDashboard);
