@@ -94,82 +94,142 @@ export default function DeliveryBoyHomepage() {
         }
     };
 
-    const updateOrderStatus = async (
-        orderId: string,
-        status: "picked-up" | "delivered",
-        imageFile?: File
-    ) => {
+    const updateOrderStatus = async (orderId: string, status: "picked-up" | "delivered", imageFile?: File) => {
         try {
-            // Get CSRF token if needed
+            if (!orderId || typeof orderId !== 'string') {
+                console.error('Invalid orderId:', orderId);
+                throw new Error("Valid Order ID is required");
+            }
+
+            // Get CSRF token
             let csrfToken = Cookies.get("XSRF-TOKEN");
             if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
+                const response = await fetch("http://localhost:9500/csrf-token", {
+                    credentials: "include",
+                });
                 const data = await response.json();
                 csrfToken = data.csrfToken;
                 Cookies.set("XSRF-TOKEN", csrfToken);
             }
 
-            const endpoint =
-                status === "picked-up"
-                    ? "setOrderPickedUp"
-                    : "setOrderDelivered";
-
-            const formData = new FormData();
-            formData.append("orderId", orderId);
-            if (imageFile) {
-                formData.append("image", imageFile);
+            if (status === "delivered" && !imageFile) {
+                throw new Error("Image is required for delivery confirmation");
             }
 
-            const response = await fetch(
-                `http://localhost:9500/order/${endpoint}`,
-                {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
-                    credentials: "include",
-                    body: formData,
+            const endpoint = status === "picked-up" ? "setOrderPickedUp" : "setOrderDelivered";
+            
+            let requestBody: FormData | URLSearchParams;
+            let headers: HeadersInit = {
+                "X-CSRF-Token": csrfToken,
+            };
+
+            if (status === "picked-up") {
+                // For picked-up status, use JSON content type
+                headers["Content-Type"] = "application/json";
+                requestBody = JSON.stringify({ orderId });
+            } else {
+                // For delivered status, use multipart form data
+                // Don't set Content-Type header for FormData
+                delete headers["Content-Type"];
+                const formData = new FormData();
+                formData.append("orderId", orderId);
+                if (imageFile) {
+                    formData.append("image", imageFile);
                 }
-            );
+                requestBody = formData;
+            }
+
+            console.log('Sending request:', {
+                endpoint,
+                orderId,
+                status,
+                headers,
+                requestBody: status === "picked-up" ? JSON.parse(requestBody as string) : Object.fromEntries((requestBody as FormData).entries())
+            });
+
+            const response = await fetch(`http://localhost:9500/order/${endpoint}`, {
+                method: "POST",
+                headers,
+                credentials: "include",
+                body: requestBody,
+            });
+
+            const data = await response.json();
+            console.log('Response:', data); // Debug log
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(data.message || "Failed to update order status");
             }
 
-            fetchDashboardData();
-            toast({
-                title: "Success",
-                description: `Order marked as ${status}`,
-            });
-        } catch (error) {
+            // Refresh the orders list
+            await fetchDashboardData();
+            return data;
+
+        } catch (error: any) {
             console.error("Error updating order status:", error);
-            toast({
-                title: "Error",
-                description: "Failed to update order status",
-                variant: "destructive",
-            });
+            throw new Error(error.message || "Failed to update order status");
         }
     };
 
     const handleOrderDelivered = (order: Order) => {
+        if (!order._id || typeof order._id !== 'string') {
+            console.error('Invalid order:', order);
+            toast({
+                title: "Error",
+                description: "Invalid order ID",
+                variant: "destructive",
+            });
+            return;
+        }
         setSelectedOrder(order);
     };
 
     const handleImageUpload = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (selectedOrder && imageFile) {
-            await updateOrderStatus(selectedOrder._id, "delivered", imageFile);
-            setSelectedOrder(null);
-            setImageFile(null);
-        } else {
+        
+        if (!selectedOrder || !selectedOrder._id || typeof selectedOrder._id !== 'string') {
+            console.error('Invalid selected order:', selectedOrder);
             toast({
                 title: "Error",
-                description: "Image upload is required to mark the order as delivered",
+                description: "Invalid order selection",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        if (!imageFile) {
+            toast({
+                title: "Error",
+                description: "Please select an image to upload",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        try {
+            // Show loading state
+            toast({
+                title: "Uploading",
+                description: "Uploading image and marking order as delivered...",
+            });
+
+            console.log('Uploading image for order:', selectedOrder._id); // Debug log
+            await updateOrderStatus(selectedOrder._id, "delivered", imageFile);
+            
+            setSelectedOrder(null);
+            setImageFile(null);
+            
+            toast({
+                title: "Success",
+                description: "Order marked as delivered successfully",
+            });
+            
+            await fetchDashboardData(); // Refresh the orders list
+        } catch (error: any) {
+            console.error('Image upload error:', error);
+            toast({
+                title: "Error",
+                description: error.message || "Failed to mark order as delivered",
                 variant: "destructive",
             });
         }
@@ -261,19 +321,70 @@ export default function DeliveryBoyHomepage() {
             </Card>
 
             {selectedOrder && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg">
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
                         <h2 className="text-xl font-semibold mb-4">Upload Delivery Image</h2>
-                        <form onSubmit={handleImageUpload}>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)}
-                                required
-                            />
-                            <div className="mt-4 flex justify-end">
-                                <Button type="submit" className="mr-2">Upload</Button>
-                                <Button variant="destructive" onClick={() => setSelectedOrder(null)}>Cancel</Button>
+                        <form onSubmit={handleImageUpload} className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Upload Image (Required)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            // Reset input if validation fails
+                                            if (file.size > 5 * 1024 * 1024) {
+                                                toast({
+                                                    title: "Error",
+                                                    description: "Image size should be less than 5MB",
+                                                    variant: "destructive",
+                                                });
+                                                e.target.value = '';
+                                                setImageFile(null);
+                                                return;
+                                            }
+                                            if (!file.type.startsWith('image/')) {
+                                                toast({
+                                                    title: "Error",
+                                                    description: "Please upload only image files",
+                                                    variant: "destructive",
+                                                });
+                                                e.target.value = '';
+                                                setImageFile(null);
+                                                return;
+                                            }
+                                            setImageFile(file);
+                                        } else {
+                                            setImageFile(null);
+                                        }
+                                    }}
+                                    className="w-full border border-gray-300 rounded-md p-2"
+                                    required
+                                />
+                                <p className="text-sm text-gray-500">
+                                    Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                                </p>
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setSelectedOrder(null);
+                                        setImageFile(null);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={!imageFile}
+                                >
+                                    Mark as Delivered
+                                </Button>
                             </div>
                         </form>
                     </div>

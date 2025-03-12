@@ -10,6 +10,9 @@ import { User } from "../models/user.js";
 import { Order } from "../models/order.js";
 import { DeliveryBoy } from "../models/deliveryboy.js";
 import { DeliveryImage } from "../models/deliveryImage.js";
+import path from "path";
+import fs from "fs";
+
 const app = express();
 
 const url = process.env.URL;
@@ -22,16 +25,38 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Configure multer storage
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/");
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'delivery-images');
+        // Create directory if it doesn't exist
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
     },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    },
+    filename: function (req, file, cb) {
+        // Create unique filename with timestamp and original extension
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'delivery-' + uniqueSuffix + path.extname(file.originalname));
+    }
 });
 
-const upload = multer({ storage });
+// Configure multer upload
+const uploadMiddleware = multer({
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB limit
+        files: 1 // Allow only 1 file
+    },
+    fileFilter: function (req, file, cb) {
+        // Accept only image files
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
+    }
+});
 
 export const assignOrder = async (req, res) => {
     const { requestId, deliveryBoyId, deliveryLocation } = req.body;
@@ -146,7 +171,7 @@ export const getOrders = async (req, res) => {
 };
 
 export const setOrderDelivered = [
-    upload.single("image"),
+    uploadMiddleware.single('image'),
     async (req, res) => {
         try {
             const { orderId } = req.body;
@@ -157,9 +182,23 @@ export const setOrderDelivered = [
                 });
             }
 
+            // Check if image file is provided
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Delivery image is required",
+                });
+            }
+
             // Verify delivery boy authentication
             const token = req.cookies.deliveryboy_jwt;
             if (!token) {
+                // Clean up uploaded file
+                if (req.file) {
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) console.error('Error deleting file:', err);
+                    });
+                }
                 return res.status(401).json({
                     success: false,
                     message: "Not authenticated",
@@ -174,6 +213,12 @@ export const setOrderDelivered = [
             });
 
             if (decoded.role !== "deliveryboy") {
+                // Clean up uploaded file
+                if (req.file) {
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) console.error('Error deleting unauthorized file:', err);
+                    });
+                }
                 return res.status(403).json({
                     success: false,
                     message: "Not authorized - Must be a delivery boy",
@@ -183,6 +228,12 @@ export const setOrderDelivered = [
             // Find and update the order
             const order = await Order.findById(orderId);
             if (!order) {
+                // Clean up uploaded file
+                if (req.file) {
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) console.error('Error deleting file for non-existent order:', err);
+                    });
+                }
                 return res.status(404).json({
                     success: false,
                     message: "Order not found",
@@ -191,6 +242,12 @@ export const setOrderDelivered = [
 
             // Check if order is assigned to this delivery boy
             if (order.deliveryBoyName !== decoded.username) {
+                // Clean up uploaded file
+                if (req.file) {
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) console.error('Error deleting unauthorized file:', err);
+                    });
+                }
                 return res.status(403).json({
                     success: false,
                     message: "Not authorized to deliver this order",
@@ -198,27 +255,31 @@ export const setOrderDelivered = [
             }
 
             if (order.status !== "picked-up") {
+                // Clean up uploaded file
+                if (req.file) {
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) console.error('Error deleting file for invalid status:', err);
+                    });
+                }
                 return res.status(400).json({
                     success: false,
                     message: "Order cannot be delivered - must be picked up first",
                 });
             }
 
-            order.status = "delivered";
-            await order.save();
-
-            // Increment deliveredOrdersCount in User model
-            const user = await User.findOne({ username: order.userUsername });
-            if (user) {
-                user.deliveredOrdersCount = (user.deliveredOrdersCount || 0) + 1;
-                await user.save();
-            }
-
-            // Increment deliveredOrders in DeliveryBoy model
-            const deliveryBoy = await DeliveryBoy.findOne({ deliveryBoyName: decoded.username });
-            if (deliveryBoy) {
-                deliveryBoy.deliveredOrders = (deliveryBoy.deliveredOrders || 0) + 1;
-                await deliveryBoy.save();
+            // Check if delivery image already exists
+            const existingImage = await DeliveryImage.findOne({ orderId });
+            if (existingImage) {
+                // Clean up uploaded file
+                if (req.file) {
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) console.error('Error deleting duplicate file:', err);
+                    });
+                }
+                return res.status(400).json({
+                    success: false,
+                    message: "Delivery image already exists for this order",
+                });
             }
 
             // Save the delivery image
@@ -226,29 +287,63 @@ export const setOrderDelivered = [
                 deliveryBoyName: decoded.username,
                 orderId,
                 image: req.file.path,
+                timestamp: new Date()
             });
             await deliveryImage.save();
+
+            // Update order status
+            order.status = "delivered";
+            order.deliveryTimestamp = new Date();
+            await order.save();
+
+            // Update user and delivery boy stats
+            const [user, deliveryBoy] = await Promise.all([
+                User.findOne({ username: order.userUsername }),
+                DeliveryBoy.findOne({ deliveryBoyName: decoded.username })
+            ]);
+
+            if (user) {
+                user.deliveredOrdersCount = (user.deliveredOrdersCount || 0) + 1;
+                await user.save();
+            }
+
+            if (deliveryBoy) {
+                deliveryBoy.deliveredOrders = (deliveryBoy.deliveredOrders || 0) + 1;
+                deliveryBoy.status = "available";
+                await deliveryBoy.save();
+            }
 
             res.status(200).json({
                 success: true,
                 message: "Order delivered successfully",
                 order,
+                imagePath: req.file.path
             });
         } catch (error) {
+            // Clean up uploaded file in case of error
+            if (req.file) {
+                fs.unlink(req.file.path, (err) => {
+                    if (err) console.error('Error deleting file after error:', err);
+                });
+            }
+
             console.error("Error in setOrderDelivered:", error);
             res.status(500).json({
                 success: false,
-                message: "Server error",
+                message: error.message || "Server error",
                 error: error.message,
             });
         }
-    },
+    }
 ];
 
 export const setOrderPickedUp = async (req, res) => {
     try {
+        console.log('Received request body:', req.body); // Debug log
         const { orderId } = req.body;
+        
         if (!orderId) {
+            console.log('Missing orderId in request:', req.body); // Debug log
             return res.status(400).json({
                 success: false,
                 message: "Order ID is required",
@@ -321,7 +416,7 @@ export const setOrderPickedUp = async (req, res) => {
 };
 
 export const uploadDeliveryImage = [
-    upload.single("image"),
+    uploadMiddleware.single("image"),
     async (req, res) => {
         try {
             const { orderId } = req.body;

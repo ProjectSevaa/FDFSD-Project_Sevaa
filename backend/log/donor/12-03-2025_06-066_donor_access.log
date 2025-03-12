@@ -20,3 +20,4 @@
 ::1 - - [11/Mar/2025:23:19:37 +0000] "GET /donor/donorStats/sam1@food.in HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [11/Mar/2025:23:19:38 +0000] "GET /donor/donorStats/sam1@food.in HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [11/Mar/2025:23:55:25 +0000] "GET /donor/donorStats/Satya@gmail.com HTTP/1.1" 404 45 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [12/Mar/2025:01:03:00 +0000] "GET /donor/donorStats/Satya@gmail.com HTTP/1.1" 404 45 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
