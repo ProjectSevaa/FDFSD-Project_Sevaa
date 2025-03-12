@@ -85,11 +85,46 @@ app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 
 // Logging middleware
-const allLogsStream = createStream("all_access.log", {
+const allLogsStream = createStream(() => {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    return `${day}-${month}-${year}_${hours}-${hours + 6}_all_access.log`;
+}, {
     interval: "6h", // rotate every 6 hours
     path: path.join(__dirname, "log"),
 });
 app.use(morgan("combined", { stream: allLogsStream }));
+
+// Create rotating write stream for delivery logs
+const deliveryLogStream = createStream(() => {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    return `${day}-${month}-${year}_${hours}-${hours + 6}_delivery_access.log`;
+}, {
+    interval: "6h", // rotate every 6 hours
+    path: path.join(__dirname, "log/delivery"),
+});
+app.use("/delivery", morgan("combined", { stream: deliveryLogStream }));
+
+// Create rotating write stream for donation logs
+const donationLogStream = createStream(() => {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    return `${day}-${month}-${year}_${hours}-${hours + 6}_donation_access.log`;
+}, {
+    interval: "6h", // rotate every 6 hours
+    path: path.join(__dirname, "log/donation"),
+});
+app.use("/donation", morgan("combined", { stream: donationLogStream }));
 
 // Public Routes
 app.get("/", (req, res) => res.render("whoru"));

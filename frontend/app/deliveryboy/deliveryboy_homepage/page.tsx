@@ -41,6 +41,8 @@ export default function DeliveryBoyHomepage() {
     const [deliveryBoy, setDeliveryBoy] = useState<DeliveryBoy | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [activeTab, setActiveTab] = useState("ongoing");
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const router = useRouter();
     const { toast } = useToast();
 
@@ -94,7 +96,8 @@ export default function DeliveryBoyHomepage() {
 
     const updateOrderStatus = async (
         orderId: string,
-        status: "picked-up" | "delivered"
+        status: "picked-up" | "delivered",
+        imageFile?: File
     ) => {
         try {
             // Get CSRF token if needed
@@ -116,16 +119,21 @@ export default function DeliveryBoyHomepage() {
                     ? "setOrderPickedUp"
                     : "setOrderDelivered";
 
+            const formData = new FormData();
+            formData.append("orderId", orderId);
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+
             const response = await fetch(
                 `http://localhost:9500/order/${endpoint}`,
                 {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
                         "X-CSRF-Token": csrfToken,
                     },
                     credentials: "include",
-                    body: JSON.stringify({ orderId }),
+                    body: formData,
                 }
             );
 
@@ -143,6 +151,25 @@ export default function DeliveryBoyHomepage() {
             toast({
                 title: "Error",
                 description: "Failed to update order status",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleOrderDelivered = (order: Order) => {
+        setSelectedOrder(order);
+    };
+
+    const handleImageUpload = async (event: React.FormEvent) => {
+        event.preventDefault();
+        if (selectedOrder && imageFile) {
+            await updateOrderStatus(selectedOrder._id, "delivered", imageFile);
+            setSelectedOrder(null);
+            setImageFile(null);
+        } else {
+            toast({
+                title: "Error",
+                description: "Image upload is required to mark the order as delivered",
                 variant: "destructive",
             });
         }
@@ -207,6 +234,7 @@ export default function DeliveryBoyHomepage() {
                                         order.status === "picked-up"
                                 )}
                                 updateOrderStatus={updateOrderStatus}
+                                handleOrderDelivered={handleOrderDelivered}
                                 type="ongoing"
                             />
                         </TabsContent>
@@ -231,6 +259,26 @@ export default function DeliveryBoyHomepage() {
                     </Button>
                 </CardFooter>
             </Card>
+
+            {selectedOrder && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h2 className="text-xl font-semibold mb-4">Upload Delivery Image</h2>
+                        <form onSubmit={handleImageUpload}>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)}
+                                required
+                            />
+                            <div className="mt-4 flex justify-end">
+                                <Button type="submit" className="mr-2">Upload</Button>
+                                <Button variant="destructive" onClick={() => setSelectedOrder(null)}>Cancel</Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

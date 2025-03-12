@@ -5,6 +5,7 @@ import {
     getOrders,
     setOrderDelivered,
     setOrderPickedUp,
+    uploadDeliveryImage,
 } from "../controllers/orderController.js";
 
 const router = express.Router();
@@ -20,5 +21,6 @@ router.get("/getOrders", csrfProtection, getOrders);
 router.post("/assignOrder", csrfProtection, assignOrder);
 router.post("/setOrderDelivered", csrfProtection, setOrderDelivered);
 router.post("/setOrderPickedUp", csrfProtection, setOrderPickedUp);
+router.post("/order/DeliveryImage", csrfProtection, uploadDeliveryImage);
 
 export default router;

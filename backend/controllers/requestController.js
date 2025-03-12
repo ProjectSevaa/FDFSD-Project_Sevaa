@@ -6,7 +6,6 @@ import { User } from "../models/user.js";
 import { Donor } from "../models/donor.js";
 import { Request } from "../models/request.js";
 import { Post } from "../models/post.js";
-import { recalculateAllRatings } from "./ratingController.js";
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -122,17 +121,16 @@ export const acceptRequest = async (req, res) => {
                 message: "Donor's name is missing. Cannot accept request.",
             });
         }
-
         // Increment the user's donorOrdersCount
-        user.donorOrdersCount += 1;
+        user.donorOrdersCount = (user.donorOrdersCount || 0) + 1;
 
         // Increment the donor's donationsCount
-        donor.donationsCount += 1;
+        donor.donationsCount = (donor.donationsCount || 0) + 1;
 
         // Save the updated user and donor data
         await user.save();
         await donor.save();
-        await recalculateAllRatings();
+
         // Set isAccepted to true for the accepted request
         const updatedRequest = await Request.findByIdAndUpdate(
             requestId,
@@ -156,11 +154,13 @@ export const acceptRequest = async (req, res) => {
             donor: {
                 username: donor.username,
                 donationsCount: donor.donationsCount,
+                rating: donor.rating,
                 name: donor.name, // Include donor's name in response
             },
             user: {
                 username: user.username,
                 donorOrdersCount: user.donorOrdersCount,
+                rating: user.rating,
             },
         });
     } catch (error) {

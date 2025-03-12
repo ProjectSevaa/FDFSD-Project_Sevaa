@@ -34,13 +34,4 @@ donorSchema.pre('save', async function (next) {
   }
 });
 
-// Method to calculate and update donor rating
-donorSchema.methods.updateRating = function () {
-  const maxDonations = this.donationsCount; // Example, the max number of donations that gives a full rating of 5
-  let rating = this.donationsCount / maxDonations * 5; // Normalize and scale
-
-  this.rating = Math.min(rating, 5); // Cap rating at 5
-  return this.save(); // Save the updated rating
-};
-
 export const Donor = mongoose.model('Donor', donorSchema);

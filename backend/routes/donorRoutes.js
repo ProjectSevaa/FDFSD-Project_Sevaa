@@ -18,7 +18,14 @@ const router = express.Router();
 const csrfProtection = csrf({ cookie: true });
 
 // Create rotating write stream for donor logs
-const donorLogStream = createStream("donor_access.log", {
+const donorLogStream = createStream(() => {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    return `${day}-${month}-${year}_${hours}-${hours + 6}_donor_access.log`;
+}, {
     interval: "6h", // rotate every 6 hours
     path: path.join(__dirname, "log/donor"),
 });

@@ -61,21 +61,4 @@ userSchema.pre("save", async function (next) {
     }
 });
 
-// Method to calculate and update user rating
-userSchema.methods.updateRating = function (ratings) {
-    // If no ratings, set a default rating or keep the current one
-    if (!ratings || ratings.length === 0) {
-        // Either keep the current rating if it exists, or set a default (e.g., 0 or 5)
-        this.rating = this.rating || 0; // Default to 0 if no ratings
-        return;
-    }
-
-    // Calculate the average rating
-    const sum = ratings.reduce((total, rating) => total + rating.value, 0);
-    const average = sum / ratings.length;
-
-    // Ensure the result is a valid number
-    this.rating = isNaN(average) ? 0 : average;
-};
-
 export const User = mongoose.model("User", userSchema);

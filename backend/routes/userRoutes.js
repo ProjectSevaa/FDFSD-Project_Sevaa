@@ -21,7 +21,14 @@ const router = express.Router();
 const csrfProtection = csrf({ cookie: true });
 
 // Create rotating write stream for user logs
-const userLogStream = createStream("user_access.log", {
+const userLogStream = createStream(() => {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    return `${day}-${month}-${year}_${hours}-${hours + 6}_user_access.log`;
+}, {
     interval: "6h", // rotate every 6 hours
     path: path.join(__dirname, "log/user"),
 });
@@ -45,61 +52,5 @@ router.post(
     updateUserLocation
 );
 router.post("/sendRequest", csrfProtection, sendRequest);
-
-// Add the getStats endpoint
-router.get("/getStats", csrfProtection, async (req, res) => {
-    try {
-        const token = req.cookies.user_jwt;
-        if (!token) {
-            return res.status(401).json({ message: "Not authenticated" });
-        }
-
-        const decoded = await new Promise((resolve, reject) => {
-            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-                if (err) reject(err);
-                else resolve(decoded);
-            });
-        });
-
-        const username = decoded.username;
-        console.log("Fetching stats for user:", username);
-
-        // Get donor orders count
-        const donorOrdersCount = await Order.countDocuments({
-            donorUsername: username,
-        });
-
-        // Get delivered orders count
-        const deliveredOrdersCount = await Order.countDocuments({
-            userUsername: username,
-            status: "delivered",
-        });
-
-        // Get registered delivery boys count
-        const user = await User.findOne({ username }).populate("deliveryBoys");
-        const registeredDeliveryBoysCount = user?.deliveryBoys?.length || 0;
-
-        // Get average rating if applicable
-        const donor = await Donor.findOne({ username });
-        const rating = donor?.rating || 0;
-
-        const stats = {
-            donorOrdersCount,
-            deliveredOrdersCount,
-            registeredDeliveryBoysCount,
-            rating,
-        };
-
-        console.log("Stats:", stats);
-        res.json({ success: true, stats });
-    } catch (error) {
-        console.error("Error fetching stats:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch stats",
-            error: error.message,
-        });
-    }
-});
 
 export default router;
