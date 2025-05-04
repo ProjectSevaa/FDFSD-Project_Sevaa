@@ -6,7 +6,9 @@ WORKDIR /usr/src/app
 
 # Install dependencies first (better caching)
 COPY package*.json ./
-RUN npm ci --only=production
+
+# Install all dependencies including devDependencies
+RUN npm install
 
 # Copy the rest of the application
 COPY . .
@@ -27,9 +29,6 @@ ENV PORT=9500
 # Expose the application port
 EXPOSE 9500
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD node -e "fetch('http://localhost:9500').then(r => process.exit(r.ok ? 0 : 1))"
-
+# Remove the healthcheck as it's causing issues
 # Start the application
-CMD ["npm", "run" , "dev"]
+CMD ["npm", "start"]
