@@ -85,37 +85,36 @@ export const getPosts = async (req, res) => {
 // Get all posts
 export const getAllPosts = async (req, res) => {
     try {
-        // Try to get posts from Redis cache
-        let posts;
-        try {
-            const cachedPosts = await redisClient.get("allPosts");
-            if (cachedPosts) {
-                posts = JSON.parse(cachedPosts);
-                return res.json({
-                    success: true,
-                    posts,
-                    source: "cache",
-                });
+        // Try Redis first
+        if (redisClient.status === "ready") {
+            try {
+                const cachedPosts = await redisClient.get("allPosts");
+                if (cachedPosts) {
+                    return res.json({
+                        success: true,
+                        posts: JSON.parse(cachedPosts),
+                        source: "cache",
+                    });
+                }
+            } catch (redisError) {
+                console.log("Redis error, falling back to MongoDB");
             }
-        } catch (redisError) {
-            console.error("Redis error:", redisError);
         }
 
-        // If cache miss or Redis error, fetch from MongoDB
-        posts = await Post.find().sort({ timestamp: -1 });
-
-        // Try to update cache
-        try {
-            await redisClient.set("allPosts", JSON.stringify(posts), "EX", 600);
-        } catch (redisError) {
-            console.error("Redis cache update error:", redisError);
-        }
-
+        // Fallback to MongoDB
+        const posts = await Post.find().sort({ timestamp: -1 });
         res.json({
             success: true,
             posts,
             source: "database",
         });
+
+        // Try to update cache if Redis is available
+        if (redisClient.status === "ready") {
+            redisClient
+                .set("allPosts", JSON.stringify(posts), "EX", 600)
+                .catch((err) => console.log("Failed to update cache"));
+        }
     } catch (error) {
         console.error("Error in getAllPosts:", error);
         res.status(500).json({
