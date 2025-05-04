@@ -37,8 +37,16 @@ export const createPost = async (req, res) => {
             });
 
             await newPost.save();
-            // Update Redis cache after creating new post
-            await updatePostsCache();
+
+            // Update Redis cache immediately after creating new post
+            if (redisClient.status === "ready") {
+                const allPosts = await Post.find().sort({ timestamp: -1 });
+                await updatePostsCache(allPosts);
+                console.log(
+                    "\x1b[32m%s\x1b[0m",
+                    "🆕 Cache updated with new post"
+                );
+            }
 
             res.status(201).json({
                 success: true,
@@ -85,7 +93,10 @@ export const getPosts = async (req, res) => {
 // Get all posts
 export const getAllPosts = async (req, res) => {
     try {
-        // Try Redis first
+        let posts;
+        let source = "database";
+
+        // Try Redis first if available
         if (redisClient.status === "ready") {
             try {
                 const cachedPosts = await redisClient.get("allPosts");
@@ -94,11 +105,8 @@ export const getAllPosts = async (req, res) => {
                         "\x1b[36m%s\x1b[0m",
                         "✨ Fetching posts from Redis cache"
                     );
-                    return res.json({
-                        success: true,
-                        posts: JSON.parse(cachedPosts),
-                        source: "cache",
-                    });
+                    posts = JSON.parse(cachedPosts);
+                    source = "cache";
                 }
             } catch (redisError) {
                 console.log(
@@ -108,23 +116,29 @@ export const getAllPosts = async (req, res) => {
             }
         }
 
-        // Fallback to MongoDB
-        console.log("\x1b[33m%s\x1b[0m", "📦 Fetching posts from MongoDB");
-        const posts = await Post.find().sort({ timestamp: -1 });
+        // Fetch from MongoDB if not in cache
+        if (!posts) {
+            console.log("\x1b[33m%s\x1b[0m", "📦 Fetching posts from MongoDB");
+            posts = await Post.find().sort({ timestamp: -1 });
+
+            // Update cache with fresh data
+            if (redisClient.status === "ready") {
+                updatePostsCache(posts).then((success) => {
+                    if (success) {
+                        console.log(
+                            "\x1b[32m%s\x1b[0m",
+                            "🔄 Redis cache updated with fresh data"
+                        );
+                    }
+                });
+            }
+        }
+
         res.json({
             success: true,
             posts,
-            source: "database",
+            source,
         });
-
-        // Try to update cache if Redis is available
-        if (redisClient.status === "ready") {
-            await redisClient.set("allPosts", JSON.stringify(posts), "EX", 600);
-            console.log(
-                "\x1b[32m%s\x1b[0m",
-                "🔄 Redis cache updated with fresh data"
-            );
-        }
     } catch (error) {
         console.error("\x1b[31m%s\x1b[0m", "❌ Error in getAllPosts:", error);
         res.status(500).json({

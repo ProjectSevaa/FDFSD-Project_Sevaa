@@ -48,32 +48,43 @@ try {
     };
 }
 
-export const updatePostsCache = async () => {
+export const updatePostsCache = async (posts = null) => {
     if (redisClient.status !== "ready") {
         console.log(
             "\x1b[33m%s\x1b[0m",
             "⚠️ Redis not ready, skipping cache update"
         );
-        return;
+        return false;
     }
 
     try {
-        const { Post } = await import("../models/post.js");
-        const posts = await Post.find().sort({ timestamp: -1 });
-        await redisClient.set("allPosts", JSON.stringify(posts), "EX", 600);
-        console.log("\x1b[32m%s\x1b[0m", "✅ Posts cache updated successfully");
+        let postsToCache;
+        if (!posts) {
+            const { Post } = await import("../models/post.js");
+            postsToCache = await Post.find().sort({ timestamp: -1 });
+        } else {
+            postsToCache = posts;
+        }
+
+        await redisClient.set(
+            "allPosts",
+            JSON.stringify(postsToCache),
+            "EX",
+            600
+        );
+        console.log(
+            "\x1b[32m%s\x1b[0m",
+            `✅ Posts cache updated with ${postsToCache.length} posts`
+        );
+        return true;
     } catch (error) {
         console.error(
             "\x1b[31m%s\x1b[0m",
             "❌ Error updating posts cache:",
             error
         );
+        return false;
     }
 };
-
-// Only start interval if Redis is connected
-if (redisClient.status === "ready") {
-    setInterval(updatePostsCache, 600000); // 600000 ms = 10 minutes
-}
 
 export default redisClient;
