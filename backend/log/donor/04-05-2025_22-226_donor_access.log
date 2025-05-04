@@ -1,2 +1,6 @@
 ::1 - - [04/May/2025:16:45:54 +0000] "POST /donor/addDonor HTTP/1.1" 400 68 "-" "axios/1.7.4"
 ::1 - - [04/May/2025:16:50:27 +0000] "POST /donor/addDonor HTTP/1.1" 201 439 "-" "axios/1.7.4"
+::1 - - [04/May/2025:16:56:06 +0000] "GET /donor/getDonorPosts HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+::1 - - [04/May/2025:16:56:06 +0000] "GET /donor/getDonorPosts HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+::1 - - [04/May/2025:16:56:11 +0000] "GET /donor/getDonorPosts HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+::1 - - [04/May/2025:16:56:11 +0000] "GET /donor/getDonorPosts HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
