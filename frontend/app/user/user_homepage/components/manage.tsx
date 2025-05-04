@@ -291,17 +291,17 @@ export function ManageSection() {
     }
 
     return (
-        <div className="p-6 h-screen flex flex-col space-y-6">
-            <div className="grid gap-6 md:grid-cols-3 flex-grow">
-                <Card className="flex flex-col">
-                    <CardHeader>
+        <div className="p-6 h-screen overflow-hidden">
+            <div className="grid gap-6 md:grid-cols-3 h-[calc(100vh-3rem)]">
+                <Card className="flex flex-col overflow-hidden">
+                    <CardHeader className="flex-none">
                         <CardTitle>Available Delivery Boys</CardTitle>
                         <CardDescription>
                             View all registered delivery boys and their status
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex-grow overflow-hidden">
-                        <ScrollArea className="h-full pr-4">
+                    <CardContent className="flex-1 overflow-hidden">
+                        <ScrollArea className="h-[calc(100vh-15rem)]">
                             {availableDeliveryBoys.map((boy) => (
                                 <Card key={boy._id} className="mb-4">
                                     <CardContent className="p-4">
@@ -340,15 +340,15 @@ export function ManageSection() {
                     </CardContent>
                 </Card>
 
-                <Card className="flex flex-col md:col-span-2">
-                    <CardHeader>
+                <Card className="flex flex-col overflow-hidden md:col-span-2">
+                    <CardHeader className="flex-none">
                         <CardTitle>Assign Delivery Boy</CardTitle>
                         <CardDescription>
                             Manage accepted requests and assign delivery boys
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex-grow overflow-hidden">
-                        <ScrollArea className="h-full pr-4">
+                    <CardContent className="flex-1 overflow-hidden">
+                        <ScrollArea className="h-[calc(100vh-15rem)]">
                             {acceptedRequests.map((request) => (
                                 <Card key={request._id} className="mb-4">
                                     <CardContent className="p-4">
@@ -492,15 +492,15 @@ export function ManageSection() {
                     </CardContent>
                 </Card>
 
-                <Card className="flex flex-col md:col-span-3">
-                    <CardHeader>
+                <Card className="flex flex-col overflow-hidden md:col-span-3">
+                    <CardHeader className="flex-none">
                         <CardTitle>Delivery Status</CardTitle>
                         <CardDescription>
                             Track the status of assigned orders
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex-grow overflow-hidden">
-                        <ScrollArea className="h-full">
+                    <CardContent className="flex-1 overflow-hidden">
+                        <ScrollArea className="h-[calc(100vh-25rem)]">
                             <div className="space-y-4">
                                 {isLoading ? (
                                     <div className="flex justify-center p-4">

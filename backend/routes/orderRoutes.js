@@ -82,10 +82,11 @@ import {
 
 const router = express.Router();
 
-router.get("/getOrders", getOrders);
+router.get("/getOrders", getOrders); // Ensure this route exists and is not duplicated
+// Remove any duplicate route definitions if they exist
 router.post("/assignOrder", assignOrder);
 router.post("/setOrderDelivered", setOrderDelivered);
 router.post("/setOrderPickedUp", setOrderPickedUp);
-router.post("/order/DeliveryImage", uploadDeliveryImage);
+router.post("/uploadDeliveryImage", uploadDeliveryImage);
 
 export default router;

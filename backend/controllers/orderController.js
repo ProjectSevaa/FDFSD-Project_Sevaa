@@ -28,7 +28,12 @@ app.use(cookieParser());
 // Configure multer storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'delivery-images');
+        const uploadDir = path.join(
+            process.cwd(),
+            "public",
+            "uploads",
+            "delivery-images"
+        );
         // Create directory if it doesn't exist
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
@@ -37,9 +42,9 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         // Create unique filename with timestamp and original extension
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'delivery-' + uniqueSuffix + path.extname(file.originalname));
-    }
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, "delivery-" + uniqueSuffix + path.extname(file.originalname));
+    },
 });
 
 // Configure multer upload
@@ -47,15 +52,15 @@ const uploadMiddleware = multer({
     storage: storage,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB limit
-        files: 1 // Allow only 1 file
+        files: 1, // Allow only 1 file
     },
     fileFilter: function (req, file, cb) {
         // Accept only image files
-        if (!file.mimetype.startsWith('image/')) {
-            return cb(new Error('Only image files are allowed!'), false);
+        if (!file.mimetype.startsWith("image/")) {
+            return cb(new Error("Only image files are allowed!"), false);
         }
         cb(null, true);
-    }
+    },
 });
 
 export const assignOrder = async (req, res) => {
@@ -129,7 +134,11 @@ export const assignOrder = async (req, res) => {
 
 export const getOrders = async (req, res) => {
     try {
-        const token = req.cookies.deliveryboy_jwt;
+        const token =
+            req.cookies.donor_jwt ||
+            req.cookies.user_jwt ||
+            req.cookies.deliveryboy_jwt;
+
         if (!token) {
             return res.status(401).json({
                 success: false,
@@ -137,31 +146,44 @@ export const getOrders = async (req, res) => {
             });
         }
 
-        const decoded = await new Promise((resolve, reject) => {
-            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-                if (err) reject(err);
-                else resolve(decoded);
-            });
-        });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        let orders;
 
-        if (decoded.role !== "deliveryboy") {
-            return res.status(403).json({
-                success: false,
-                message: "Not authorized - Must be a delivery boy",
-            });
+        // Log the role and username for debugging
+        console.log(
+            "\x1b[36m%s\x1b[0m",
+            `🔍 Fetching orders for ${decoded.role} : ${decoded.username}`
+        );
+
+        switch (decoded.role) {
+            case "user":
+                orders = await Order.find({
+                    userUsername: decoded.username,
+                }).sort({ timestamp: -1 });
+                break;
+            case "donor":
+                orders = await Order.find({
+                    donorUsername: decoded.username,
+                }).sort({ timestamp: -1 });
+                break;
+            case "deliveryboy":
+                orders = await Order.find({
+                    deliveryBoyName: decoded.username,
+                }).sort({ timestamp: -1 });
+                break;
+            default:
+                // For admin or other roles, fetch all orders
+                orders = await Order.find().sort({ timestamp: -1 });
         }
 
-        // Get orders assigned to this delivery boy
-        const orders = await Order.find({
-            deliveryBoyName: decoded.username,
-        }).sort({ timestamp: -1 });
+        console.log("\x1b[32m%s\x1b[0m", `✅ Found ${orders.length} orders`);
 
         res.status(200).json({
             success: true,
             orders,
         });
     } catch (error) {
-        console.error("Error in getOrders:", error);
+        console.error("\x1b[31m%s\x1b[0m", "❌ Error in getOrders:", error);
         res.status(500).json({
             success: false,
             message: "Server error",
@@ -171,7 +193,7 @@ export const getOrders = async (req, res) => {
 };
 
 export const setOrderDelivered = [
-    uploadMiddleware.single('image'),
+    uploadMiddleware.single("image"),
     async (req, res) => {
         try {
             const { orderId } = req.body;
@@ -196,7 +218,7 @@ export const setOrderDelivered = [
                 // Clean up uploaded file
                 if (req.file) {
                     fs.unlink(req.file.path, (err) => {
-                        if (err) console.error('Error deleting file:', err);
+                        if (err) console.error("Error deleting file:", err);
                     });
                 }
                 return res.status(401).json({
@@ -206,17 +228,25 @@ export const setOrderDelivered = [
             }
 
             const decoded = await new Promise((resolve, reject) => {
-                jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-                    if (err) reject(err);
-                    else resolve(decoded);
-                });
+                jwt.verify(
+                    token,
+                    process.env.JWT_SECRET_KEY,
+                    (err, decoded) => {
+                        if (err) reject(err);
+                        else resolve(decoded);
+                    }
+                );
             });
 
             if (decoded.role !== "deliveryboy") {
                 // Clean up uploaded file
                 if (req.file) {
                     fs.unlink(req.file.path, (err) => {
-                        if (err) console.error('Error deleting unauthorized file:', err);
+                        if (err)
+                            console.error(
+                                "Error deleting unauthorized file:",
+                                err
+                            );
                     });
                 }
                 return res.status(403).json({
@@ -231,7 +261,11 @@ export const setOrderDelivered = [
                 // Clean up uploaded file
                 if (req.file) {
                     fs.unlink(req.file.path, (err) => {
-                        if (err) console.error('Error deleting file for non-existent order:', err);
+                        if (err)
+                            console.error(
+                                "Error deleting file for non-existent order:",
+                                err
+                            );
                     });
                 }
                 return res.status(404).json({
@@ -245,7 +279,11 @@ export const setOrderDelivered = [
                 // Clean up uploaded file
                 if (req.file) {
                     fs.unlink(req.file.path, (err) => {
-                        if (err) console.error('Error deleting unauthorized file:', err);
+                        if (err)
+                            console.error(
+                                "Error deleting unauthorized file:",
+                                err
+                            );
                     });
                 }
                 return res.status(403).json({
@@ -258,12 +296,17 @@ export const setOrderDelivered = [
                 // Clean up uploaded file
                 if (req.file) {
                     fs.unlink(req.file.path, (err) => {
-                        if (err) console.error('Error deleting file for invalid status:', err);
+                        if (err)
+                            console.error(
+                                "Error deleting file for invalid status:",
+                                err
+                            );
                     });
                 }
                 return res.status(400).json({
                     success: false,
-                    message: "Order cannot be delivered - must be picked up first",
+                    message:
+                        "Order cannot be delivered - must be picked up first",
                 });
             }
 
@@ -273,7 +316,11 @@ export const setOrderDelivered = [
                 // Clean up uploaded file
                 if (req.file) {
                     fs.unlink(req.file.path, (err) => {
-                        if (err) console.error('Error deleting duplicate file:', err);
+                        if (err)
+                            console.error(
+                                "Error deleting duplicate file:",
+                                err
+                            );
                     });
                 }
                 return res.status(400).json({
@@ -287,7 +334,7 @@ export const setOrderDelivered = [
                 deliveryBoyName: decoded.username,
                 orderId,
                 image: req.file.path,
-                timestamp: new Date()
+                timestamp: new Date(),
             });
             await deliveryImage.save();
 
@@ -299,16 +346,18 @@ export const setOrderDelivered = [
             // Update user and delivery boy stats
             const [user, deliveryBoy] = await Promise.all([
                 User.findOne({ username: order.userUsername }),
-                DeliveryBoy.findOne({ deliveryBoyName: decoded.username })
+                DeliveryBoy.findOne({ deliveryBoyName: decoded.username }),
             ]);
 
             if (user) {
-                user.deliveredOrdersCount = (user.deliveredOrdersCount || 0) + 1;
+                user.deliveredOrdersCount =
+                    (user.deliveredOrdersCount || 0) + 1;
                 await user.save();
             }
 
             if (deliveryBoy) {
-                deliveryBoy.deliveredOrders = (deliveryBoy.deliveredOrders || 0) + 1;
+                deliveryBoy.deliveredOrders =
+                    (deliveryBoy.deliveredOrders || 0) + 1;
                 deliveryBoy.status = "available";
                 await deliveryBoy.save();
             }
@@ -317,13 +366,14 @@ export const setOrderDelivered = [
                 success: true,
                 message: "Order delivered successfully",
                 order,
-                imagePath: req.file.path
+                imagePath: req.file.path,
             });
         } catch (error) {
             // Clean up uploaded file in case of error
             if (req.file) {
                 fs.unlink(req.file.path, (err) => {
-                    if (err) console.error('Error deleting file after error:', err);
+                    if (err)
+                        console.error("Error deleting file after error:", err);
                 });
             }
 
@@ -334,16 +384,16 @@ export const setOrderDelivered = [
                 error: error.message,
             });
         }
-    }
+    },
 ];
 
 export const setOrderPickedUp = async (req, res) => {
     try {
-        console.log('Received request body:', req.body); // Debug log
+        console.log("Received request body:", req.body); // Debug log
         const { orderId } = req.body;
-        
+
         if (!orderId) {
-            console.log('Missing orderId in request:', req.body); // Debug log
+            console.log("Missing orderId in request:", req.body); // Debug log
             return res.status(400).json({
                 success: false,
                 message: "Order ID is required",
@@ -429,10 +479,14 @@ export const uploadDeliveryImage = [
             }
 
             const decoded = await new Promise((resolve, reject) => {
-                jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-                    if (err) reject(err);
-                    else resolve(decoded);
-                });
+                jwt.verify(
+                    token,
+                    process.env.JWT_SECRET_KEY,
+                    (err, decoded) => {
+                        if (err) reject(err);
+                        else resolve(decoded);
+                    }
+                );
             });
 
             if (decoded.role !== "deliveryboy") {
