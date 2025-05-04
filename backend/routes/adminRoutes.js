@@ -10,6 +10,8 @@ import {
     toggleBan,
     logoutAdmin,
 } from "../controllers/adminController.js";
+import { getLogs, getLogTypes } from "../controllers/logsController.js";
+import { getDonorDetails } from "../controllers/donorController.js";
 
 const router = express.Router();
 
@@ -28,5 +30,9 @@ router.post("/loginAdmin", loginAdmin);
 router.get("/logoutAdmin", logoutAdmin);
 
 router.post("/toggleBan/:modId", toggleBan);
+
+router.get("/logs", getLogs);
+router.get("/log-types", getLogTypes);
+router.get("/donor/:username", getDonorDetails);
 
 export default router;
