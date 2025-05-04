@@ -90,6 +90,10 @@ export const getAllPosts = async (req, res) => {
             try {
                 const cachedPosts = await redisClient.get("allPosts");
                 if (cachedPosts) {
+                    console.log(
+                        "\x1b[36m%s\x1b[0m",
+                        "✨ Fetching posts from Redis cache"
+                    );
                     return res.json({
                         success: true,
                         posts: JSON.parse(cachedPosts),
@@ -97,11 +101,15 @@ export const getAllPosts = async (req, res) => {
                     });
                 }
             } catch (redisError) {
-                console.log("Redis error, falling back to MongoDB");
+                console.log(
+                    "\x1b[33m%s\x1b[0m",
+                    "⚠️ Redis error, falling back to MongoDB"
+                );
             }
         }
 
         // Fallback to MongoDB
+        console.log("\x1b[33m%s\x1b[0m", "📦 Fetching posts from MongoDB");
         const posts = await Post.find().sort({ timestamp: -1 });
         res.json({
             success: true,
@@ -111,12 +119,14 @@ export const getAllPosts = async (req, res) => {
 
         // Try to update cache if Redis is available
         if (redisClient.status === "ready") {
-            redisClient
-                .set("allPosts", JSON.stringify(posts), "EX", 600)
-                .catch((err) => console.log("Failed to update cache"));
+            await redisClient.set("allPosts", JSON.stringify(posts), "EX", 600);
+            console.log(
+                "\x1b[32m%s\x1b[0m",
+                "🔄 Redis cache updated with fresh data"
+            );
         }
     } catch (error) {
-        console.error("Error in getAllPosts:", error);
+        console.error("\x1b[31m%s\x1b[0m", "❌ Error in getAllPosts:", error);
         res.status(500).json({
             success: false,
             message: "Server error",
