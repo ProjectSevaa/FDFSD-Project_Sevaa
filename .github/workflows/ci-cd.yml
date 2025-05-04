@@ -26,6 +26,9 @@ jobs:
               with:
                   node-version: 18
 
+            - name: Debug environment
+              run: printenv | sort
+
             - name: Install dependencies
               working-directory: backend
               run: npm install
