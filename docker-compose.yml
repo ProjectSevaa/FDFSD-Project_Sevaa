@@ -12,11 +12,14 @@ services:
         depends_on:
             - redis
             - mongo
+        restart: always
     redis:
         image: "redis:latest"
         ports:
             - "6379:6379"
+        restart: always
     mongo:
         image: "mongo:latest"
         ports:
             - "27017:27017"
+        restart: always

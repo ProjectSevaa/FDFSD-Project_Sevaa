@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { BASE_URL } from "@/constants";
 
 const DeliveryBoySignupForm: React.FC = () => {
     const [deliveryBoyName, setDeliveryBoyName] = useState("");
@@ -58,7 +59,7 @@ const DeliveryBoySignupForm: React.FC = () => {
 
         try {
             const response = await fetch(
-                "http://localhost:9500/deliveryboy/createDeliveryBoy",
+                `${BASE_URL}/deliveryboy/createDeliveryBoy`,
                 {
                     method: "POST",
                     headers: {

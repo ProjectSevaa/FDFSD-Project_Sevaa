@@ -16,6 +16,7 @@ import { Loader2, MapPin, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Cookies from "js-cookie";
 import { Badge } from "@/components/ui/badge";
+import { BASE_URL } from "@/constants";
 
 interface Post {
     _id: string;
@@ -38,13 +39,10 @@ export function SearchSection() {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await fetch(
-                    "http://localhost:9500/post/getAllPosts",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
+                const response = await fetch(`${BASE_URL}/post/getAllPosts`, {
+                    method: "GET",
+                    credentials: "include",
+                });
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch posts");
@@ -86,17 +84,14 @@ export function SearchSection() {
         try {
             setPendingRequests((prev) => new Set(prev).add(postId));
 
-            const response = await fetch(
-                "http://localhost:9500/user/sendRequest",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({ post_id: postId }),
-                }
-            );
+            const response = await fetch(`${BASE_URL}/user/sendRequest`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({ post_id: postId }),
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();

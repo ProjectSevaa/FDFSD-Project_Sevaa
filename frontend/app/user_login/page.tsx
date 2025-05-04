@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { BASE_URL } from "@/constants";
 
 export default function InputForm() {
     const { toast } = useToast();
@@ -20,12 +21,9 @@ export default function InputForm() {
     useEffect(() => {
         const fetchCsrfToken = async () => {
             try {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
+                const response = await fetch(`${BASE_URL}/csrf-token`, {
+                    credentials: "include",
+                });
                 const data = await response.json();
                 Cookies.set("XSRF-TOKEN", data.csrfToken);
             } catch (error) {
@@ -71,21 +69,18 @@ export default function InputForm() {
                     });
                     return;
                 }
-                const response = await fetch(
-                    "http://localhost:9500/auth/userLogin",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-Token": csrfToken,
-                        },
-                        body: JSON.stringify({
-                            email,
-                            password: data.password,
-                        }),
-                        credentials: "include",
-                    }
-                );
+                const response = await fetch(`${BASE_URL}/auth/userLogin`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": csrfToken,
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password: data.password,
+                    }),
+                    credentials: "include",
+                });
 
                 if (response.ok) {
                     const result = await response.json();

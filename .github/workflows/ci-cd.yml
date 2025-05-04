@@ -65,7 +65,7 @@ jobs:
 
             - name: Build frontend
               working-directory: frontend
-              run: npm run dev
+              run: npm run build
 
             - name: Deploy to Vercel
               working-directory: frontend
@@ -85,8 +85,10 @@ jobs:
               run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
             - name: Build Docker image
-              working-directory: backend
-              run: docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest .
+              run: docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest ./backend
+
+            - name: Verify Docker image
+              run: docker images | grep ${{ secrets.DOCKER_USERNAME }}/backend
 
             - name: Push Docker image
               run: docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest

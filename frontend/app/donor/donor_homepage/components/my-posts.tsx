@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { BASE_URL } from "@/constants";
 
 interface Post {
     _id: string;
@@ -71,12 +72,9 @@ export function MyPostsSection() {
     const fetchPosts = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(
-                "http://localhost:9500/donor/getDonorPosts",
-                {
-                    credentials: "include",
-                }
-            );
+            const response = await fetch(`${BASE_URL}/donor/getDonorPosts`, {
+                credentials: "include",
+            });
 
             if (!response.ok) {
                 throw new Error("Failed to fetch posts");
@@ -100,7 +98,7 @@ export function MyPostsSection() {
         try {
             setIsLoadingRequests(true);
             const response = await fetch(
-                `http://localhost:9500/request/getRequestsForPost?postId=${postId}`,
+                `${BASE_URL}/request/getRequestsForPost?postId=${postId}`,
                 {
                     credentials: "include",
                 }
@@ -128,7 +126,7 @@ export function MyPostsSection() {
     const acceptRequest = async (requestId: string) => {
         try {
             const response = await fetch(
-                `http://localhost:9500/request/acceptRequest/${requestId}`,
+                `${BASE_URL}/request/acceptRequest/${requestId}`,
                 {
                     method: "PATCH",
                     credentials: "include",

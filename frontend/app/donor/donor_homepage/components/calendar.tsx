@@ -6,6 +6,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BASE_URL } from "@/constants";
 
 interface Post {
     _id: string;
@@ -41,12 +42,9 @@ export function CalendarSection() {
 
     const fetchPosts = async () => {
         try {
-            const response = await fetch(
-                "http://localhost:9500/donor/getDonorPosts",
-                {
-                    credentials: "include",
-                }
-            );
+            const response = await fetch(`${BASE_URL}/donor/getDonorPosts`, {
+                credentials: "include",
+            });
             if (response.ok) {
                 const data = await response.json();
                 setPosts(data);

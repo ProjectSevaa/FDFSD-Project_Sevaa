@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { BASE_URL } from "@/constants";
 
 interface DeliveryBoy {
     _id: string;
@@ -44,7 +45,7 @@ export function AddDeliveryBoySection() {
         try {
             setIsLoading(true);
             const response = await fetch(
-                "http://localhost:9500/deliveryboy/getAllDeliveryBoys",
+                `${BASE_URL}/deliveryboy/getAllDeliveryBoys`,
                 {
                     credentials: "include",
                 }
@@ -78,7 +79,7 @@ export function AddDeliveryBoySection() {
     const handleAddDeliveryBoy = async (deliveryBoy: DeliveryBoy) => {
         try {
             const response = await fetch(
-                "http://localhost:9500/deliveryboy/addDeliveryBoyToUser",
+                `${BASE_URL}/deliveryboy/addDeliveryBoyToUser`,
                 {
                     method: "POST",
                     headers: {

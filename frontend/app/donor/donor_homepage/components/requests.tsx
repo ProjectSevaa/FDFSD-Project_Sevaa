@@ -21,6 +21,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useUser } from "@/context/UserContext"; // Import the useUser hook
 import { fetchCsrfToken } from "@/utils/csrf";
 import { apiFetch } from "@/utils/api";
+import { BASE_URL } from "@/constants";
 
 const formSchema = z.object({
     donorEmail: z.string().email({ message: "Invalid email address" }),
@@ -68,23 +69,20 @@ export function RequestsSection() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const response = await fetch(
-                "http://localhost:9500/post/createPost",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        donorEmail: values.donorEmail,
-                        location: values.location,
-                        availableFood: values.availableFood,
-                        longitude: values.longitude,
-                        latitude: values.latitude,
-                    }),
-                }
-            );
+            const response = await fetch(`${BASE_URL}/post/createPost`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    donorEmail: values.donorEmail,
+                    location: values.location,
+                    availableFood: values.availableFood,
+                    longitude: values.longitude,
+                    latitude: values.latitude,
+                }),
+            });
 
             if (response.ok) {
                 toast({

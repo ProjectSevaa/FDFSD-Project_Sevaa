@@ -19,6 +19,7 @@ import { OrderList } from "./order-list";
 import { StatusToggle } from "./status-toggle";
 import { useToast } from "@/hooks/use-toast";
 import Cookies from "js-cookie";
+import { BASE_URL } from "@/constants";
 
 interface Order {
     _id: string;
@@ -53,7 +54,7 @@ export default function DeliveryBoyHomepage() {
     const fetchDashboardData = async () => {
         try {
             const response = await fetch(
-                "http://localhost:9500/deliveryboy/getDeliveryBoyDashboard",
+                `${BASE_URL}/deliveryboy/getDeliveryBoyDashboard`,
                 {
                     method: "GET",
                     credentials: "include",
@@ -62,7 +63,9 @@ export default function DeliveryBoyHomepage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to fetch dashboard data");
+                throw new Error(
+                    errorData.message || "Failed to fetch dashboard data"
+                );
             }
 
             const data = await response.json();
@@ -78,19 +81,28 @@ export default function DeliveryBoyHomepage() {
         }
     };
 
-    const updateOrderStatus = async (orderId: string, status: "picked-up" | "delivered", imageFile?: File) => {
+    const updateOrderStatus = async (
+        orderId: string,
+        status: "picked-up" | "delivered",
+        imageFile?: File
+    ) => {
         try {
             if (!orderId) {
                 throw new Error("Order ID is required");
             }
 
-            const endpoint = status === "picked-up" ? "setOrderPickedUp" : "setOrderDelivered";
+            const endpoint =
+                status === "picked-up"
+                    ? "setOrderPickedUp"
+                    : "setOrderDelivered";
             const headers: HeadersInit = {};
 
             let body: FormData | string;
             if (status === "delivered") {
                 if (!imageFile) {
-                    throw new Error("Image is required for delivery confirmation");
+                    throw new Error(
+                        "Image is required for delivery confirmation"
+                    );
                 }
                 const formData = new FormData();
                 formData.append("orderId", orderId);
@@ -101,7 +113,7 @@ export default function DeliveryBoyHomepage() {
                 body = JSON.stringify({ orderId });
             }
 
-            const response = await fetch(`http://localhost:9500/order/${endpoint}`, {
+            const response = await fetch(`${BASE_URL}/order/${endpoint}`, {
                 method: "POST",
                 headers,
                 credentials: "include",
@@ -110,7 +122,9 @@ export default function DeliveryBoyHomepage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to update order status");
+                throw new Error(
+                    errorData.message || "Failed to update order status"
+                );
             }
 
             await fetchDashboardData();
@@ -121,8 +135,8 @@ export default function DeliveryBoyHomepage() {
     };
 
     const handleOrderDelivered = (order: Order) => {
-        if (!order._id || typeof order._id !== 'string') {
-            console.error('Invalid order:', order);
+        if (!order._id || typeof order._id !== "string") {
+            console.error("Invalid order:", order);
             toast({
                 title: "Error",
                 description: "Invalid order ID",
@@ -135,9 +149,13 @@ export default function DeliveryBoyHomepage() {
 
     const handleImageUpload = async (event: React.FormEvent) => {
         event.preventDefault();
-        
-        if (!selectedOrder || !selectedOrder._id || typeof selectedOrder._id !== 'string') {
-            console.error('Invalid selected order:', selectedOrder);
+
+        if (
+            !selectedOrder ||
+            !selectedOrder._id ||
+            typeof selectedOrder._id !== "string"
+        ) {
+            console.error("Invalid selected order:", selectedOrder);
             toast({
                 title: "Error",
                 description: "Invalid order selection",
@@ -159,26 +177,28 @@ export default function DeliveryBoyHomepage() {
             // Show loading state
             toast({
                 title: "Uploading",
-                description: "Uploading image and marking order as delivered...",
+                description:
+                    "Uploading image and marking order as delivered...",
             });
 
-            console.log('Uploading image for order:', selectedOrder._id); // Debug log
+            console.log("Uploading image for order:", selectedOrder._id); // Debug log
             await updateOrderStatus(selectedOrder._id, "delivered", imageFile);
-            
+
             setSelectedOrder(null);
             setImageFile(null);
-            
+
             toast({
                 title: "Success",
                 description: "Order marked as delivered successfully",
             });
-            
+
             await fetchDashboardData(); // Refresh the orders list
         } catch (error: any) {
-            console.error('Image upload error:', error);
+            console.error("Image upload error:", error);
             toast({
                 title: "Error",
-                description: error.message || "Failed to mark order as delivered",
+                description:
+                    error.message || "Failed to mark order as delivered",
                 variant: "destructive",
             });
         }
@@ -234,7 +254,7 @@ export default function DeliveryBoyHomepage() {
                             <TabsTrigger value="delivered">
                                 Delivered
                             </TabsTrigger>
-                            </TabsList>
+                        </TabsList>
                         <TabsContent value="ongoing">
                             <OrderList
                                 orders={orders.filter(
@@ -272,8 +292,13 @@ export default function DeliveryBoyHomepage() {
             {selectedOrder && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-                        <h2 className="text-xl font-semibold mb-4">Upload Delivery Image</h2>
-                        <form onSubmit={handleImageUpload} className="space-y-4">
+                        <h2 className="text-xl font-semibold mb-4">
+                            Upload Delivery Image
+                        </h2>
+                        <form
+                            onSubmit={handleImageUpload}
+                            className="space-y-4"
+                        >
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-700">
                                     Upload Image (Required)
@@ -288,20 +313,24 @@ export default function DeliveryBoyHomepage() {
                                             if (file.size > 5 * 1024 * 1024) {
                                                 toast({
                                                     title: "Error",
-                                                    description: "Image size should be less than 5MB",
+                                                    description:
+                                                        "Image size should be less than 5MB",
                                                     variant: "destructive",
                                                 });
-                                                e.target.value = '';
+                                                e.target.value = "";
                                                 setImageFile(null);
                                                 return;
                                             }
-                                            if (!file.type.startsWith('image/')) {
+                                            if (
+                                                !file.type.startsWith("image/")
+                                            ) {
                                                 toast({
                                                     title: "Error",
-                                                    description: "Please upload only image files",
+                                                    description:
+                                                        "Please upload only image files",
                                                     variant: "destructive",
                                                 });
-                                                e.target.value = '';
+                                                e.target.value = "";
                                                 setImageFile(null);
                                                 return;
                                             }
@@ -314,7 +343,8 @@ export default function DeliveryBoyHomepage() {
                                     required
                                 />
                                 <p className="text-sm text-gray-500">
-                                    Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                                    Max file size: 5MB. Supported formats: JPG,
+                                    PNG, GIF
                                 </p>
                             </div>
                             <div className="flex justify-end space-x-2">
@@ -328,10 +358,7 @@ export default function DeliveryBoyHomepage() {
                                 >
                                     Cancel
                                 </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={!imageFile}
-                                >
+                                <Button type="submit" disabled={!imageFile}>
                                     Mark as Delivered
                                 </Button>
                             </div>

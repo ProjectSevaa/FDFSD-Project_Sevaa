@@ -4,11 +4,11 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /usr/src/app
 
-# Install dependencies first (better caching)
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install all dependencies including devDependencies
-RUN npm install
+# Install production dependencies only
+RUN npm install --production
 
 # Copy the rest of the application
 COPY . .
@@ -29,6 +29,5 @@ ENV PORT=9500
 # Expose the application port
 EXPOSE 9500
 
-# Remove the healthcheck as it's causing issues
 # Start the application
 CMD ["npm", "start"]

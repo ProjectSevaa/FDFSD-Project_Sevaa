@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/context/UserContext"; // Import the UserContext
 import { toast } from "@/hooks/use-toast";
+import { BASE_URL } from "@/constants";
 
 interface DonorLoginFormProps {
     toggleForm: () => void; // Callback to toggle between login/signup forms
@@ -24,17 +25,14 @@ const DonorLoginForm: React.FC<DonorLoginFormProps> = ({ toggleForm }) => {
         setError(null);
 
         try {
-            const response = await fetch(
-                "http://localhost:9500/auth/donorLogin",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({ email, password }),
-                }
-            );
+            const response = await fetch(`${BASE_URL}/auth/donorLogin`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({ email, password }),
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();

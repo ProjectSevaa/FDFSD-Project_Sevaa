@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { BASE_URL } from "@/constants";
 
 interface DeliveryBoyLoginFormProps {
     toggleForm: () => void;
@@ -20,17 +21,14 @@ const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch(
-                "http://localhost:9500/auth/delLogin",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include", // Include cookies
-                    body: JSON.stringify({ deliveryBoyName, password }),
-                }
-            );
+            const response = await fetch(`${BASE_URL}/auth/delLogin`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include", // Include cookies
+                body: JSON.stringify({ deliveryBoyName, password }),
+            });
 
             if (response.ok) {
                 const result = await response.json();

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext"; // Import the context
+import { BASE_URL } from "@/constants";
 
 interface UserLoginFormProps {
     toggleForm: () => void;
@@ -25,17 +26,14 @@ const UserLoginForm: React.FC<UserLoginFormProps> = ({ toggleForm }) => {
             // Save the email to context
             setEmail(email);
 
-            const response = await fetch(
-                "http://localhost:9500/auth/userLogin",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ email, password }),
-                    credentials: "include", // Include cookies for authentication
-                }
-            );
+            const response = await fetch(`${BASE_URL}/auth/userLogin`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+                credentials: "include", // Include cookies for authentication
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();
