@@ -16,7 +16,6 @@
             <!-- User Login Card -->
             <h5 class="text-center">User Login</h5>
             <form action="/auth/userLogin" method="POST">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <div id="emailSectionLogin">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -111,11 +110,6 @@
                             action="/auth/userSignup"
                             method="POST"
                         >
-                            <input
-                                type="hidden"
-                                name="_csrf"
-                                value="<%= csrfToken %>"
-                            />
                             <div id="usernameSection">
                                 <div class="mb-3">
                                     <label for="username" class="form-label"

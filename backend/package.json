@@ -26,7 +26,6 @@
     "cookie-parser": "^1.4.6",
     "cookie-signature": "^1.0.6",
     "cors": "^2.8.5",
-    "csurf": "^1.10.0",
     "debug": "^2.6.9",
     "define-data-property": "^1.1.4",
     "depd": "^2.0.0",

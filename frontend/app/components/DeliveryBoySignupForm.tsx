@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import Cookies from "js-cookie";
 
 const DeliveryBoySignupForm: React.FC = () => {
     const [deliveryBoyName, setDeliveryBoyName] = useState("");
@@ -15,41 +14,8 @@ const DeliveryBoySignupForm: React.FC = () => {
 
     const { toast } = useToast();
 
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
-            try {
-                const response = await fetch(
-                    "http://localhost:9500/deliveryboy/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                Cookies.set("XSRF-TOKEN", data.csrfToken);
-            } catch (error) {
-                toast({
-                    title: "Error",
-                    description: "Failed to fetch CSRF token.",
-                    variant: "destructive",
-                });
-            }
-        };
-
-        fetchCsrfToken();
-    }, []);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        const csrfToken = Cookies.get("XSRF-TOKEN");
-        if (!csrfToken) {
-            toast({
-                title: "Error",
-                description: "CSRF token not found. Please refresh the page.",
-                variant: "destructive",
-            });
-            return;
-        }
 
         if (
             !deliveryBoyName ||
@@ -97,7 +63,6 @@ const DeliveryBoySignupForm: React.FC = () => {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                     credentials: "include",
                     body: JSON.stringify(signupData),

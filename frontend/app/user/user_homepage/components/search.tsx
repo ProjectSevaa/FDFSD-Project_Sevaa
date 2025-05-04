@@ -38,27 +38,10 @@ export function SearchSection() {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                // Get CSRF token if needed
-                let csrfToken = Cookies.get("XSRF-TOKEN");
-                if (!csrfToken) {
-                    const response = await fetch(
-                        "http://localhost:9500/csrf-token",
-                        {
-                            credentials: "include",
-                        }
-                    );
-                    const data = await response.json();
-                    csrfToken = data.csrfToken;
-                    Cookies.set("XSRF-TOKEN", csrfToken);
-                }
-
                 const response = await fetch(
                     "http://localhost:9500/post/getAllPosts",
                     {
                         method: "GET",
-                        headers: {
-                            "X-CSRF-Token": csrfToken,
-                        },
                         credentials: "include",
                     }
                 );
@@ -103,26 +86,12 @@ export function SearchSection() {
         try {
             setPendingRequests((prev) => new Set(prev).add(postId));
 
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 "http://localhost:9500/user/sendRequest",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                     credentials: "include",
                     body: JSON.stringify({ post_id: postId }),
@@ -215,10 +184,10 @@ export function SearchSection() {
                                                 </Badge>
                                             </CardTitle>
                                             <CardDescription>
-                                                <div className="flex items-center">
+                                                <span className="flex items-center">
                                                     <MapPin className="h-4 w-4 mr-1" />
                                                     {post.location}
-                                                </div>
+                                                </span>
                                             </CardDescription>
                                         </CardHeader>
                                         <CardContent>

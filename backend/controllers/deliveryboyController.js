@@ -233,24 +233,40 @@ export const createDeliveryBoy = async (req, res) => {
 // };
 
 export const getDeliveryBoysByUser = async (req, res) => {
-    const { userId } = req.params; // Get the user ID from the request parameters
+    const { userId } = req.params;
 
     try {
-        // Find the user by userId and populate the deliveryBoys
-        const user = await User.findById(userId).populate("deliveryBoys");
+        // Find the user and populate the deliveryBoys field with all fields except password
+        const user = await User.findById(userId).populate({
+            path: "deliveryBoys",
+            select: "-password",
+        });
 
-        // Check if the user exists
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Return the delivery boys associated with the user
-        const deliveryBoys = user.deliveryBoys; // This will be an array of DeliveryBoy objects
-        res.status(200).json({ deliveryBoys });
+        console.log("Found user:", user.username);
+        console.log("Delivery boys:", user.deliveryBoys);
+
+        if (!user.deliveryBoys || user.deliveryBoys.length === 0) {
+            return res.status(200).json({
+                deliveryBoys: [],
+                message: "No delivery boys found for this user",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            deliveryBoys: user.deliveryBoys,
+            count: user.deliveryBoys.length,
+        });
     } catch (error) {
+        console.error("Error in getDeliveryBoysByUser:", error);
         res.status(500).json({
+            success: false,
             message: "Error fetching delivery boys",
-            error,
+            error: error.message,
         });
     }
 };
@@ -456,6 +472,51 @@ export const toggleStatus = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Server error",
+            error: error.message,
+        });
+    }
+};
+
+export const getMyDeliveryBoys = async (req, res) => {
+    try {
+        const token = req.cookies.user_jwt;
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+
+        const decodedToken = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
+
+        const user = await User.findOne({
+            username: decodedToken.username,
+        }).populate({
+            path: "deliveryBoys",
+            select: "-password",
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            deliveryBoys: user.deliveryBoys || [],
+        });
+    } catch (error) {
+        console.error("Error in getMyDeliveryBoys:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching delivery boys",
             error: error.message,
         });
     }

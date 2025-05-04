@@ -1,5 +1,4 @@
 import express from "express";
-import csrf from "csurf";
 import {
     createPost,
     getPosts,
@@ -7,16 +6,9 @@ import {
 } from "../controllers/postController.js";
 
 const router = express.Router();
-const csrfProtection = csrf({ cookie: true });
 
-// CSRF token endpoint
-router.get("/csrf-token", csrfProtection, (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
-});
-
-// Protected routes
-router.post("/createPost", csrfProtection, createPost);
-router.get("/getPosts", csrfProtection, getPosts);
-router.get("/getAllPosts", csrfProtection, getAllPosts);
+router.post("/createPost", createPost);
+router.get("/getPosts", getPosts);
+router.get("/getAllPosts", getAllPosts);
 
 export default router;

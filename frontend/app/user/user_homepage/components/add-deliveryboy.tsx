@@ -37,42 +37,21 @@ export function AddDeliveryBoySection() {
     const router = useRouter();
 
     useEffect(() => {
-        const init = async () => {
-            if (!Cookies.get("XSRF-TOKEN")) {
-                await fetchCsrfToken();
-            }
-            fetchDeliveryBoys();
-        };
-
-        init();
+        fetchDeliveryBoys();
     }, []);
 
     const fetchDeliveryBoys = async () => {
         try {
             setIsLoading(true);
-            const csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                throw new Error("CSRF token not found");
-            }
-
-            console.log("Fetching delivery boys with token:", csrfToken);
-
             const response = await fetch(
                 "http://localhost:9500/deliveryboy/getAllDeliveryBoys",
                 {
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Server response:", response.status, errorText);
-                throw new Error(
-                    `Failed to fetch delivery boys: ${response.status} ${errorText}`
-                );
+                throw new Error("Failed to fetch delivery boys");
             }
 
             const data = await response.json();
@@ -88,10 +67,7 @@ export function AddDeliveryBoySection() {
             console.error("Error fetching delivery boys:", error);
             toast({
                 title: "Error",
-                description:
-                    error instanceof Error
-                        ? error.message
-                        : "Failed to fetch delivery boys",
+                description: "Failed to fetch delivery boys",
                 variant: "destructive",
             });
         } finally {
@@ -101,27 +77,12 @@ export function AddDeliveryBoySection() {
 
     const handleAddDeliveryBoy = async (deliveryBoy: DeliveryBoy) => {
         try {
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 "http://localhost:9500/deliveryboy/addDeliveryBoyToUser",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                     credentials: "include",
                     body: JSON.stringify({

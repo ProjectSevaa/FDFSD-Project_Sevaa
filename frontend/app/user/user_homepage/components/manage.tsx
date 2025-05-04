@@ -100,34 +100,8 @@ export function ManageSection() {
         DeliveryBoy[]
     >([]);
 
-    // Add this function to ensure CSRF token is fetched before making requests
-    const fetchCsrfToken = async () => {
-        try {
-            const response = await fetch(
-                "http://localhost:9500/user/csrf-token",
-                {
-                    credentials: "include",
-                }
-            );
-            const data = await response.json();
-            Cookies.set("XSRF-TOKEN", data.csrfToken);
-            return data.csrfToken;
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to fetch CSRF token",
-                variant: "destructive",
-            });
-            return null;
-        }
-    };
-
     useEffect(() => {
         const init = async () => {
-            // Ensure CSRF token is set before making any requests
-            if (!Cookies.get("XSRF-TOKEN")) {
-                await fetchCsrfToken();
-            }
             fetchAcceptedRequests();
             fetchAssignedOrders();
             fetchAvailableDeliveryBoys();
@@ -139,24 +113,11 @@ export function ManageSection() {
     const fetchAcceptedRequests = async () => {
         try {
             setIsLoading(true);
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-
-            // If no CSRF token exists, fetch a new one
-            if (!csrfToken) {
-                csrfToken = await fetchCsrfToken();
-                if (!csrfToken) {
-                    throw new Error("Failed to fetch CSRF token");
-                }
-            }
-
             const response = await fetch(
                 "http://localhost:9500/request/getAcceptedRequests",
                 {
                     method: "GET",
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
@@ -167,7 +128,7 @@ export function ManageSection() {
             const data = await response.json();
             setAcceptedRequests(data.acceptedRequests);
         } catch (error) {
-            console.error("Error fetching accepted requests:", error);
+            console.log("Error fetching accepted requests:", error);
             toast({
                 title: "Error",
                 description: "Failed to fetch accepted requests",
@@ -180,15 +141,11 @@ export function ManageSection() {
 
     const fetchNearbyDeliveryBoys = async (postId: string) => {
         try {
-            const csrfToken = Cookies.get("XSRF-TOKEN");
             const response = await fetch(
                 `http://localhost:9500/deliveryboy/findNearbyPosts?postId=${postId}`,
                 {
                     method: "GET",
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
@@ -199,7 +156,7 @@ export function ManageSection() {
             const data = await response.json();
             setNearbyDeliveryBoys(data.closestDeliveryBoys || []);
         } catch (error) {
-            console.error("Error fetching nearby delivery boys:", error);
+            console.log("Error fetching nearby delivery boys:", error);
             toast({
                 title: "Error",
                 description: "Failed to fetch nearby delivery boys",
@@ -220,27 +177,12 @@ export function ManageSection() {
         }
 
         try {
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token", // Use the main CSRF endpoint
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 "http://localhost:9500/order/assignOrder",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                     credentials: "include",
                     body: JSON.stringify({
@@ -269,7 +211,7 @@ export function ManageSection() {
             setDeliveryLocation("");
             setIsDialogOpen(false);
         } catch (error) {
-            console.error("Error assigning order:", error);
+            console.log("Error assigning order:", error);
             toast({
                 title: "Error",
                 description: error.message || "Failed to assign order",
@@ -280,27 +222,10 @@ export function ManageSection() {
 
     const fetchAssignedOrders = async () => {
         try {
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token", // Use the main CSRF endpoint
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 "http://localhost:9500/order/getOrders",
                 {
                     method: "GET",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                     credentials: "include",
                 }
             );
@@ -312,44 +237,32 @@ export function ManageSection() {
             const data = await response.json();
 
             if (data.success && data.orders) {
-                // Changed from assignedOrders to orders
                 setAssignedOrders(data.orders);
             } else {
                 setAssignedOrders([]);
                 toast({
-                    title: "No Orders Found",
-                    description: "No orders available.",
+                    title: "No Orders",
+                    description: "There are no assigned orders at the moment.",
                     variant: "default",
                 });
             }
         } catch (error) {
-            console.error("Error fetching assigned orders:", error);
+            console.log("Error fetching assigned orders:", error);
             toast({
-                title: "Error",
-                description: error.message || "Failed to fetch assigned orders",
-                variant: "destructive",
+                title: "Info",
+                description: "No assigned orders found",
+                variant: "default",
             });
         }
     };
 
     const fetchAvailableDeliveryBoys = async () => {
         try {
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                csrfToken = await fetchCsrfToken();
-                if (!csrfToken) {
-                    throw new Error("Failed to fetch CSRF token");
-                }
-            }
-
             const response = await fetch(
-                "http://localhost:9500/deliveryboy/getAllDeliveryBoys",
+                `http://localhost:9500/deliveryboy/getMyDeliveryBoys`,
                 {
                     method: "GET",
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
@@ -360,7 +273,7 @@ export function ManageSection() {
             const data = await response.json();
             setAvailableDeliveryBoys(data.deliveryBoys || []);
         } catch (error) {
-            console.error("Error fetching delivery boys:", error);
+            console.log("Error fetching delivery boys:", error);
             toast({
                 title: "Error",
                 description: "Failed to fetch delivery boys",

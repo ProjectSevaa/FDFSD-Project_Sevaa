@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 
 interface DeliveryBoyLoginFormProps {
     toggleForm: () => void;
@@ -21,27 +20,15 @@ const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                toast({
-                    title: "Error",
-                    description:
-                        "CSRF token not found. Please refresh the page.",
-                    variant: "destructive",
-                });
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:9500/auth/delLogin",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
-                    body: JSON.stringify({ deliveryBoyName, password }),
                     credentials: "include", // Include cookies
+                    body: JSON.stringify({ deliveryBoyName, password }),
                 }
             );
 
@@ -74,29 +61,6 @@ const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({
         }
     };
 
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
-            try {
-                const response = await fetch(
-                    "http://localhost:9500/deliveryboy/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                Cookies.set("XSRF-TOKEN", data.csrfToken);
-            } catch (error) {
-                toast({
-                    title: "Error",
-                    description: "Failed to fetch CSRF token.",
-                    variant: "destructive",
-                });
-            }
-        };
-
-        fetchCsrfToken();
-    }, []);
-
     return (
         <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black text-white border-2 border-black">
             <div className="modal-header">
@@ -113,11 +77,6 @@ const DeliveryBoyLoginForm: React.FC<DeliveryBoyLoginFormProps> = ({
             </div>
             <div className="modal-body">
                 <form onSubmit={handleSubmit} className="my-8">
-                    <input
-                        type="hidden"
-                        name="_csrf"
-                        value={Cookies.get("XSRF-TOKEN") || ""}
-                    />
                     {/* Delivery Boy Name input */}
                     <div className="mb-4">
                         <Label

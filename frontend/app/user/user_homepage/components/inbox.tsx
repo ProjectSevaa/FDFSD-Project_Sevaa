@@ -39,40 +39,10 @@ export function InboxSection() {
     const [isLoadingRequests, setIsLoadingRequests] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Add this function to ensure CSRF token is fetched before making requests
-    const fetchCsrfToken = async () => {
-        try {
-            const response = await fetch(
-                "http://localhost:9500/user/csrf-token",
-                {
-                    credentials: "include",
-                }
-            );
-            const data = await response.json();
-            Cookies.set("XSRF-TOKEN", data.csrfToken);
-            return data.csrfToken;
-        } catch (err) {
-            setError(
-                err instanceof Error ? err.message : "Error fetching CSRF token"
-            );
-            return null;
-        }
-    };
-
     const fetchDonors = async () => {
         try {
             setIsLoading(true);
             setError(null);
-
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-
-            // If no CSRF token exists, fetch a new one
-            if (!csrfToken) {
-                csrfToken = await fetchCsrfToken();
-                if (!csrfToken) {
-                    throw new Error("Failed to fetch CSRF token");
-                }
-            }
 
             const response = await fetch(
                 "http://localhost:9500/request/getAllDonors",
@@ -80,7 +50,6 @@ export function InboxSection() {
                     credentials: "include",
                     headers: {
                         Accept: "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                 }
             );
@@ -118,23 +87,12 @@ export function InboxSection() {
             setIsLoadingRequests(true);
             setError(null);
 
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-
-            // If no CSRF token exists, fetch a new one
-            if (!csrfToken) {
-                csrfToken = await fetchCsrfToken();
-                if (!csrfToken) {
-                    throw new Error("Failed to fetch CSRF token");
-                }
-            }
-
             const response = await fetch(
                 `http://localhost:9500/request/getRequests?donor=${donorUsername}`,
                 {
                     credentials: "include",
                     headers: {
                         Accept: "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                 }
             );

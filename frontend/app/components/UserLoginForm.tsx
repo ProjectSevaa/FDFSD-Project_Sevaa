@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext"; // Import the context
-import Cookies from "js-cookie";
 
 interface UserLoginFormProps {
     toggleForm: () => void;
@@ -26,21 +25,12 @@ const UserLoginForm: React.FC<UserLoginFormProps> = ({ toggleForm }) => {
             // Save the email to context
             setEmail(email);
 
-            const csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                setError("CSRF token not found. Please refresh the page.");
-                setLoading(false);
-                setShowError(true); // Show error after form submission
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:9500/auth/userLogin",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                     body: JSON.stringify({ email, password }),
                     credentials: "include", // Include cookies for authentication
@@ -75,27 +65,6 @@ const UserLoginForm: React.FC<UserLoginFormProps> = ({ toggleForm }) => {
         }
     };
 
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
-            try {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                Cookies.set("XSRF-TOKEN", data.csrfToken);
-            } catch (error) {
-                setShowError(true);
-                setError("Failed to fetch CSRF token.");
-                // Show error after form submission
-            }
-        };
-
-        fetchCsrfToken();
-    }, []);
-
     return (
         <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black text-white border-2 border-black">
             <div className="modal-header">
@@ -112,11 +81,6 @@ const UserLoginForm: React.FC<UserLoginFormProps> = ({ toggleForm }) => {
             </div>
             <div className="modal-body">
                 <form onSubmit={handleLogin} className="my-8">
-                    <input
-                        type="hidden"
-                        name="_csrf"
-                        value={Cookies.get("XSRF-TOKEN") || ""}
-                    />
                     <div className="mb-4">
                         <label
                             htmlFor="email"

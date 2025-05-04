@@ -22,17 +22,29 @@ interface Order {
 
 interface OrderListProps {
     orders: Order[];
-    updateOrderStatus: (orderId: string, status: "picked-up" | "delivered", imageFile?: File) => Promise<void>;
+    updateOrderStatus: (
+        orderId: string,
+        status: "picked-up" | "delivered",
+        imageFile?: File
+    ) => Promise<void>;
     handleOrderDelivered?: (order: Order) => void;
     type: "ongoing" | "delivered";
 }
 
-export function OrderList({ orders, updateOrderStatus, handleOrderDelivered, type }: OrderListProps) {
+export function OrderList({
+    orders,
+    updateOrderStatus,
+    handleOrderDelivered,
+    type,
+}: OrderListProps) {
     const { toast } = useToast();
 
-    const handleStatusUpdate = async (orderId: string, status: "picked-up" | "delivered") => {
-        if (!orderId || typeof orderId !== 'string') {
-            console.error('Invalid orderId:', orderId);
+    const handleStatusUpdate = async (
+        orderId: string,
+        status: "picked-up" | "delivered"
+    ) => {
+        if (!orderId || typeof orderId !== "string") {
+            console.error("Invalid orderId:", orderId);
             toast({
                 title: "Error",
                 description: "Invalid order ID",
@@ -42,21 +54,24 @@ export function OrderList({ orders, updateOrderStatus, handleOrderDelivered, typ
         }
 
         try {
-            console.log('Updating order status:', { 
-                orderId, 
+            console.log("Updating order status:", {
+                orderId,
                 status,
                 orderIdType: typeof orderId,
-                orderIdLength: orderId.length
+                orderIdLength: orderId.length,
             }); // Enhanced debug log
             await updateOrderStatus(orderId, status);
             toast({
                 title: "Success",
-                description: `Order ${status === "picked-up" ? "picked up" : "delivered"} successfully`,
+                description: `Order ${
+                    status === "picked-up" ? "picked up" : "delivered"
+                } successfully`,
             });
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error 
-                ? error.message 
-                : "Failed to update order status";
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update order status";
 
             console.error("Error updating order status:", error);
             toast({
@@ -88,7 +103,7 @@ export function OrderList({ orders, updateOrderStatus, handleOrderDelivered, typ
             {orders.map((order) => {
                 // Ensure order._id exists and is valid
                 if (!order || !order._id) {
-                    console.error('Invalid order object:', order);
+                    console.error("Invalid order object:", order);
                     return null;
                 }
 
@@ -96,7 +111,9 @@ export function OrderList({ orders, updateOrderStatus, handleOrderDelivered, typ
                     <Card key={order._id}>
                         <CardHeader>
                             <CardTitle className="flex justify-between items-center">
-                                <span className="text-sm truncate">Order: {order._id}</span>
+                                <span className="text-sm truncate">
+                                    Order: {order._id}
+                                </span>
                                 <Badge
                                     variant={
                                         order.status === "on-going"
@@ -112,11 +129,25 @@ export function OrderList({ orders, updateOrderStatus, handleOrderDelivered, typ
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
-                                <p><strong>Donor:</strong> {order.donorUsername}</p>
-                                <p><strong>User:</strong> {order.userUsername}</p>
-                                <p><strong>Pickup:</strong> {order.pickupLocation}</p>
-                                <p><strong>Delivery:</strong> {order.deliveryLocation}</p>
-                                <p><strong>Time:</strong> {new Date(order.timestamp).toLocaleString()}</p>
+                                <p>
+                                    <strong>Donor:</strong>{" "}
+                                    {order.donorUsername}
+                                </p>
+                                <p>
+                                    <strong>User:</strong> {order.userUsername}
+                                </p>
+                                <p>
+                                    <strong>Pickup:</strong>{" "}
+                                    {order.pickupLocation}
+                                </p>
+                                <p>
+                                    <strong>Delivery:</strong>{" "}
+                                    {order.deliveryLocation}
+                                </p>
+                                <p>
+                                    <strong>Time:</strong>{" "}
+                                    {new Date(order.timestamp).toLocaleString()}
+                                </p>
                             </div>
                         </CardContent>
                         {type === "ongoing" && (
@@ -124,28 +155,38 @@ export function OrderList({ orders, updateOrderStatus, handleOrderDelivered, typ
                                 {order.status === "on-going" && (
                                     <Button
                                         onClick={() => {
-                                            console.log('Clicking pick-up for order:', {
-                                                orderId: order._id,
-                                                orderType: typeof order._id,
-                                                fullOrder: order
-                                            }); // Enhanced debug log
-                                            handleStatusUpdate(order._id, "picked-up");
+                                            console.log(
+                                                "Clicking pick-up for order:",
+                                                {
+                                                    orderId: order._id,
+                                                    orderType: typeof order._id,
+                                                    fullOrder: order,
+                                                }
+                                            ); // Enhanced debug log
+                                            handleStatusUpdate(
+                                                order._id,
+                                                "picked-up"
+                                            );
                                         }}
                                         variant="secondary"
                                     >
                                         Mark as Picked-Up
                                     </Button>
                                 )}
-                                {order.status === "picked-up" && handleOrderDelivered && (
-                                    <Button
-                                        onClick={() => {
-                                            console.log('Clicking deliver for order:', order._id); // Debug log
-                                            handleOrderDelivered(order);
-                                        }}
-                                    >
-                                        Mark as Delivered
-                                    </Button>
-                                )}
+                                {order.status === "picked-up" &&
+                                    handleOrderDelivered && (
+                                        <Button
+                                            onClick={() => {
+                                                console.log(
+                                                    "Clicking deliver for order:",
+                                                    order._id
+                                                ); // Debug log
+                                                handleOrderDelivered(order);
+                                            }}
+                                        >
+                                            Mark as Delivered
+                                        </Button>
+                                    )}
                             </CardFooter>
                         )}
                     </Card>

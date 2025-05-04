@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import Cookies from "js-cookie";
 
 // Zod schema for form validation
 const DonorFormSchema = z.object({
@@ -78,25 +77,14 @@ const DonorSignupForm: React.FC<DonorSignupFormProps> = ({ toggleForm }) => {
 
     const onSubmit = async (data: DonorFormSchemaType) => {
         try {
-            const csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                toast({
-                    title: "Error",
-                    description:
-                        "CSRF token not found. Please refresh the page.",
-                    variant: "destructive",
-                });
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:9500/auth/donorSignup",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
+                    credentials: "include",
                     body: JSON.stringify(data),
                 }
             );
@@ -126,29 +114,6 @@ const DonorSignupForm: React.FC<DonorSignupFormProps> = ({ toggleForm }) => {
         }
     };
 
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
-            try {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                Cookies.set("XSRF-TOKEN", data.csrfToken);
-            } catch (error) {
-                toast({
-                    title: "Error",
-                    description: "Failed to fetch CSRF token.",
-                    variant: "destructive",
-                });
-            }
-        };
-
-        fetchCsrfToken();
-    }, []);
-
     return (
         <div className="max-w-md w-full mx-auto p-4 rounded-md bg-black text-white shadow-md">
             <h5 className="font-bold text-xl mb-4 text-neutral-200">
@@ -161,11 +126,6 @@ const DonorSignupForm: React.FC<DonorSignupFormProps> = ({ toggleForm }) => {
                 }}
             >
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <input
-                        type="hidden"
-                        name="_csrf"
-                        value={Cookies.get("XSRF-TOKEN") || ""}
-                    />
                     {/* Username */}
                     <LabelInputContainer>
                         <Label htmlFor="username" className="text-neutral-200">

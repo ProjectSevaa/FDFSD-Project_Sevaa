@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"; // Using next/router for routing
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/context/UserContext"; // Import the UserContext
-import Cookies from "js-cookie"; // Import js-cookie
 import { toast } from "@/hooks/use-toast";
 
 interface DonorLoginFormProps {
@@ -25,23 +24,15 @@ const DonorLoginForm: React.FC<DonorLoginFormProps> = ({ toggleForm }) => {
         setError(null);
 
         try {
-            const csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                setError("CSRF token not found. Please refresh the page.");
-                setLoading(false);
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:9500/auth/donorLogin",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
-                    body: JSON.stringify({ email, password }), // Use email from context
-                    credentials: "include", // Include cookies for authentication if needed
+                    credentials: "include",
+                    body: JSON.stringify({ email, password }),
                 }
             );
 
@@ -78,25 +69,6 @@ const DonorLoginForm: React.FC<DonorLoginFormProps> = ({ toggleForm }) => {
         }
     };
 
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
-            try {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                Cookies.set("XSRF-TOKEN", data.csrfToken);
-            } catch (error) {
-                setError("Failed to fetch CSRF token.");
-            }
-        };
-
-        fetchCsrfToken();
-    }, []);
-
     return (
         <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black text-white border-2 border-black">
             <div className="modal-header">
@@ -113,11 +85,6 @@ const DonorLoginForm: React.FC<DonorLoginFormProps> = ({ toggleForm }) => {
             </div>
             <div className="modal-body">
                 <form onSubmit={handleLogin} className="my-8">
-                    <input
-                        type="hidden"
-                        name="_csrf"
-                        value={Cookies.get("XSRF-TOKEN") || ""}
-                    />
                     {/* Email input */}
                     <div className="mb-4">
                         <Label

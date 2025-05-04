@@ -6,12 +6,9 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.js";
 import { Request } from "../models/request.js";
 import { Post } from "../models/post.js";
-import csrf from "csurf";
 const app = express();
 
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY; // Ensure this is set in your environment variables
-
-const csrfProtection = csrf({ cookie: true });
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -196,7 +193,6 @@ export const sendRequest = async (req, res) => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-Token": req.csrfToken(),
                     Cookie: req.headers.cookie,
                 },
                 withCredentials: true,

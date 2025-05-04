@@ -8,7 +8,6 @@ import "dotenv/config";
 import fs from "fs";
 import morgan from "morgan";
 import { createStream } from "rotating-file-stream";
-import csrf from "csurf";
 
 import { fileURLToPath } from "url";
 import { connectDB } from "./db/connectDB.js";
@@ -45,85 +44,63 @@ app.use(express.json());
 // Connect to database
 connectDB();
 
-// Apply CSRF protection to all routes
-const csrfProtection = csrf({
-    cookie: true,
-    ignoreMethods: ["GET", "HEAD", "OPTIONS"], // Ignore safe methods
-});
-
-app.use(csrfProtection);
-
-// Global error handler for CSRF errors
-app.use((err, req, res, next) => {
-    if (err.code === "EBADCSRFTOKEN") {
-        console.error("CSRF token validation failed:", req.method, req.path);
-        return res.status(403).json({
-            success: false,
-            message: "Invalid or missing CSRF token",
-        });
-    }
-
-    console.error("Unhandled error:", err);
-    res.status(500).json({
-        success: false,
-        message: "Internal server error",
-    });
-});
-
-// Set CSRF token in cookie for frontend
-app.use((req, res, next) => {
-    res.cookie("XSRF-TOKEN", req.csrfToken(), {
-        httpOnly: false,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Lax",
-    });
-    next();
-});
-
 // Set EJS as view engine
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 
 // Logging middleware
-const allLogsStream = createStream(() => {
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    return `${day}-${month}-${year}_${hours}-${hours + 6}_all_access.log`;
-}, {
-    interval: "6h", // rotate every 6 hours
-    path: path.join(__dirname, "log"),
-});
+const allLogsStream = createStream(
+    () => {
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        return `${day}-${month}-${year}_${hours}-${hours + 6}_all_access.log`;
+    },
+    {
+        interval: "6h", // rotate every 6 hours
+        path: path.join(__dirname, "log"),
+    }
+);
 app.use(morgan("combined", { stream: allLogsStream }));
 
 // Create rotating write stream for delivery logs
-const deliveryLogStream = createStream(() => {
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    return `${day}-${month}-${year}_${hours}-${hours + 6}_delivery_access.log`;
-}, {
-    interval: "6h", // rotate every 6 hours
-    path: path.join(__dirname, "log/delivery"),
-});
+const deliveryLogStream = createStream(
+    () => {
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        return `${day}-${month}-${year}_${hours}-${
+            hours + 6
+        }_delivery_access.log`;
+    },
+    {
+        interval: "6h", // rotate every 6 hours
+        path: path.join(__dirname, "log/delivery"),
+    }
+);
 app.use("/delivery", morgan("combined", { stream: deliveryLogStream }));
 
 // Create rotating write stream for donation logs
-const donationLogStream = createStream(() => {
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    return `${day}-${month}-${year}_${hours}-${hours + 6}_donation_access.log`;
-}, {
-    interval: "6h", // rotate every 6 hours
-    path: path.join(__dirname, "log/donation"),
-});
+const donationLogStream = createStream(
+    () => {
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        return `${day}-${month}-${year}_${hours}-${
+            hours + 6
+        }_donation_access.log`;
+    },
+    {
+        interval: "6h", // rotate every 6 hours
+        path: path.join(__dirname, "log/donation"),
+    }
+);
 app.use("/donation", morgan("combined", { stream: donationLogStream }));
 
 // Public Routes
@@ -132,11 +109,6 @@ app.get("/u_login", (req, res) => res.render("login_signup"));
 app.get("/d_login", (req, res) => res.render("login_signup_donor"));
 app.get("/del_login", (req, res) => res.render("login_signup_deliveryboy"));
 app.get("/admin", (req, res) => res.render("login_admin"));
-
-// CSRF Token Route (Optional)
-app.get("/csrf-token", csrfProtection, (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
-});
 
 // API Routes
 app.use("/admin", adminRoutes);
