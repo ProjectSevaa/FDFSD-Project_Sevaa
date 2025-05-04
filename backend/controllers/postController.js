@@ -1,6 +1,7 @@
 import { Post } from "../models/post.js";
 import { Donor } from "../models/donor.js";
 import jwt from "jsonwebtoken";
+import redisClient from "../config/redisConfig.js";
 
 // Create a new post with current location
 export const createPost = async (req, res) => {
@@ -82,7 +83,21 @@ export const getPosts = async (req, res) => {
 // Get all posts
 export const getAllPosts = async (req, res) => {
     try {
+        // Check if posts are cached in Redis
+        const cachedPosts = await redisClient.get("allPosts");
+        if (cachedPosts) {
+            return res.json({
+                success: true,
+                posts: JSON.parse(cachedPosts),
+            });
+        }
+
+        // Fetch posts from MongoDB if not in cache
         const posts = await Post.find().sort({ timestamp: -1 });
+
+        // Cache the posts in Redis with a TTL (e.g., 1 hour)
+        await redisClient.set("allPosts", JSON.stringify(posts), "EX", 3600);
+
         res.json({
             success: true,
             posts,
