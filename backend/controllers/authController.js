@@ -173,10 +173,23 @@ export const loginDel = async (req, res) => {
 const url = process.env.URL;
 export const signupUser = async (req, res) => {
     try {
+        const { username, email } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({
+            $or: [{ username }, { email }],
+        });
+        if (existingUser) {
+            return res.status(200).json({
+                success: true,
+                message: "User already exists",
+            });
+        }
+
         const userData = {
-            username: req.body.username,
+            username,
             mobileNumber: req.body.mobileNumber,
-            email: req.body.email,
+            email,
             password: req.body.password,
             address: req.body.address,
         };
@@ -198,10 +211,23 @@ export const signupUser = async (req, res) => {
 
 export const signupDonor = async (req, res) => {
     try {
+        const { username, email } = req.body;
+
+        // Check if donor already exists
+        const existingDonor = await Donor.findOne({
+            $or: [{ username }, { email }],
+        });
+        if (existingDonor) {
+            return res.status(200).json({
+                success: true,
+                message: "Donor already exists",
+            });
+        }
+
         const donorData = {
-            username: req.body.username,
+            username,
             mobileNumber: req.body.mobileNumber,
-            email: req.body.email,
+            email,
             password: req.body.password,
             address: req.body.address,
         };

@@ -128,6 +128,10 @@ app.use("/slum", slumRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 9500;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+export default app;

@@ -1,7 +1,7 @@
-import request from "supertest";
-import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import app from "../app.js";
+import mongoose from "mongoose";
+import request from "supertest";
+import app from "../app.js"; // Changed from import { app } to import app
 import { User } from "../models/user.js";
 import { Donor } from "../models/donor.js";
 import bcrypt from "bcrypt";
@@ -9,8 +9,9 @@ import bcrypt from "bcrypt";
 let mongoServer;
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    await mongoose.connect(mongoServer.getUri());
+    // Clean up existing users
+    await User.deleteMany({});
+    await Donor.deleteMany({});
 
     // Create existing test users
     const hashedPassword = await bcrypt.hash("Final@123", 10);
@@ -20,7 +21,14 @@ beforeAll(async () => {
         password: hashedPassword,
         username: "finaluser1",
         mobileNumber: "1234567890",
-        address: "Test Address",
+        address: {
+            doorNo: "123",
+            street: "Main St",
+            townCity: "Test City",
+            state: "Test State",
+            pincode: "123456",
+            coordinates: { type: "Point", coordinates: [80.123, 16.456] },
+        },
     });
 
     await Donor.create({
@@ -28,7 +36,14 @@ beforeAll(async () => {
         password: hashedPassword,
         username: "finaldonor1",
         mobileNumber: "1234567890",
-        address: "Test Address",
+        address: {
+            doorNo: "456",
+            street: "Second St",
+            townCity: "Donor City",
+            state: "Donor State",
+            pincode: "654321",
+            coordinates: { type: "Point", coordinates: [80.456, 16.789] },
+        },
     });
 });
 
@@ -59,7 +74,17 @@ describe("Authentication Tests", () => {
                 mobileNumber: "9876543210",
                 email: "testuser2@gmail.com",
                 password: "Test@123",
-                address: "Test Address 2",
+                address: {
+                    doorNo: "123",
+                    street: "Main St",
+                    townCity: "Test City",
+                    state: "Test State",
+                    pincode: "123456",
+                    coordinates: {
+                        type: "Point",
+                        coordinates: [80.123, 16.456],
+                    },
+                },
             };
 
             const response = await request(app)
@@ -68,6 +93,36 @@ describe("Authentication Tests", () => {
 
             expect(response.status).toBe(302); // Redirect status
             expect(response.header.location).toBe("/u_login");
+        });
+
+        test("should handle existing user gracefully", async () => {
+            const existingUser = {
+                username: "finaluser1",
+                mobileNumber: "1234567890",
+                email: "finaluser1@gmail.com",
+                password: "Final@123",
+                address: {
+                    doorNo: "123",
+                    street: "Main St",
+                    townCity: "Test City",
+                    state: "Test State",
+                    pincode: "123456",
+                    coordinates: {
+                        type: "Point",
+                        coordinates: [80.123, 16.456],
+                    },
+                },
+            };
+
+            const response = await request(app)
+                .post("/auth/userSignup")
+                .send(existingUser);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty(
+                "message",
+                "User already exists"
+            );
         });
 
         test("should reject duplicate user signup", async () => {
@@ -108,7 +163,17 @@ describe("Authentication Tests", () => {
                 mobileNumber: "9876543211",
                 email: "testdonor2@food.in",
                 password: "Test@123",
-                address: "Test Address 3",
+                address: {
+                    doorNo: "456",
+                    street: "Second St",
+                    townCity: "Donor City",
+                    state: "Donor State",
+                    pincode: "654321",
+                    coordinates: {
+                        type: "Point",
+                        coordinates: [80.456, 16.789],
+                    },
+                },
             };
 
             const response = await request(app)
@@ -117,6 +182,36 @@ describe("Authentication Tests", () => {
 
             expect(response.status).toBe(302); // Redirect status
             expect(response.header.location).toBe("/d_login");
+        });
+
+        test("should handle existing donor gracefully", async () => {
+            const existingDonor = {
+                username: "finaldonor1",
+                mobileNumber: "1234567890",
+                email: "finaldonor1@food.in",
+                password: "Final@123",
+                address: {
+                    doorNo: "456",
+                    street: "Second St",
+                    townCity: "Donor City",
+                    state: "Donor State",
+                    pincode: "654321",
+                    coordinates: {
+                        type: "Point",
+                        coordinates: [80.456, 16.789],
+                    },
+                },
+            };
+
+            const response = await request(app)
+                .post("/auth/donorSignup")
+                .send(existingDonor);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty(
+                "message",
+                "Donor already exists"
+            );
         });
     });
 

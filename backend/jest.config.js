@@ -1,0 +1,15 @@
+export default {
+    testEnvironment: "node",
+    transform: {},
+    moduleFileExtensions: ["js", "json"],
+    moduleDirectories: ["node_modules"],
+    testMatch: ["**/__tests__/**/*.js", "**/?(*.)+(spec|test).js"],
+    verbose: true,
+    forceExit: true,
+    clearMocks: true,
+    resetMocks: true,
+    restoreMocks: true,
+    testTimeout: 10000,
+    setupFiles: ["dotenv/config"],
+    setupFilesAfterEnv: ["./tests/setup.js"],
+};
