@@ -247,11 +247,30 @@ router.use(morgan("combined", { stream: deliveryBoyLogStream }));
 // Protected routes
 router.post("/createDeliveryBoy", createDeliveryBoy);
 router.get("/findNearbyPosts", findNearbyPosts);
-router.get("/getDeliveryBoyDashboard", getDeliveryBoyDashboard);
+router.get("/getDeliveryBoyDashboard", authenticateDeliveryBoy, getDeliveryBoyDashboard);
 router.post("/addDeliveryBoyToUser", addDeliveryBoyToUser);
-router.patch("/toggle-status/:id", toggleStatus);
+router.patch("/toggle-status/:id", authenticateDeliveryBoy, toggleStatus);
 router.get("/getAllDeliveryBoys", getAllDeliveryBoys);
 router.get("/user/:userId", getDeliveryBoysByUser);
 router.get("/getMyDeliveryBoys", getMyDeliveryBoys);
+
+// Add authentication middleware
+function authenticateDeliveryBoy(req, res, next) {
+    const token = req.cookies.deliveryboy_jwt;
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || 'testsecretkey');
+        if (decoded.role !== 'deliveryboy') {
+            return res.status(403).json({ success: false, message: 'Not authorized' });
+        }
+        req.deliveryBoy = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ success: false, message: 'Invalid token' });
+    }
+}
 
 export default router;

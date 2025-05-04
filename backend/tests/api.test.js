@@ -1,26 +1,21 @@
 import request from "supertest";
 import app from "../app.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.js";
 import { Donor } from "../models/donor.js";
 import { Post } from "../models/post.js";
 import { Request } from "../models/request.js";
 import bcrypt from "bcrypt";
+import { setupTestDB, teardownTestDB } from './setup.js';
 
 describe("API Integration Tests", () => {
-    let mongoServer;
     let userToken;
     let donorToken;
     let postId;
     let requestId;
 
     beforeAll(async () => {
-        // Setup MongoDB memory server
-        mongoServer = await MongoMemoryServer.create();
-        const mongoUri = mongoServer.getUri();
-        await mongoose.connect(mongoUri);
+        await setupTestDB();
 
         // Clean up collections
         await User.deleteMany({});
@@ -29,13 +24,14 @@ describe("API Integration Tests", () => {
         await Request.deleteMany({});
 
         // Create test accounts with hashed passwords
-        const hashedPassword = await bcrypt.hash("TestPass123", 10);
+        const hashedPassword = await bcrypt.hash("Test@123", 10);
 
-        await User.create({
+        // Create test user
+        const user = await User.create({
             username: "testuser",
             email: "testuser@example.com",
             password: hashedPassword,
-            mobileNumber: "1234567890",
+            mobileNumber: "9876543210", // Valid format
             address: {
                 doorNo: "123",
                 street: "Main St",
@@ -46,11 +42,12 @@ describe("API Integration Tests", () => {
             },
         });
 
-        await Donor.create({
+        // Create test donor
+        const donor = await Donor.create({
             username: "testdonor",
             email: "testdonor@example.com",
             password: hashedPassword,
-            mobileNumber: "0987654321",
+            mobileNumber: "8765432109", // Valid format
             address: {
                 doorNo: "456",
                 street: "Second St",
@@ -63,39 +60,42 @@ describe("API Integration Tests", () => {
 
         // Generate test tokens
         userToken = jwt.sign(
-            { username: "testuser", role: "user" },
+            { username: user.username, role: "user" },
             process.env.JWT_SECRET_KEY || "testsecretkey",
             { expiresIn: "1h" }
         );
 
         donorToken = jwt.sign(
-            { username: "testdonor", role: "donor" },
+            { username: donor.username, role: "donor" },
             process.env.JWT_SECRET_KEY || "testsecretkey",
             { expiresIn: "1h" }
         );
     });
 
     afterAll(async () => {
-        await mongoose.disconnect();
-        await mongoServer.stop();
+        await teardownTestDB();
     });
 
     describe("Authentication", () => {
         it("should login existing user", async () => {
-            const response = await request(app).post("/auth/userLogin").send({
-                email: "testuser@example.com",
-                password: "TestPass123",
-            });
+            const response = await request(app)
+                .post("/auth/userLogin")
+                .send({
+                    email: "testuser@example.com",
+                    password: "Test@123"
+                });
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty("message", "Login successful");
         });
 
         it("should reject invalid user credentials", async () => {
-            const response = await request(app).post("/auth/userLogin").send({
-                email: "testuser@example.com",
-                password: "WrongPassword",
-            });
+            const response = await request(app)
+                .post("/auth/userLogin")
+                .send({
+                    email: "testuser@example.com",
+                    password: "wrongpassword"
+                });
 
             expect(response.status).toBe(401);
         });
@@ -117,13 +117,12 @@ describe("API Integration Tests", () => {
 
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty("success", true);
-
-            // Save postId for later tests
             postId = response.body.post._id;
         });
 
         it("should get all posts", async () => {
-            const response = await request(app).get("/post/getAllPosts");
+            const response = await request(app)
+                .get("/post/getAllPosts");
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty("success", true);

@@ -1,9 +1,12 @@
 import Redis from "ioredis";
 
-let redisClient;
-
-try {
-    redisClient = new Redis({
+const redisClient = process.env.NODE_ENV === "test"
+    ? {
+        get: async () => null,
+        set: async () => null,
+        status: "ready"
+    }
+    : new Redis({
         host: process.env.REDIS_HOST || "127.0.0.1", // Changed from localhost to 127.0.0.1
         port: process.env.REDIS_PORT || 6379,
         retryStrategy: (times) => {
@@ -14,6 +17,7 @@ try {
         connectTimeout: 10000, // 10 second timeout
     });
 
+if (process.env.NODE_ENV !== "test") {
     redisClient.on("connect", () => {
         console.log(
             "\x1b[32m%s\x1b[0m",
@@ -35,17 +39,6 @@ try {
                 process.env.REDIS_PORT
         );
     });
-} catch (error) {
-    console.log(
-        "\x1b[31m%s\x1b[0m",
-        "❌ Redis initialization failed:",
-        error.message
-    );
-    redisClient = {
-        status: "failed",
-        get: async () => null,
-        set: async () => null,
-    };
 }
 
 export const updatePostsCache = async () => {
