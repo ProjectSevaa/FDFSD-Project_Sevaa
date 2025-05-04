@@ -27,7 +27,11 @@ jobs:
                   node-version: 18
 
             - name: Debug environment
-              run: printenv | sort
+              run: |
+                  echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}"
+                  echo "MONGO_URL=${{ secrets.MONGO_URL }}"
+                  echo "REDIS_HOST=127.0.0.1"
+                  echo "REDIS_PORT=6379"
 
             - name: Install dependencies
               working-directory: backend
