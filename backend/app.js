@@ -67,7 +67,38 @@ const allLogsStream = createStream(
 );
 app.use(morgan("combined", { stream: allLogsStream }));
 
-// Create rotating write stream for delivery logs
+// Ensure directories exist for delivery and donation logs
+const ensureLogDir = (dir) => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+};
+ensureLogDir(path.join(__dirname, "log/delivery"));
+ensureLogDir(path.join(__dirname, "log/donation"));
+
+// Ensure directories exist for user-specific logs
+ensureLogDir(path.join(__dirname, "log/user"));
+ensureLogDir(path.join(__dirname, "log/donor"));
+ensureLogDir(path.join(__dirname, "log/deliveryboy"));
+
+// Utility function for logging
+const logEvent = (type, username, message) => {
+    const logFilePath = path.join(__dirname, `log/${type}/${username}.log`);
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${message}\n`;
+
+    fs.appendFile(logFilePath, logMessage, (err) => {
+        if (err) console.error(`Error writing to ${type} log:`, err);
+    });
+};
+
+// Attach logEvent to the request object
+app.use((req, res, next) => {
+    req.logEvent = logEvent;
+    next();
+});
+
+// Delivery logs
 const deliveryLogStream = createStream(
     () => {
         const date = new Date();
@@ -80,13 +111,13 @@ const deliveryLogStream = createStream(
         }_delivery_access.log`;
     },
     {
-        interval: "6h", // rotate every 6 hours
+        interval: "6h",
         path: path.join(__dirname, "log/delivery"),
     }
 );
 app.use("/delivery", morgan("combined", { stream: deliveryLogStream }));
 
-// Create rotating write stream for donation logs
+// Donation logs
 const donationLogStream = createStream(
     () => {
         const date = new Date();
@@ -99,7 +130,7 @@ const donationLogStream = createStream(
         }_donation_access.log`;
     },
     {
-        interval: "6h", // rotate every 6 hours
+        interval: "6h",
         path: path.join(__dirname, "log/donation"),
     }
 );

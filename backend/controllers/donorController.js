@@ -185,3 +185,40 @@ export const getDonorStats = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+export const acceptRequest = async (req, res) => {
+    try {
+        const requestId = req.params.id;
+
+        // ...existing code...
+
+        // Log the donor action
+        req.logEvent(
+            "donor",
+            donor.username,
+            `Donor ${donor.username} accepted request ${requestId} for post ${postId}`
+        );
+
+        // ...existing code...
+    } catch (error) {
+        // ...existing code...
+    }
+};
+
+export const getDonorDetails = async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        const donor = await Donor.findOne({ username });
+        if (!donor) {
+            return res
+                .status(404)
+                .json({ success: false, message: "Donor not found" });
+        }
+
+        res.status(200).json({ success: true, donor });
+    } catch (error) {
+        console.error("Error fetching donor details:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};

@@ -73,6 +73,13 @@ export const addRequest = async (req, res) => {
 
         await newRequest.save();
 
+        // Log the request creation
+        req.logEvent(
+            "user",
+            userUsername,
+            `User ${userUsername} sent a request for post ${post_id} to donor ${donorUsername}`
+        );
+
         // Update the post to mark it as closed
         await Post.findByIdAndUpdate(post_id, { isDealClosed: true });
 
