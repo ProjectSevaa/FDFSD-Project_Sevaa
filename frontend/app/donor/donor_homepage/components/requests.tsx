@@ -59,15 +59,23 @@ export function RequestsSection() {
         init();
     }, [email, form]);
 
+    useEffect(() => {
+        // If email is available from context, set it in the form
+        if (email) {
+            form.setValue("donorEmail", email);
+        }
+    }, [email, form]);
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const response = await apiFetch(
+            const response = await fetch(
                 "http://localhost:9500/post/createPost",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
+                    credentials: "include",
                     body: JSON.stringify({
                         donorEmail: values.donorEmail,
                         location: values.location,
@@ -95,7 +103,7 @@ export function RequestsSection() {
                 });
             }
         } catch (error) {
-            console.error("Error creating post:", error);
+            console.log("Error creating post:", error);
             toast({
                 title: "Error",
                 description: "Failed to create post. Please try again later.",

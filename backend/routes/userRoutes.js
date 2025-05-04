@@ -14,6 +14,50 @@ import { User } from "../models/user.js";
 import { Order } from "../models/order.js";
 import { Donor } from "../models/donor.js";
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management and operations
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - username
+ *         - email
+ *         - password
+ *       properties:
+ *         username:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *         mobileNumber:
+ *           type: string
+ *         address:
+ *           type: string
+ */
+
+/**
+ * @swagger
+ * /user/stats:
+ *   get:
+ *     summary: Get user statistics
+ *     tags: [Users]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: User statistics retrieved successfully
+ */
+
 const __dirname = path.resolve();
 
 const router = express.Router();

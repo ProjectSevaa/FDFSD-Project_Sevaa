@@ -71,28 +71,10 @@ export function MyPostsSection() {
     const fetchPosts = async () => {
         try {
             setIsLoading(true);
-
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 "http://localhost:9500/donor/getDonorPosts",
                 {
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
@@ -103,7 +85,7 @@ export function MyPostsSection() {
             const data = await response.json();
             setPosts(data);
         } catch (err) {
-            console.error("Error fetching posts:", err);
+            console.log("Error fetching posts:", err);
             toast({
                 title: "Error",
                 description: "Failed to fetch posts. Please try again.",
@@ -117,28 +99,10 @@ export function MyPostsSection() {
     const fetchRequests = async (postId: string) => {
         try {
             setIsLoadingRequests(true);
-
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 `http://localhost:9500/request/getRequestsForPost?postId=${postId}`,
                 {
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
@@ -150,7 +114,7 @@ export function MyPostsSection() {
             setSelectedPostRequests(data.requests);
             setIsDialogOpen(true);
         } catch (err) {
-            console.error("Error fetching requests:", err);
+            console.log("Error fetching requests:", err);
             toast({
                 title: "Error",
                 description: "Failed to fetch requests. Please try again.",
@@ -163,28 +127,11 @@ export function MyPostsSection() {
 
     const acceptRequest = async (requestId: string) => {
         try {
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 `http://localhost:9500/request/acceptRequest/${requestId}`,
                 {
                     method: "PATCH",
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
@@ -216,7 +163,7 @@ export function MyPostsSection() {
                 )
             );
         } catch (err) {
-            console.error("Error accepting request:", err);
+            console.log("Error accepting request:", err);
             toast({
                 title: "Error",
                 description: "Failed to accept request. Please try again.",

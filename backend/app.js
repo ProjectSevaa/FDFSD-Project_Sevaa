@@ -8,6 +8,8 @@ import "dotenv/config";
 import fs from "fs";
 import morgan from "morgan";
 import { createStream } from "rotating-file-stream";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./config/swagger.js";
 
 import { fileURLToPath } from "url";
 import { connectDB } from "./db/connectDB.js";
@@ -102,6 +104,9 @@ const donationLogStream = createStream(
     }
 );
 app.use("/donation", morgan("combined", { stream: donationLogStream }));
+
+// Swagger UI route
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Public Routes
 app.get("/", (req, res) => res.render("whoru"));

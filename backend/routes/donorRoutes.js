@@ -11,6 +11,52 @@ import {
     getDonorStats,
 } from "../controllers/donorController.js";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Donor:
+ *       type: object
+ *       required:
+ *         - username
+ *         - mobileNumber
+ *         - email
+ *         - password
+ *         - address
+ *       properties:
+ *         username:
+ *           type: string
+ *         mobileNumber:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *           format: password
+ *         address:
+ *           type: string
+ */
+
+/**
+ * @swagger
+ * /donor/getDonors:
+ *   get:
+ *     summary: Get all donors
+ *     tags: [Donors]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all donors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Donor'
+ */
+
 const __dirname = path.resolve();
 
 const router = express.Router();

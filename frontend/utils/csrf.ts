@@ -17,7 +17,7 @@ export async function fetchCsrfToken(): Promise<string | null> {
         Cookies.set("XSRF-TOKEN", data.csrfToken);
         return data.csrfToken;
     } catch (error) {
-        console.error("Error fetching CSRF token:", error);
+        console.log("Error fetching CSRF token:", error);
         return null;
     }
 }
