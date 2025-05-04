@@ -71,7 +71,7 @@ jobs:
               working-directory: frontend
               env:
                   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-              run: npx vercel --prod --token $VERCEL_TOKEN
+              run: npx vercel --prod --token $VERCEL_TOKEN --yes
 
     # Docker Build and Push
     docker-deploy:
