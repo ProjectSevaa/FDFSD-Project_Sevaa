@@ -40,6 +40,210 @@ const deliveryBoyLogStream = createStream(
 // Setup the logger for delivery boy routes
 router.use(morgan("combined", { stream: deliveryBoyLogStream }));
 
+/**
+ * @swagger
+ * tags:
+ *   name: DeliveryBoys
+ *   description: Delivery boy management operations
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     DeliveryBoy:
+ *       type: object
+ *       required:
+ *         - deliveryBoyName
+ *         - mobileNumber
+ *         - password
+ *         - vehicleNo
+ *         - drivingLicenseNo
+ *         - currentLocation
+ *       properties:
+ *         deliveryBoyName:
+ *           type: string
+ *         mobileNumber:
+ *           type: string
+ *         password:
+ *           type: string
+ *         vehicleNo:
+ *           type: string
+ *         drivingLicenseNo:
+ *           type: string
+ *         currentLocation:
+ *           type: object
+ *           properties:
+ *             type:
+ *               type: string
+ *               example: Point
+ *             coordinates:
+ *               type: array
+ *               items:
+ *                 type: number
+ *               example: [longitude, latitude]
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/createDeliveryBoy:
+ *   post:
+ *     summary: Create a new delivery boy
+ *     tags: [DeliveryBoys]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/DeliveryBoy'
+ *     responses:
+ *       201:
+ *         description: Delivery boy created successfully
+ *       400:
+ *         description: Invalid input or error occurred
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/findNearbyPosts:
+ *   get:
+ *     summary: Find nearby posts for delivery boys
+ *     tags: [DeliveryBoys]
+ *     parameters:
+ *       - in: query
+ *         name: postId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the post to find nearby delivery boys
+ *     responses:
+ *       200:
+ *         description: List of nearby delivery boys
+ *       404:
+ *         description: Post or delivery boys not found
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/getDeliveryBoyDashboard:
+ *   get:
+ *     summary: Get delivery boy dashboard data
+ *     tags: [DeliveryBoys]
+ *     responses:
+ *       200:
+ *         description: Dashboard data retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/addDeliveryBoyToUser:
+ *   post:
+ *     summary: Add a delivery boy to a user
+ *     tags: [DeliveryBoys]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               deliveryBoyName:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Delivery boy added to user successfully
+ *       404:
+ *         description: User or delivery boy not found
+ *       400:
+ *         description: Delivery boy already added
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/toggle-status/{id}:
+ *   patch:
+ *     summary: Toggle the active status of a delivery boy
+ *     tags: [DeliveryBoys]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Delivery boy ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [available, inactive]
+ *     responses:
+ *       200:
+ *         description: Delivery boy status toggled successfully
+ *       404:
+ *         description: Delivery boy not found
+ *       400:
+ *         description: Invalid status
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/getAllDeliveryBoys:
+ *   get:
+ *     summary: Get all delivery boys
+ *     tags: [DeliveryBoys]
+ *     responses:
+ *       200:
+ *         description: List of all delivery boys
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/DeliveryBoy'
+ *       404:
+ *         description: No delivery boys found
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/user/{userId}:
+ *   get:
+ *     summary: Get delivery boys assigned to a user
+ *     tags: [DeliveryBoys]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: List of delivery boys assigned to the user
+ *       404:
+ *         description: User not found
+ */
+
+/**
+ * @swagger
+ * /deliveryboy/getMyDeliveryBoys:
+ *   get:
+ *     summary: Get delivery boys assigned to the logged-in user
+ *     tags: [DeliveryBoys]
+ *     responses:
+ *       200:
+ *         description: List of delivery boys assigned to the logged-in user
+ *       401:
+ *         description: Unauthorized
+ */
+
 // Protected routes
 router.post("/createDeliveryBoy", createDeliveryBoy);
 router.get("/findNearbyPosts", findNearbyPosts);

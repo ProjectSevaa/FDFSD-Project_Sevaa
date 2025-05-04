@@ -52,33 +52,17 @@ export default function DeliveryBoyHomepage() {
 
     const fetchDashboardData = async () => {
         try {
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             const response = await fetch(
                 "http://localhost:9500/deliveryboy/getDeliveryBoyDashboard",
                 {
                     method: "GET",
                     credentials: "include",
-                    headers: {
-                        "X-CSRF-Token": csrfToken,
-                    },
                 }
             );
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to fetch dashboard data");
             }
 
             const data = await response.json();
@@ -88,7 +72,7 @@ export default function DeliveryBoyHomepage() {
             console.error("Error fetching dashboard data:", error);
             toast({
                 title: "Error",
-                description: "Failed to fetch dashboard data",
+                description: error.message || "Failed to fetch dashboard data",
                 variant: "destructive",
             });
         }
@@ -96,78 +80,43 @@ export default function DeliveryBoyHomepage() {
 
     const updateOrderStatus = async (orderId: string, status: "picked-up" | "delivered", imageFile?: File) => {
         try {
-            if (!orderId || typeof orderId !== 'string') {
-                console.error('Invalid orderId:', orderId);
-                throw new Error("Valid Order ID is required");
-            }
-
-            // Get CSRF token
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch("http://localhost:9500/csrf-token", {
-                    credentials: "include",
-                });
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
-            if (status === "delivered" && !imageFile) {
-                throw new Error("Image is required for delivery confirmation");
+            if (!orderId) {
+                throw new Error("Order ID is required");
             }
 
             const endpoint = status === "picked-up" ? "setOrderPickedUp" : "setOrderDelivered";
-            
-            let requestBody: FormData | URLSearchParams;
-            let headers: HeadersInit = {
-                "X-CSRF-Token": csrfToken,
-            };
+            const headers: HeadersInit = {};
 
-            if (status === "picked-up") {
-                // For picked-up status, use JSON content type
-                headers["Content-Type"] = "application/json";
-                requestBody = JSON.stringify({ orderId });
-            } else {
-                // For delivered status, use multipart form data
-                // Don't set Content-Type header for FormData
-                delete headers["Content-Type"];
+            let body: FormData | string;
+            if (status === "delivered") {
+                if (!imageFile) {
+                    throw new Error("Image is required for delivery confirmation");
+                }
                 const formData = new FormData();
                 formData.append("orderId", orderId);
-                if (imageFile) {
-                    formData.append("image", imageFile);
-                }
-                requestBody = formData;
+                formData.append("image", imageFile);
+                body = formData;
+            } else {
+                headers["Content-Type"] = "application/json";
+                body = JSON.stringify({ orderId });
             }
-
-            console.log('Sending request:', {
-                endpoint,
-                orderId,
-                status,
-                headers,
-                requestBody: status === "picked-up" ? JSON.parse(requestBody as string) : Object.fromEntries((requestBody as FormData).entries())
-            });
 
             const response = await fetch(`http://localhost:9500/order/${endpoint}`, {
                 method: "POST",
                 headers,
                 credentials: "include",
-                body: requestBody,
+                body,
             });
 
-            const data = await response.json();
-            console.log('Response:', data); // Debug log
-
             if (!response.ok) {
-                throw new Error(data.message || "Failed to update order status");
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to update order status");
             }
 
-            // Refresh the orders list
             await fetchDashboardData();
-            return data;
-
-        } catch (error: any) {
+        } catch (error) {
             console.error("Error updating order status:", error);
-            throw new Error(error.message || "Failed to update order status");
+            throw error;
         }
     };
 
@@ -285,7 +234,7 @@ export default function DeliveryBoyHomepage() {
                             <TabsTrigger value="delivered">
                                 Delivered
                             </TabsTrigger>
-                        </TabsList>
+                            </TabsList>
                         <TabsContent value="ongoing">
                             <OrderList
                                 orders={orders.filter(

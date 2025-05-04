@@ -21,28 +21,13 @@ export function StatusToggle({
         status: "available" | "inactive"
     ) => {
         try {
-            // Get CSRF token if needed
-            let csrfToken = Cookies.get("XSRF-TOKEN");
-            if (!csrfToken) {
-                const response = await fetch(
-                    "http://localhost:9500/csrf-token",
-                    {
-                        credentials: "include",
-                    }
-                );
-                const data = await response.json();
-                csrfToken = data.csrfToken;
-                Cookies.set("XSRF-TOKEN", csrfToken);
-            }
-
             // Using the correct endpoint from backend routes
             const response = await fetch(
                 `http://localhost:9500/deliveryboy/toggle-status/${deliveryBoy._id}`,
                 {
-                    method: "PATCH", // Changed to PATCH to match backend route
+                    method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": csrfToken,
                     },
                     credentials: "include",
                     body: JSON.stringify({ status }),
