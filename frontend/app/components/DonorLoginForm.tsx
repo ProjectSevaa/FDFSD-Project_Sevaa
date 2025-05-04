@@ -95,7 +95,7 @@ const DonorLoginForm: React.FC<DonorLoginFormProps> = ({ toggleForm }) => {
                             type="email"
                             id="emailLogin"
                             name="email"
-                            value={email}
+                            value={email || ""} // Fallback to an empty string if email is null
                             onChange={(e) => setEmail(e.target.value)} // Use setEmail from context
                             required
                             pattern=".+@food\.in$"

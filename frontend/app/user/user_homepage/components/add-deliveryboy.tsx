@@ -105,7 +105,7 @@ export function AddDeliveryBoySection() {
                         title: "Already Added",
                         description:
                             "This delivery boy is already assigned to you",
-                        variant: "warning",
+                        variant: "default",
                     });
                     return;
                 }

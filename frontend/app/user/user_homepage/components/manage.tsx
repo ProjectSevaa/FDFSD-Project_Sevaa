@@ -212,7 +212,10 @@ export function ManageSection() {
             console.log("Error assigning order:", error);
             toast({
                 title: "Error",
-                description: error.message || "Failed to assign order",
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to assign order",
                 variant: "destructive",
             });
         }
