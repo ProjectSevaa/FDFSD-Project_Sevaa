@@ -327,12 +327,10 @@ export const toggleBan = async (req, res) => {
                     isBanned: updatedIsBanned,
                 });
             } else {
-                return res
-                    .status(403)
-                    .json({
-                        success: false,
-                        message: "Admins cannot ban moderators",
-                    });
+                return res.status(403).json({
+                    success: false,
+                    message: "Admins cannot ban moderators",
+                });
             }
         } else {
             return res

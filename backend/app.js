@@ -31,6 +31,7 @@ const app = express();
 
 // Enable CORS with credentials
 const allowedOrigins = [
+    "https://frontend-delta-eight-38.vercel.app",
     "https://frontend-e7abrx4i9-abhiramkothagundus-projects.vercel.app",
     "http://localhost:3000",
 ];
