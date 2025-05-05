@@ -140,6 +140,32 @@ describe('Order Routes', () => {
         });
     });
 
+    describe("Order State Transitions", () => {
+        it("should not allow delivery without pickup", async () => {
+            const response = await request(app)
+                .post("/order/setOrderDelivered")
+                .set("Cookie", [`deliveryboy_jwt=${testToken}`])
+                .send({ orderId: testOrder._id });
+
+            expect(response.status).toBe(400);
+            expect(response.body.success).toBe(false);
+        });
+
+        it("should not allow status change by unauthorized delivery boy", async () => {
+            const wrongToken = jwt.sign(
+                { username: "wrongdeliveryboy", role: "deliveryboy" },
+                process.env.JWT_SECRET_KEY || "testsecretkey"
+            );
+
+            const response = await request(app)
+                .post("/order/setOrderPickedUp")
+                .set("Cookie", [`deliveryboy_jwt=${wrongToken}`])
+                .send({ orderId: testOrder._id });
+
+            expect(response.status).toBe(403);
+        });
+    });
+
     afterEach(async () => {
         await clearCollections();
     });

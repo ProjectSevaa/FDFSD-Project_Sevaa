@@ -71,7 +71,6 @@ describe("Request Routes", () => {
 
     describe("GET /request/getRequests", () => {
         it("should get user requests", async () => {
-            // Create a test request first
             await Request.create({
                 donorUsername: donor.username,
                 userUsername: user.username,
@@ -130,10 +129,34 @@ describe("Request Routes", () => {
 
             expect(response.status).toBe(400);
         });
+
+        it("should prevent duplicate requests", async () => {
+            const requestData = {
+                donorUsername: donor.username,
+                userUsername: user.username,
+                location: "Test Location",
+                availableFood: ["Test Food"],
+                post_id: testPost._id
+            };
+
+            // Create first request
+            await request(app)
+                .post("/request/addRequest")
+                .set("Cookie", [`user_jwt=${testToken}`])
+                .send(requestData);
+
+            // Try to create duplicate request
+            const response = await request(app)
+                .post("/request/addRequest")
+                .set("Cookie", [`user_jwt=${testToken}`])
+                .send(requestData);
+
+            expect(response.status).toBe(200);
+            expect(response.body.message).toBe("Request already exists");
+        });
     });
 
     afterEach(async () => {
-        // Clean up after each test
         await clearCollections();
     });
 });

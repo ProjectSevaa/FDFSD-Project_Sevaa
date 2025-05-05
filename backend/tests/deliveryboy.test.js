@@ -150,4 +150,16 @@ describe('DeliveryBoy Routes', () => {
             expect(response.status).toBe(403);
         });
     });
+
+    describe("Delivery Boy Management", () => {
+        it("should verify delivery boy exists before updates", async () => {
+            const nonExistentId = "507f1f77bcf86cd799439011";
+            const response = await request(app)
+                .patch(`/deliveryboy/toggle-status/${nonExistentId}`)
+                .set("Cookie", [`deliveryboy_jwt=${testToken}`])
+                .send({ status: "inactive" });
+
+            expect(response.status).toBe(404);
+        });
+    });
 });
