@@ -26,6 +26,12 @@ USER node
 ENV NODE_ENV=production
 ENV PORT=9500
 
+# Pass Redis environment variables
+ENV REDIS_HOST=${REDIS_HOST}
+ENV REDIS_PORT=${REDIS_PORT}
+ENV REDIS_PASSWORD=${REDIS_PASSWORD}
+ENV REDIS_TLS=${REDIS_TLS}
+
 # Expose the application port
 EXPOSE 9500
 
