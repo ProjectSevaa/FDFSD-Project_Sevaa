@@ -7,18 +7,21 @@ This project consists of a **Backend** and a **Frontend** built to work together
 ## Table of Contents
 
 1. [Backend Setup](#backend-setup)
-    - [Install Dependencies](#install-dependencies)
-    - [Set Up Environment Variables](#set-up-environment-variables)
-    - [Start Backend Server](#start-backend-server)
 2. [Frontend Setup](#frontend-setup)
-    - [Install Dependencies](#install-dependencies-1)
-    - [Run Frontend Server](#run-frontend-server)
 3. [Dockerization and Local Setup](#dockerization-and-local-setup)
 4. [CI/CD Pipeline](#ci-cd-pipeline)
 5. [Improvements After WBD Course](#improvements-after-wbd-course)
 6. [Folder Structure](#folder-structure)
 7. [Final Steps](#final-steps)
-8. [Conclusion](#conclusion)
+8. [Hosted Links](#hosted-links)
+9. [Conclusion](#conclusion)
+
+---
+
+## Hosted Links
+
+-   **Frontend**: [https://frontend-delta-eight-38.vercel.app/](https://frontend-delta-eight-38.vercel.app/)
+-   **Swagger API Documentation**: [https://fdfsd-project-sevaa.onrender.com/api-docs/](https://fdfsd-project-sevaa.onrender.com/api-docs/)
 
 ---
 
