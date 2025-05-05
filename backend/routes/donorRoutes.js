@@ -57,6 +57,44 @@ import {
  *                 $ref: '#/components/schemas/Donor'
  */
 
+/**
+ * @swagger
+ * /donor/getDonorPosts:
+ *   get:
+ *     summary: Get donor's posts
+ *     tags: [Donors]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: List of donor's posts
+ * 
+ * /donor/toggleBan/{donorId}:
+ *   post:
+ *     summary: Toggle donor ban status
+ *     tags: [Donors]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: donorId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               isBanned:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Ban status updated successfully
+ */
+
 const __dirname = path.resolve();
 
 const router = express.Router();

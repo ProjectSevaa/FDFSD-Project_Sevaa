@@ -16,4 +16,8 @@ const deliveryImageSchema = new mongoose.Schema({
     },
 });
 
+deliveryImageSchema.index({ deliveryBoyName: 1 });
+deliveryImageSchema.index({ orderId: 1 }, { unique: true });
+deliveryImageSchema.index({ timestamp: -1 });
+
 export const DeliveryImage = mongoose.model("DeliveryImage", deliveryImageSchema);

@@ -21,6 +21,14 @@ const donorSchema = new mongoose.Schema({
   rating: { type: Number, default: 0 }, // Store the rating directly
 });
 
+// Add these indexes after donorSchema definition
+donorSchema.index({ username: 1 }, { unique: true });
+donorSchema.index({ email: 1 }, { unique: true });
+donorSchema.index({ mobileNumber: 1 });
+donorSchema.index({ isBanned: 1 });
+donorSchema.index({ rating: -1 });
+donorSchema.index({ donationsCount: -1 });
+
 // Pre-save hook to hash the password
 donorSchema.pre('save', async function (next) {
   const donor = this;

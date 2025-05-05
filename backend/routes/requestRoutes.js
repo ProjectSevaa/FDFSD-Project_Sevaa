@@ -43,7 +43,7 @@ import {
  * @swagger
  * /request/addRequest:
  *   post:
- *     summary: Create a new food request
+ *     summary: Create a new request
  *     tags: [Requests]
  *     security:
  *       - cookieAuth: []
@@ -52,17 +52,38 @@ import {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Request'
+ *             type: object
+ *             required:
+ *               - donorUsername
+ *               - post_id
+ *             properties:
+ *               donorUsername:
+ *                 type: string
+ *               post_id:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Request created successfully
- *
- * /request/acceptRequest/{id}:
- *   patch:
- *     summary: Accept a food donation request
+ * 
+ * /request/getRequests:
+ *   get:
+ *     summary: Get user requests
  *     tags: [Requests]
  *     security:
  *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: donor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of requests
+ * 
+ * /request/acceptRequest/{id}:
+ *   patch:
+ *     summary: Accept a request
+ *     tags: [Requests]
  *     parameters:
  *       - in: path
  *         name: id

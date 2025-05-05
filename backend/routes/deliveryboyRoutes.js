@@ -244,6 +244,64 @@ router.use(morgan("combined", { stream: deliveryBoyLogStream }));
  *         description: Unauthorized
  */
 
+/**
+ * @swagger
+ * /deliveryboy/getDeliveryBoyDashboard:
+ *   get:
+ *     summary: Get delivery boy dashboard
+ *     tags: [DeliveryBoys]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard data retrieved successfully
+ * 
+ * /deliveryboy/toggle-status/{id}:
+ *   patch:
+ *     summary: Toggle delivery boy status
+ *     tags: [DeliveryBoys]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [available, inactive]
+ *     responses:
+ *       200:
+ *         description: Status updated successfully
+ * 
+ * /deliveryboy/findNearbyPosts:
+ *   get:
+ *     summary: Find nearby posts
+ *     tags: [DeliveryBoys]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: latitude
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: longitude
+ *         schema:
+ *           type: number
+ *     responses:
+ *       200:
+ *         description: List of nearby posts
+ */
+
 // Protected routes
 router.post("/createDeliveryBoy", createDeliveryBoy);
 router.get("/findNearbyPosts", findNearbyPosts);

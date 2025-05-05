@@ -43,4 +43,11 @@ postSchema.pre('save', async function (next) {
     }
 });
 
+// Add these indexes after postSchema definition
+postSchema.index({ donorUsername: 1 });
+postSchema.index({ timestamp: -1 });
+postSchema.index({ isDealClosed: 1 });
+postSchema.index({ currentlocation: '2dsphere' });
+postSchema.index({ 'availableFood': 1 });
+
 export const Post = mongoose.model("Post", postSchema);

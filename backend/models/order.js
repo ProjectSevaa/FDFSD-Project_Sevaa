@@ -52,6 +52,15 @@ const orderSchema = new mongoose.Schema({
     },
 });
 
+// Add these indexes after orderSchema definition
+orderSchema.index({ donorUsername: 1, userUsername: 1 });
+orderSchema.index({ deliveryBoy: 1 });
+orderSchema.index({ deliveryBoyName: 1 });
+orderSchema.index({ status: 1 });
+orderSchema.index({ timestamp: -1 });
+orderSchema.index({ pickupLocationCoordinates: '2dsphere' });
+orderSchema.index({ post_id: 1 });
+
 // Pre-save middleware to validate references
 orderSchema.pre("save", async function (next) {
     try {

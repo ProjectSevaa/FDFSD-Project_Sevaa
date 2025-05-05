@@ -36,4 +36,11 @@ deliveryBoySchema.pre("save", async function (next) {
 
 deliveryBoySchema.index({ currentLocation: "2dsphere" });
 
+// Add these indexes after deliveryBoySchema definition
+deliveryBoySchema.index({ deliveryBoyName: 1 }, { unique: true });
+deliveryBoySchema.index({ mobileNumber: 1 });
+deliveryBoySchema.index({ status: 1 });
+deliveryBoySchema.index({ currentLocation: '2dsphere' });
+deliveryBoySchema.index({ deliveredOrders: -1 });
+
 export const DeliveryBoy = mongoose.model("DeliveryBoy", deliveryBoySchema);

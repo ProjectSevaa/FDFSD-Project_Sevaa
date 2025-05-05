@@ -43,7 +43,7 @@ import {
  * @swagger
  * /order/assignOrder:
  *   post:
- *     summary: Assign an order to a delivery boy
+ *     summary: Assign order to delivery boy
  *     tags: [Orders]
  *     security:
  *       - cookieAuth: []
@@ -52,14 +52,24 @@ import {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Order'
+ *             type: object
+ *             required:
+ *               - requestId
+ *               - deliveryBoyId
+ *             properties:
+ *               requestId:
+ *                 type: string
+ *               deliveryBoyId:
+ *                 type: string
+ *               deliveryLocation:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Order assigned successfully
- *
+ * 
  * /order/setOrderDelivered:
  *   post:
- *     summary: Mark order as delivered with proof
+ *     summary: Mark order as delivered
  *     tags: [Orders]
  *     security:
  *       - cookieAuth: []

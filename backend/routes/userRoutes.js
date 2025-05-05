@@ -56,6 +56,46 @@ import { Donor } from "../models/donor.js";
  *     responses:
  *       200:
  *         description: User statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 donorOrdersCount:
+ *                   type: integer
+ *                 deliveredOrdersCount:
+ *                   type: integer
+ *                 registeredDeliveryBoysCount:
+ *                   type: integer
+ *                 rating:
+ *                   type: number
+ *       401:
+ *         description: Unauthorized
+ * 
+ * /user/update-user-location/{userId}:
+ *   post:
+ *     summary: Update user location
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               coordinates:
+ *                 type: array
+ *                 items:
+ *                   type: number
+ *     responses:
+ *       200:
+ *         description: Location updated successfully
  */
 
 const __dirname = path.resolve();

@@ -45,7 +45,7 @@ import {
  * @swagger
  * /post/createPost:
  *   post:
- *     summary: Create a new donation post
+ *     summary: Create a new food donation post
  *     tags: [Posts]
  *     security:
  *       - cookieAuth: []
@@ -54,26 +54,45 @@ import {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Post'
+ *             type: object
+ *             required:
+ *               - availableFood
+ *               - location
+ *               - currentlocation
+ *             properties:
+ *               availableFood:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               location:
+ *                 type: string
+ *               currentlocation:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     enum: [Point]
+ *                   coordinates:
+ *                     type: array
+ *                     items:
+ *                       type: number
  *     responses:
  *       201:
  *         description: Post created successfully
- *       401:
- *         description: Unauthorized
- *
+ * 
  * /post/getAllPosts:
  *   get:
- *     summary: Get all donation posts
+ *     summary: Get all posts
  *     tags: [Posts]
+ *     parameters:
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [timestamp, distance]
  *     responses:
  *       200:
- *         description: List of all posts
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Post'
+ *         description: List of posts retrieved successfully
  */
 
 const router = express.Router();
