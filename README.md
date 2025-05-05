@@ -72,7 +72,7 @@ This project consists of a **Backend** and a **Frontend** built to work together
     - **In Development Mode** (with Nodemon):
 
         ```bash
-        npm run devStart
+        npm run dev
         ```
 
     - **In Production Mode**:
