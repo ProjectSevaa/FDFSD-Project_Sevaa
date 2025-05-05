@@ -42,13 +42,6 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-// Add these indexes after userSchema definition and before model creation
-userSchema.index({ username: 1 }, { unique: true });
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ 'address.coordinates': '2dsphere' });
-userSchema.index({ mobileNumber: 1 });
-userSchema.index({ rating: -1 });
-
 // Pre-save hook to hash password and update delivery boy count
 userSchema.pre("save", async function (next) {
     const user = this;

@@ -65,11 +65,4 @@ requestSchema.pre('save', async function (next) {
     }
 });
 
-requestSchema.index({ donorUsername: 1, userUsername: 1 });
-requestSchema.index({ post_id: 1 });
-requestSchema.index({ timestamp: -1 });
-requestSchema.index({ isAccepted: 1 });
-requestSchema.index({ deliveryAssigned: 1 });
-requestSchema.index({ isRejected: 1 });
-
 export const Request = mongoose.model("Request", requestSchema);
