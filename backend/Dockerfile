@@ -26,7 +26,12 @@ USER node
 ENV NODE_ENV=production
 ENV PORT=9500
 
-# Pass Redis environment variables
+# Pass Redis environment variables explicitly
+ARG REDIS_HOST
+ARG REDIS_PORT
+ARG REDIS_PASSWORD
+ARG REDIS_TLS
+
 ENV REDIS_HOST=${REDIS_HOST}
 ENV REDIS_PORT=${REDIS_PORT}
 ENV REDIS_PASSWORD=${REDIS_PASSWORD}
