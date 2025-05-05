@@ -1,21 +1,24 @@
 import Redis from "ioredis";
 
-const redisClient = process.env.NODE_ENV === "test"
-    ? {
-        get: async () => null,
-        set: async () => null,
-        status: "ready"
-    }
-    : new Redis({
-        host: process.env.REDIS_HOST || "127.0.0.1", // Changed from localhost to 127.0.0.1
-        port: process.env.REDIS_PORT || 6379,
-        retryStrategy: (times) => {
-            const delay = Math.min(times * 50, 2000);
-            return times >= 3 ? null : delay; // Stop retrying after 3 attempts
-        },
-        maxRetriesPerRequest: 1,
-        connectTimeout: 10000, // 10 second timeout
-    });
+const redisClient =
+    process.env.NODE_ENV === "test"
+        ? {
+              get: async () => null,
+              set: async () => null,
+              status: "ready",
+          }
+        : new Redis({
+              host: process.env.REDIS_HOST || "127.0.0.1",
+              port: process.env.REDIS_PORT || 6379,
+              password: process.env.REDIS_PASSWORD || null,
+              tls: process.env.REDIS_TLS === "true" ? {} : undefined, // Enable TLS if specified
+              retryStrategy: (times) => {
+                  const delay = Math.min(times * 50, 2000);
+                  return times >= 3 ? null : delay; // Stop retrying after 3 attempts
+              },
+              maxRetriesPerRequest: 1,
+              connectTimeout: 10000, // 10 second timeout
+          });
 
 if (process.env.NODE_ENV !== "test") {
     redisClient.on("connect", () => {

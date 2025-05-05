@@ -7,6 +7,7 @@ import { Star, StarHalf } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Speedometer } from "@/components/speedometer";
+import { BASE_URL } from "@/constants";
 
 export function HomeSection() {
     const [stats, setStats] = useState({
@@ -34,7 +35,8 @@ export function HomeSection() {
     const fetchStats = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch("http://localhost:9500/user/stats", {
+            const response = await fetch(`${BASE_URL}/user/stats`, {
+                method: "GET",
                 credentials: "include",
             });
 
@@ -74,7 +76,7 @@ export function HomeSection() {
         }
     };
 
-    const renderStars = (rating) => {
+    const renderStars = (rating: number) => {
         const fullStars = Math.floor(rating);
         const halfStar = rating % 1 >= 0.5;
         const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);

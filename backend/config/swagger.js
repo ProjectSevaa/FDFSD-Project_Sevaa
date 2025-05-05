@@ -15,7 +15,7 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:9500",
+                url: "https://fdfsd-project-sevaa.onrender.com",
                 description: "Development server",
             },
         ],

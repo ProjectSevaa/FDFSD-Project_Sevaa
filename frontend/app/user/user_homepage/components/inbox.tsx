@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Search, User } from "lucide-react";
 import Cookies from "js-cookie";
+import { BASE_URL } from "@/constants";
 
 interface Request {
     _id: string;
@@ -44,15 +45,12 @@ export function InboxSection() {
             setIsLoading(true);
             setError(null);
 
-            const response = await fetch(
-                "http://localhost:9500/request/getAllDonors",
-                {
-                    credentials: "include",
-                    headers: {
-                        Accept: "application/json",
-                    },
-                }
-            );
+            const response = await fetch(`${BASE_URL}/request/getAllDonors`, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
 
             if (!response.ok) {
                 if (
@@ -88,7 +86,7 @@ export function InboxSection() {
             setError(null);
 
             const response = await fetch(
-                `http://localhost:9500/request/getRequests?donor=${donorUsername}`,
+                `${BASE_URL}/request/getRequests?donor=${donorUsername}`,
                 {
                     credentials: "include",
                     headers: {

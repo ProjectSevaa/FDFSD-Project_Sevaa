@@ -30,10 +30,17 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Enable CORS with credentials
+const allowedOrigins = [
+    "https://frontend-delta-eight-38.vercel.app",
+    "https://frontend-e7abrx4i9-abhiramkothagundus-projects.vercel.app",
+    "http://localhost:3000",
+];
+
 app.use(
     cors({
-        origin: "http://localhost:3000",
+        origin: allowedOrigins,
         credentials: true,
+        exposedHeaders: ["Set-Cookie"],
     })
 );
 

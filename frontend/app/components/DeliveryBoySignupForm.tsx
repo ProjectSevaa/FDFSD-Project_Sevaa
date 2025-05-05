@@ -2,8 +2,15 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { BASE_URL } from "@/constants";
 
-const DeliveryBoySignupForm: React.FC = () => {
+interface DeliveryBoySignupFormProps {
+    toggleForm: () => void; // Add the toggleForm prop
+}
+
+const DeliveryBoySignupForm: React.FC<DeliveryBoySignupFormProps> = ({
+    toggleForm,
+}) => {
     const [deliveryBoyName, setDeliveryBoyName] = useState("");
     const [mobileNumber, setMobileNumber] = useState("");
     const [password, setPassword] = useState("");
@@ -58,7 +65,7 @@ const DeliveryBoySignupForm: React.FC = () => {
 
         try {
             const response = await fetch(
-                "http://localhost:9500/deliveryboy/createDeliveryBoy",
+                `${BASE_URL}/deliveryboy/createDeliveryBoy`,
                 {
                     method: "POST",
                     headers: {
@@ -183,6 +190,7 @@ const DeliveryBoySignupForm: React.FC = () => {
                     Get Current Location
                 </Button>
                 <Button type="submit">Sign Up</Button>
+                <button onClick={toggleForm}>Cancel</button>
             </form>
         </div>
     );

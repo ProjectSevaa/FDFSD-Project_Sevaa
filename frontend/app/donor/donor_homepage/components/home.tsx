@@ -4,6 +4,7 @@ import { useUser } from "@/context/UserContext"; // Import the useUser hook
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, StarHalf, Star as StarOutline } from "lucide-react"; // Ensure correct import
+import { BASE_URL } from "@/constants";
 
 export function HomeSection() {
     const [stats, setStats] = useState({ donationsCount: 0, rating: 0 });
@@ -14,7 +15,7 @@ export function HomeSection() {
             const fetchStats = async () => {
                 try {
                     const response = await axios.get(
-                        `http://localhost:9500/donor/donorStats/${email}`
+                        `${BASE_URL}/donor/donorStats/${email}`
                     );
                     setStats(response.data.stats);
                 } catch (error) {
@@ -26,7 +27,7 @@ export function HomeSection() {
         }
     }, [email]);
 
-    const renderStars = (rating) => {
+    const renderStars = (rating: number) => {
         const fullStars = Math.floor(rating);
         const halfStar = rating % 1 >= 0.5;
         const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);

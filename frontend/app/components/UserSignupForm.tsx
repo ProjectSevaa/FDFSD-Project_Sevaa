@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"; // Importing Label component
 import { Input } from "@/components/ui/input"; // Importing Input component
 import { toast } from "@/hooks/use-toast"; // Assuming you have a toast component
 import { cn } from "@/lib/utils"; // Utility for conditional class names
+import { BASE_URL } from "@/constants"; // Importing BASE_URL
 
 // Zod schema for form validation
 const FormSchema = z.object({
@@ -72,17 +73,14 @@ const UserSignupForm: React.FC<UserSignupFormProps> = ({ toggleForm }) => {
 
     const onSubmit = async (data: FormSchemaType) => {
         try {
-            const response = await fetch(
-                "http://localhost:9500/auth/userSignup",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await fetch(`${BASE_URL}/auth/userSignup`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(data),
+            });
 
             if (response.ok) {
                 toast({

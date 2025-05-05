@@ -42,6 +42,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
+import { BASE_URL } from "@/constants";
 
 type User = {
     _id: string;
@@ -118,16 +119,16 @@ export function AdminDashboard() {
                 adminsResponse,
                 donorsResponse,
             ] = await Promise.all([
-                fetch("http://localhost:9500/admin/admin_dashboard", {
+                fetch(`${BASE_URL}/admin/admin_dashboard`, {
                     credentials: "include",
                 }),
-                fetch("http://localhost:9500/admin/getModerators", {
+                fetch(`${BASE_URL}/admin/getModerators`, {
                     credentials: "include",
                 }),
-                fetch("http://localhost:9500/admin/getAdmins", {
+                fetch(`${BASE_URL}/admin/getAdmins`, {
                     credentials: "include",
                 }),
-                fetch("http://localhost:9500/admin/getDonors", {
+                fetch(`${BASE_URL}/admin/getDonors`, {
                     credentials: "include",
                 }),
             ]);
@@ -165,7 +166,7 @@ export function AdminDashboard() {
     async function fetchLogs() {
         try {
             const response = await fetch(
-                `http://localhost:9500/admin/logs?type=${selectedLogType}&username=all&hours=${logTimeframe}`,
+                `${BASE_URL}/admin/logs?type=${selectedLogType}&username=all&hours=${logTimeframe}`,
                 { credentials: "include" }
             );
             if (!response.ok) throw new Error("Failed to fetch logs");
@@ -183,12 +184,9 @@ export function AdminDashboard() {
 
     async function fetchLogTypes() {
         try {
-            const response = await fetch(
-                "http://localhost:9500/admin/log-types",
-                {
-                    credentials: "include",
-                }
-            );
+            const response = await fetch(`${BASE_URL}/admin/log-types`, {
+                credentials: "include",
+            });
             if (!response.ok) throw new Error("Failed to fetch log types");
             const data = await response.json();
             setLogTypes(data.types || []);
@@ -204,8 +202,8 @@ export function AdminDashboard() {
     ) {
         try {
             const url = isDonor
-                ? `http://localhost:9500/donor/toggleBan/${userId}`
-                : `http://localhost:9500/admin/toggleBan/${userId}`;
+                ? `${BASE_URL}/donor/toggleBan/${userId}`
+                : `${BASE_URL}/admin/toggleBan/${userId}`;
 
             const response = await fetch(url, {
                 method: "POST",
@@ -240,7 +238,7 @@ export function AdminDashboard() {
     async function changeRole(userId: string, newRole: string) {
         try {
             const response = await fetch(
-                `http://localhost:9500/admin/changeRole/${userId}`,
+                `${BASE_URL}/admin/changeRole/${userId}`,
                 {
                     method: "POST",
                     headers: {
@@ -273,7 +271,7 @@ export function AdminDashboard() {
     async function fetchDonorDetails(username: string) {
         try {
             const response = await fetch(
-                `http://localhost:9500/admin/donor/${username}`,
+                `${BASE_URL}/admin/donor/${username}`,
                 { credentials: "include" }
             );
             if (!response.ok) throw new Error("Failed to fetch donor details");

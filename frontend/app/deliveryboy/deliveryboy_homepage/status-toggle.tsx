@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import Cookies from "js-cookie";
+import { BASE_URL } from "@/constants";
 
 interface StatusToggleProps {
     deliveryBoy: {
@@ -23,7 +24,7 @@ export function StatusToggle({
         try {
             // Using the correct endpoint from backend routes
             const response = await fetch(
-                `http://localhost:9500/deliveryboy/toggle-status/${deliveryBoy._id}`,
+                `${BASE_URL}/deliveryboy/toggle-status/${deliveryBoy._id}`,
                 {
                     method: "PATCH",
                     headers: {

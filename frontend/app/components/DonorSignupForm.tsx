@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { BASE_URL } from "@/constants";
 
 // Zod schema for form validation
 const DonorFormSchema = z.object({
@@ -77,17 +78,14 @@ const DonorSignupForm: React.FC<DonorSignupFormProps> = ({ toggleForm }) => {
 
     const onSubmit = async (data: DonorFormSchemaType) => {
         try {
-            const response = await fetch(
-                "http://localhost:9500/auth/donorSignup",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await fetch(`${BASE_URL}/auth/donorSignup`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(data),
+            });
 
             if (response.ok) {
                 toast({

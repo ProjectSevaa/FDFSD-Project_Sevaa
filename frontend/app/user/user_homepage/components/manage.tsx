@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/hover-card";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { BASE_URL } from "@/constants";
 
 interface AcceptedRequest {
     _id: string;
@@ -114,7 +115,7 @@ export function ManageSection() {
         try {
             setIsLoading(true);
             const response = await fetch(
-                "http://localhost:9500/request/getAcceptedRequests",
+                `${BASE_URL}/request/getAcceptedRequests`,
                 {
                     method: "GET",
                     credentials: "include",
@@ -142,7 +143,7 @@ export function ManageSection() {
     const fetchNearbyDeliveryBoys = async (postId: string) => {
         try {
             const response = await fetch(
-                `http://localhost:9500/deliveryboy/findNearbyPosts?postId=${postId}`,
+                `${BASE_URL}/deliveryboy/findNearbyPosts?postId=${postId}`,
                 {
                     method: "GET",
                     credentials: "include",
@@ -177,21 +178,18 @@ export function ManageSection() {
         }
 
         try {
-            const response = await fetch(
-                "http://localhost:9500/order/assignOrder",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        requestId: selectedRequest._id,
-                        deliveryBoyId: selectedDeliveryBoy,
-                        deliveryLocation,
-                    }),
-                }
-            );
+            const response = await fetch(`${BASE_URL}/order/assignOrder`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    requestId: selectedRequest._id,
+                    deliveryBoyId: selectedDeliveryBoy,
+                    deliveryLocation,
+                }),
+            });
 
             const data = await response.json();
 
@@ -214,7 +212,10 @@ export function ManageSection() {
             console.log("Error assigning order:", error);
             toast({
                 title: "Error",
-                description: error.message || "Failed to assign order",
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to assign order",
                 variant: "destructive",
             });
         }
@@ -222,13 +223,10 @@ export function ManageSection() {
 
     const fetchAssignedOrders = async () => {
         try {
-            const response = await fetch(
-                "http://localhost:9500/order/getOrders",
-                {
-                    method: "GET",
-                    credentials: "include",
-                }
-            );
+            const response = await fetch(`${BASE_URL}/order/getOrders`, {
+                method: "GET",
+                credentials: "include",
+            });
 
             if (!response.ok) {
                 throw new Error("Failed to fetch assigned orders");
@@ -259,7 +257,7 @@ export function ManageSection() {
     const fetchAvailableDeliveryBoys = async () => {
         try {
             const response = await fetch(
-                `http://localhost:9500/deliveryboy/getMyDeliveryBoys`,
+                `${BASE_URL}/deliveryboy/getMyDeliveryBoys`,
                 {
                     method: "GET",
                     credentials: "include",

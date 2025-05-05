@@ -4,11 +4,11 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /usr/src/app
 
-# Install dependencies first (better caching)
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install all dependencies including devDependencies
-RUN npm install
+# Install production dependencies only
+RUN npm install --production
 
 # Copy the rest of the application
 COPY . .
@@ -26,9 +26,19 @@ USER node
 ENV NODE_ENV=production
 ENV PORT=9500
 
+# Pass Redis environment variables explicitly
+ARG REDIS_HOST
+ARG REDIS_PORT
+ARG REDIS_PASSWORD
+ARG REDIS_TLS
+
+ENV REDIS_HOST=${REDIS_HOST}
+ENV REDIS_PORT=${REDIS_PORT}
+ENV REDIS_PASSWORD=${REDIS_PASSWORD}
+ENV REDIS_TLS=${REDIS_TLS}
+
 # Expose the application port
 EXPOSE 9500
 
-# Remove the healthcheck as it's causing issues
 # Start the application
 CMD ["npm", "start"]

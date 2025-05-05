@@ -46,8 +46,9 @@ export const loginUser = async (req, res) => {
 
         res.cookie("user_jwt", token, {
             httpOnly: true,
+            secure: true, // Required for cross-origin HTTPS
+            sameSite: "none", // Required for cross-origin
             maxAge: 3600000,
-            secure: process.env.NODE_ENV === "production",
         });
 
         console.log("Login successful");
@@ -94,8 +95,9 @@ export const loginDonor = async (req, res) => {
 
         res.cookie("donor_jwt", token, {
             httpOnly: true,
+            secure: true, // Required for cross-origin HTTPS
+            sameSite: "none", // Required for cross-origin
             maxAge: 3600000,
-            secure: process.env.NODE_ENV === "production",
         });
 
         res.status(200).json({
@@ -153,8 +155,9 @@ export const loginDel = async (req, res) => {
 
         res.cookie("deliveryboy_jwt", token, {
             httpOnly: true,
+            secure: true, // Required for cross-origin HTTPS
+            sameSite: "none", // Required for cross-origin
             maxAge: 3600000,
-            secure: process.env.NODE_ENV === "production",
         });
 
         console.log("Login successful");
