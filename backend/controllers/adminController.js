@@ -47,7 +47,7 @@ export const loginAdmin = async (req, res) => {
         res.cookie("admin_jwt", token, {
             httpOnly: true,
             secure: true, // Required for cross-origin HTTPS
-            same_site: "none", // Required for cross-origin
+            sameSite: "none", // Required for cross-origin
             maxAge: 3600000,
         });
 
