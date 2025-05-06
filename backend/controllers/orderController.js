@@ -101,7 +101,7 @@ export const assignOrder = async (req, res) => {
             post_id: request.post_id,
             pickupLocation: post.location || "N/A",
             pickupLocationCoordinates: {
-                type: post.currentlocation.type,
+                type: "Point",
                 coordinates: post.currentlocation.coordinates,
             },
             deliveryLocation,
@@ -345,19 +345,20 @@ export const setOrderDelivered = [
 
             // Update user and delivery boy stats
             const [user, deliveryBoy] = await Promise.all([
-                User.findOne({ username: order.userUsername }),
-                DeliveryBoy.findOne({ deliveryBoyName: decoded.username }),
+                User.findOneAndUpdate(
+                    { username: order.userUsername },
+                    { $inc: { deliveredOrdersCount: 1 } },
+                    { new: true, runValidators: false }
+                ),
+                DeliveryBoy.findOne({ deliveryBoyName: decoded.username })
             ]);
 
-            if (user) {
-                user.deliveredOrdersCount =
-                    (user.deliveredOrdersCount || 0) + 1;
-                await user.save();
+            if (!user) {
+                throw new Error("User not found");
             }
 
             if (deliveryBoy) {
-                deliveryBoy.deliveredOrders =
-                    (deliveryBoy.deliveredOrders || 0) + 1;
+                deliveryBoy.deliveredOrders = (deliveryBoy.deliveredOrders || 0) + 1;
                 deliveryBoy.status = "available";
                 await deliveryBoy.save();
             }

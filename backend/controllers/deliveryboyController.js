@@ -60,6 +60,14 @@ export const findNearbyPosts = async (req, res) => {
             return res.status(404).json({ message: "Post not found" });
         }
 
+        // Validate post coordinates
+        if (!post.currentlocation || !post.currentlocation.coordinates || !Array.isArray(post.currentlocation.coordinates) || post.currentlocation.coordinates.length !== 2) {
+            return res.status(400).json({ 
+                message: "Invalid post coordinates",
+                details: "Post location coordinates are missing or invalid"
+            });
+        }
+
         const [postLongitude, postLatitude] = post.currentlocation.coordinates;
 
         console.log(postLatitude, postLongitude);
@@ -69,11 +77,20 @@ export const findNearbyPosts = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // Check if user has any delivery boys assigned
+        if (!user.deliveryBoys || user.deliveryBoys.length === 0) {
+            return res.status(200).json({ 
+                closestDeliveryBoys: [],
+                message: "No delivery boys assigned to this user"
+            });
+        }
+
         const deliveryBoyIds = user.deliveryBoys; // List of ObjectIds for delivery boys
 
         // Fetch all delivery boys whose IDs match the ones in user.deliveryBoys without using populate
         const deliveryBoys = await DeliveryBoy.find({
             _id: { $in: deliveryBoyIds },
+            status: "available" // Only get available delivery boys
         });
         if (deliveryBoys.length === 0) {
             return res.status(404).json({ message: "No delivery boys found." });

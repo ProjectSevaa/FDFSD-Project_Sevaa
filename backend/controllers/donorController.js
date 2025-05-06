@@ -119,7 +119,13 @@ export const getDonorPosts = async (req, res) => {
             timestamp: -1,
         });
 
-        res.status(200).json(posts);
+        // Ensure isDealClosed is properly set for each post
+        const formattedPosts = posts.map(post => ({
+            ...post.toObject(),
+            isDealClosed: post.isDealClosed || false
+        }));
+
+        res.status(200).json(formattedPosts);
     } catch (error) {
         console.error("Error in getDonorPosts:", error);
         res.status(500).json({

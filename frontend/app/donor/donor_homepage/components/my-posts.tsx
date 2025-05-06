@@ -81,7 +81,9 @@ export function MyPostsSection() {
             }
 
             const data = await response.json();
-            setPosts(data);
+            // Check if data is an array directly or nested in a property
+            const postsData = Array.isArray(data) ? data : data.posts || [];
+            setPosts(postsData);
         } catch (err) {
             console.log("Error fetching posts:", err);
             toast({
@@ -138,10 +140,6 @@ export function MyPostsSection() {
             }
 
             const data = await response.json();
-            
-            if (!data.success) {
-                throw new Error(data.message || "Failed to accept request");
-            }
 
             toast({
                 title: "Success",
@@ -158,13 +156,13 @@ export function MyPostsSection() {
             );
 
             // Update the posts to reflect the closed deal
-            setPosts((prevPosts) =>
-                prevPosts.map((post) =>
-                    post._id === data.post_id
+            setPosts((prevPosts: Post[]) => {
+                return prevPosts.map((post: Post) =>
+                    post._id === data.updatedRequest.post_id
                         ? { ...post, isDealClosed: true }
                         : post
-                )
-            );
+                );
+            });
         } catch (err) {
             console.log("Error accepting request:", err);
             toast({

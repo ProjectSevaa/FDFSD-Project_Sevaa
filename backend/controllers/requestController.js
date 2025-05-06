@@ -155,20 +155,8 @@ export const acceptRequest = async (req, res) => {
 
         // Respond with the updated request and donor data
         res.json({
-            success: true,
-            message: "Request accepted successfully",
-            _id: requestId,
-            post_id: postId,
-            updatedRequest: {
-                _id: requestId,
-                post_id: postId,
-                userUsername: userUsername,
-                donorUsername: donorUsername,
-                isAccepted: true,
-                isRejected: false,
-                availableFood: acceptedRequest.availableFood,
-                location: acceptedRequest.location
-            },
+            message: "Request accepted and donor data updated",
+            updatedRequest,
             donor: {
                 username: donor.username,
                 donationsCount: donor.donationsCount,
