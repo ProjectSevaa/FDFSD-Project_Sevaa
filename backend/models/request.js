@@ -43,9 +43,16 @@ const requestSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-
-
 });
+
+// Define indexes before model creation
+requestSchema.index({ donorUsername: 1 });
+requestSchema.index({ userUsername: 1 });
+requestSchema.index({ timestamp: -1 });
+requestSchema.index({ isAccepted: 1 });
+requestSchema.index({ isRejected: 1 });
+requestSchema.index({ deliveryAssigned: 1 });
+requestSchema.index({ post_id: 1 });
 
 requestSchema.pre('save', async function (next) {
     try {
@@ -66,8 +73,3 @@ requestSchema.pre('save', async function (next) {
 });
 
 export const Request = mongoose.model("Request", requestSchema);
-
-// Add indexes for better query performance
-requestSchema.index({ donorUsername: 1 });
-requestSchema.index({ userUsername: 1 });
-requestSchema.index({ timestamp: -1 });

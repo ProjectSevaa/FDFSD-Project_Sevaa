@@ -58,6 +58,8 @@ orderSchema.index({ userUsername: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ timestamp: -1 });
 orderSchema.index({ pickupLocationCoordinates: "2dsphere" });
+orderSchema.index({ status: 1, timestamp: -1 }); // Compound index for status and time
+orderSchema.index({ deliveryBoy: 1, status: 1 }); // Compound index for delivery boy's orders
 
 // Pre-save middleware to validate references
 orderSchema.pre("save", async function (next) {

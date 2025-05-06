@@ -22,6 +22,16 @@ const deliveryBoySchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+// Define indexes before model creation
+deliveryBoySchema.index({ deliveryBoyName: 1 }, { unique: true });
+deliveryBoySchema.index({ mobileNumber: 1 });
+deliveryBoySchema.index({ vehicleNo: 1 });
+deliveryBoySchema.index({ drivingLicenseNo: 1 });
+deliveryBoySchema.index({ status: 1 });
+deliveryBoySchema.index({ deliveredOrders: -1 });
+deliveryBoySchema.index({ currentLocation: "2dsphere" });
+deliveryBoySchema.index({ createdAt: -1 }); // For sorting by creation time
+
 deliveryBoySchema.pre("save", async function (next) {
     const user = this;
     if (!user.isModified("password")) return next();
@@ -33,7 +43,5 @@ deliveryBoySchema.pre("save", async function (next) {
         return next(error);
     }
 });
-
-deliveryBoySchema.index({ currentLocation: "2dsphere" });
 
 export const DeliveryBoy = mongoose.model("DeliveryBoy", deliveryBoySchema);
