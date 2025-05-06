@@ -574,9 +574,7 @@ export function ManageSection() {
                                                                     <strong>
                                                                         Coordinates:
                                                                     </strong>{" "}
-                                                                    {order.pickupLocationCoordinates.coordinates.join(
-                                                                        ", "
-                                                                    )}
+                                                                    {order.pickupLocationCoordinates?.coordinates?.join(", ") || "Not available"}
                                                                 </p>
                                                             </HoverCardContent>
                                                         </HoverCard>
