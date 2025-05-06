@@ -34,4 +34,14 @@ donorSchema.pre('save', async function (next) {
   }
 });
 
+// Add indexes for better query performance
+donorSchema.index({ username: 1 }, { unique: true }); // For username lookups
+donorSchema.index({ email: 1 }, { unique: true }); // For email lookups
+donorSchema.index({ mobileNumber: 1 }); // For mobile number lookups
+donorSchema.index({ isBanned: 1 }); // For filtering banned donors
+donorSchema.index({ rating: -1 }); // For sorting by rating
+donorSchema.index({ donationsCount: -1 }); // For sorting by donation count
+donorSchema.index({ "address.pincode": 1 }); // For location-based queries
+donorSchema.index({ rating: -1, donationsCount: -1 }); // Compound index for top donors
+
 export const Donor = mongoose.model('Donor', donorSchema);

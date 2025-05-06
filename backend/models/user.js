@@ -61,4 +61,14 @@ userSchema.pre("save", async function (next) {
     }
 });
 
+// Add indexes for better query performance
+userSchema.index({ username: 1 }, { unique: true }); // For username lookups
+userSchema.index({ email: 1 }, { unique: true }); // For email lookups
+userSchema.index({ mobileNumber: 1 }); // For mobile number lookups
+userSchema.index({ "address.coordinates": "2dsphere" }); // For geospatial queries
+userSchema.index({ rating: -1 }); // For sorting by rating
+userSchema.index({ donorOrdersCount: -1 }); // For sorting by order count
+userSchema.index({ deliveredOrdersCount: -1 }); // For sorting by delivered orders
+userSchema.index({ registeredDeliveryBoysCount: -1 }); // For sorting by delivery boys count
+
 export const User = mongoose.model("User", userSchema);

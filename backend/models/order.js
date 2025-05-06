@@ -83,4 +83,12 @@ orderSchema.pre("save", async function (next) {
     }
 });
 
+// Add indexes for better query performance
+orderSchema.index({ timestamp: -1 }); // For sorting by timestamp
+orderSchema.index({ status: 1 }); // For filtering by status
+orderSchema.index({ status: 1, timestamp: -1 }); // Compound index for orders by status and time
+orderSchema.index({ donorUsername: 1, timestamp: -1 }); // For donor's order history
+orderSchema.index({ userUsername: 1, timestamp: -1 }); // For user's order history
+orderSchema.index({ deliveryBoy: 1, timestamp: -1 }); // For delivery boy's order history
+
 export const Order = mongoose.model("Order", orderSchema);

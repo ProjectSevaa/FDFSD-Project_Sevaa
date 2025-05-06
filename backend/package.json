@@ -128,7 +128,9 @@
     "scripts": {
         "test": "set NODE_ENV=test&& node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js --detectOpenHandles --forceExit",
         "start": "node app.js",
-        "dev": "nodemon app.js"
+        "dev": "nodemon app.js",
+        "check-indexes": "node scripts/checkIndexes.js",
+        "check-all-indexes": "node scripts/checkAllIndexes.js"
     },
     "jest": {
         "testEnvironment": "node",

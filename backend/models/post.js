@@ -43,4 +43,10 @@ postSchema.pre('save', async function (next) {
     }
 });
 
+// Add indexes for better query performance
+postSchema.index({ timestamp: -1 }); // For sorting by timestamp
+postSchema.index({ isDealClosed: 1 }); // For filtering active posts
+postSchema.index({ currentlocation: "2dsphere" }); // For geospatial queries
+postSchema.index({ isDealClosed: 1, timestamp: -1 }); // Compound index for active posts sorted by time
+
 export const Post = mongoose.model("Post", postSchema);

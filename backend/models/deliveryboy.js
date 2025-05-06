@@ -34,6 +34,15 @@ deliveryBoySchema.pre("save", async function (next) {
     }
 });
 
-deliveryBoySchema.index({ currentLocation: "2dsphere" });
+// Add indexes for better query performance
+deliveryBoySchema.index({ currentLocation: "2dsphere" }); // For geospatial queries
+deliveryBoySchema.index({ deliveryBoyName: 1 }, { unique: true }); // For name lookups
+deliveryBoySchema.index({ mobileNumber: 1 }); // For mobile number lookups
+deliveryBoySchema.index({ vehicleNo: 1 }); // For vehicle number lookups
+deliveryBoySchema.index({ drivingLicenseNo: 1 }); // For license number lookups
+deliveryBoySchema.index({ status: 1 }); // For filtering by status
+deliveryBoySchema.index({ deliveredOrders: -1 }); // For sorting by delivery count
+deliveryBoySchema.index({ status: 1, deliveredOrders: -1 }); // Compound index for active delivery boys
+deliveryBoySchema.index({ createdAt: -1 }); // For sorting by registration date
 
 export const DeliveryBoy = mongoose.model("DeliveryBoy", deliveryBoySchema);

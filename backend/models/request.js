@@ -43,9 +43,14 @@ const requestSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-
-
 });
+
+// Add indexes for better query performance
+requestSchema.index({ isAccepted: 1, isRejected: 1 }); // For filtering requests by status
+requestSchema.index({ timestamp: -1 }); // For sorting by timestamp
+requestSchema.index({ donorUsername: 1, timestamp: -1 }); // For donor's request history
+requestSchema.index({ userUsername: 1, timestamp: -1 }); // For user's request history
+requestSchema.index({ isAccepted: 1, isRejected: 1, timestamp: -1 }); // Compound index for status and time
 
 requestSchema.pre('save', async function (next) {
     try {
