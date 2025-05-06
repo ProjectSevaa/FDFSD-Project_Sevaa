@@ -79,8 +79,13 @@ export function RequestsSection() {
                     donorEmail: values.donorEmail,
                     location: values.location,
                     availableFood: values.availableFood,
-                    longitude: values.longitude,
-                    latitude: values.latitude,
+                    currentlocation: {
+                        type: "Point",
+                        coordinates: [
+                            parseFloat(values.longitude || "0"),
+                            parseFloat(values.latitude || "0")
+                        ]
+                    }
                 }),
             });
 

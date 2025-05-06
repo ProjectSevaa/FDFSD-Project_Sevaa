@@ -85,3 +85,7 @@
 ::ffff:127.0.0.1 - - [11/Mar/2025:21:23:11 +0000] "GET /donor/donorStats/sam@food.in HTTP/1.1" 200 57 "http://localhost:3000/" "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0"
 ::ffff:127.0.0.1 - - [11/Mar/2025:21:23:12 +0000] "GET /donor/getDonorPosts HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0"
 ::ffff:127.0.0.1 - - [11/Mar/2025:21:23:12 +0000] "GET /donor/getDonorPosts HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0"
+::1 - - [06/May/2025:06:56:06 +0000] "GET /donor/donorStats/sam@food.in HTTP/1.1" 200 57 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+::1 - - [06/May/2025:06:56:06 +0000] "GET /donor/donorStats/sam@food.in HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+::1 - - [06/May/2025:06:59:53 +0000] "GET /donor/donorStats/sam@food.in HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+::1 - - [06/May/2025:07:01:54 +0000] "GET /donor/donorStats/sam@food.in HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"

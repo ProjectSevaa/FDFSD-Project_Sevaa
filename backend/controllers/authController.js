@@ -95,8 +95,8 @@ export const loginDonor = async (req, res) => {
 
         res.cookie("donor_jwt", token, {
             httpOnly: true,
-            secure: true, // Required for cross-origin HTTPS
-            sameSite: "none", // Required for cross-origin
+            secure: true,
+            sameSite: "none",
             maxAge: 3600000,
         });
 
