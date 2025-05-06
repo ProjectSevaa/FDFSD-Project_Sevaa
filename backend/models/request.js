@@ -66,3 +66,8 @@ requestSchema.pre('save', async function (next) {
 });
 
 export const Request = mongoose.model("Request", requestSchema);
+
+// Add indexes for better query performance
+requestSchema.index({ donorUsername: 1 });
+requestSchema.index({ userUsername: 1 });
+requestSchema.index({ timestamp: -1 });

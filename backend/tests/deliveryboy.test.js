@@ -93,7 +93,12 @@ describe('DeliveryBoy Routes', () => {
                 userUsername: 'testuser',
                 deliveryBoy: deliveryBoy._id,
                 deliveryBoyName: 'testdeliveryboy',
-                status: 'on-going'
+                status: 'on-going',
+                pickupLocation: 'Test Location',
+                pickupLocationCoordinates: {
+                    type: 'Point',
+                    coordinates: [80.123, 16.456]
+                }
             });
 
             const response = await request(app)

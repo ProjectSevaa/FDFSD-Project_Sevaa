@@ -14,6 +14,11 @@ const modSchema = new mongoose.Schema({
     isBanned: { type: Boolean, default: false }
 });
 
+// Define indexes before model creation
+modSchema.index({ username: 1 }, { unique: true });
+modSchema.index({ email: 1 }, { unique: true });
+modSchema.index({ mobileNumber: 1 });
+modSchema.index({ role: 1 });
 
 modSchema.pre('save', async function (next) {
     const mod = this;

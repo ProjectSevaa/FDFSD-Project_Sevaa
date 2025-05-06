@@ -23,7 +23,11 @@ describe('Model Interactions Tests', () => {
                     street: "Test St",
                     townCity: "Test City",
                     state: "Test State",
-                    pincode: "123456"
+                    pincode: "123456",
+                    coordinates: {
+                        type: "Point",
+                        coordinates: [80.123, 16.456]
+                    }
                 }
             });
 

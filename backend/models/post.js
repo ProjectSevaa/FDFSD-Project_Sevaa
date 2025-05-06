@@ -27,8 +27,13 @@ const postSchema = new mongoose.Schema({
         type: { type: String, default: 'Point' },
         coordinates: { type: [Number], required: true } // [longitude, latitude]
     }
-
 });
+
+// Define indexes before model creation
+postSchema.index({ donorUsername: 1 });
+postSchema.index({ timestamp: -1 });
+postSchema.index({ currentlocation: "2dsphere" });
+postSchema.index({ isDealClosed: 1 });
 
 postSchema.pre('save', async function (next) {
     try {
