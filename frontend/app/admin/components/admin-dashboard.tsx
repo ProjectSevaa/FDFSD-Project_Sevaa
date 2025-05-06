@@ -104,10 +104,12 @@ export function AdminDashboard() {
 
     useEffect(() => {
         fetchAdminData();
+        fetchLogTypes();
+        fetchLogs();
     }, []);
 
     useEffect(() => {
-        fetchLogTypes();
+        console.log("Fetching logs with type:", selectedLogType, "timeframe:", logTimeframe);
         fetchLogs();
     }, [selectedLogType, logTimeframe]);
 
@@ -165,12 +167,14 @@ export function AdminDashboard() {
 
     async function fetchLogs() {
         try {
+            console.log("Fetching logs from:", `${BASE_URL}/admin/logs?type=${selectedLogType}&username=all&hours=${logTimeframe}`);
             const response = await fetch(
                 `${BASE_URL}/admin/logs?type=${selectedLogType}&username=all&hours=${logTimeframe}`,
                 { credentials: "include" }
             );
             if (!response.ok) throw new Error("Failed to fetch logs");
             const data = await response.json();
+            console.log("Received logs data:", data);
             setLogs(data.logs || {}); // Ensure logs is always an object
         } catch (error) {
             console.error("Error fetching logs:", error);
@@ -184,14 +188,21 @@ export function AdminDashboard() {
 
     async function fetchLogTypes() {
         try {
+            console.log("Fetching log types...");
             const response = await fetch(`${BASE_URL}/admin/log-types`, {
                 credentials: "include",
             });
             if (!response.ok) throw new Error("Failed to fetch log types");
             const data = await response.json();
+            console.log("Received log types:", data);
             setLogTypes(data.types || []);
         } catch (error) {
             console.error("Error fetching log types:", error);
+            toast({
+                title: "Error",
+                description: "Failed to fetch log types",
+                variant: "destructive",
+            });
         }
     }
 

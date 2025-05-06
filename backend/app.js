@@ -57,6 +57,13 @@ connectDB();
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 
+// Ensure log directory exists at startup
+const logBaseDir = path.join(__dirname, "log");
+if (!fs.existsSync(logBaseDir)) {
+    fs.mkdirSync(logBaseDir, { recursive: true });
+    console.log("Created log directory:", logBaseDir);
+}
+
 // Logging middleware
 const allLogsStream = createStream(
     () => {
@@ -65,7 +72,7 @@ const allLogsStream = createStream(
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         const hours = String(date.getHours()).padStart(2, "0");
-        return `${day}-${month}-${year}_${hours}-${hours + 6}_all_access.log`;
+        return `all_access.log`;
     },
     {
         interval: "6h", // rotate every 6 hours
@@ -113,9 +120,7 @@ const deliveryLogStream = createStream(
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         const hours = String(date.getHours()).padStart(2, "0");
-        return `${day}-${month}-${year}_${hours}-${
-            hours + 6
-        }_delivery_access.log`;
+        return `delivery_access.log`;
     },
     {
         interval: "6h",
@@ -132,9 +137,7 @@ const donationLogStream = createStream(
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         const hours = String(date.getHours()).padStart(2, "0");
-        return `${day}-${month}-${year}_${hours}-${
-            hours + 6
-        }_donation_access.log`;
+        return `donation_access.log`;
     },
     {
         interval: "6h",
