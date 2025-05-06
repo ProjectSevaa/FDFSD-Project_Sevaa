@@ -108,15 +108,23 @@ export const acceptRequest = async (req, res) => {
         const userUsername = acceptedRequest.userUsername;
         const donorUsername = acceptedRequest.donorUsername;
 
-        // Find the user associated with the request (using userUsername)
-        const user = await User.findOne({ username: userUsername });
+        // Update user's donorOrdersCount
+        const user = await User.findOneAndUpdate(
+            { username: userUsername },
+            { $inc: { donorOrdersCount: 1 } },
+            { new: true, runValidators: false }
+        );
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Find the donor associated with the request (using donorUsername)
-        const donor = await Donor.findOne({ username: donorUsername });
+        // Update donor's donationsCount
+        const donor = await Donor.findOneAndUpdate(
+            { username: donorUsername },
+            { $inc: { donationsCount: 1 } },
+            { new: true, runValidators: false }
+        );
 
         if (!donor) {
             return res.status(404).json({ message: "Donor not found" });
@@ -128,15 +136,6 @@ export const acceptRequest = async (req, res) => {
                 message: "Donor's name is missing. Cannot accept request.",
             });
         }
-        // Increment the user's donorOrdersCount
-        user.donorOrdersCount = (user.donorOrdersCount || 0) + 1;
-
-        // Increment the donor's donationsCount
-        donor.donationsCount = (donor.donationsCount || 0) + 1;
-
-        // Save the updated user and donor data
-        await user.save();
-        await donor.save();
 
         // Set isAccepted to true for the accepted request
         const updatedRequest = await Request.findByIdAndUpdate(
@@ -147,7 +146,7 @@ export const acceptRequest = async (req, res) => {
 
         // Reject all other requests for this post
         await Request.updateMany(
-            { post_id: postId, _id: { $ne: requestId } }, // Exclude the accepted request
+            { post_id: postId, _id: { $ne: requestId } },
             { isRejected: true }
         );
 
@@ -156,13 +155,25 @@ export const acceptRequest = async (req, res) => {
 
         // Respond with the updated request and donor data
         res.json({
-            message: "Request accepted and donor data updated",
-            updatedRequest,
+            success: true,
+            message: "Request accepted successfully",
+            _id: requestId,
+            post_id: postId,
+            updatedRequest: {
+                _id: requestId,
+                post_id: postId,
+                userUsername: userUsername,
+                donorUsername: donorUsername,
+                isAccepted: true,
+                isRejected: false,
+                availableFood: acceptedRequest.availableFood,
+                location: acceptedRequest.location
+            },
             donor: {
                 username: donor.username,
                 donationsCount: donor.donationsCount,
                 rating: donor.rating,
-                name: donor.name, // Include donor's name in response
+                name: donor.name,
             },
             user: {
                 username: user.username,

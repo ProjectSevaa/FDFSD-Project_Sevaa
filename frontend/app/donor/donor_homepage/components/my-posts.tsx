@@ -137,10 +137,15 @@ export function MyPostsSection() {
                 throw new Error("Failed to accept request");
             }
 
-            const updatedRequest = await response.json();
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.message || "Failed to accept request");
+            }
+
             toast({
                 title: "Success",
-                description: `Request accepted: ${updatedRequest._id}`,
+                description: "Request accepted successfully",
             });
 
             // Update the local state to reflect the changes
@@ -155,7 +160,7 @@ export function MyPostsSection() {
             // Update the posts to reflect the closed deal
             setPosts((prevPosts) =>
                 prevPosts.map((post) =>
-                    post._id === updatedRequest.post_id
+                    post._id === data.post_id
                         ? { ...post, isDealClosed: true }
                         : post
                 )
