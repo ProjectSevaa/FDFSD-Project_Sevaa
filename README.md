@@ -1,4 +1,4 @@
-# FDFSD-Project_Sevaa
+# Project_Sevaa
 
 This project consists of a **Backend** and a **Frontend** built to work together. The backend is built with **Node.js/Express** and the frontend is built using **Next.js**. This README will guide you through the setup, improvements, and how to run both servers.
 
